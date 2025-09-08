@@ -1,1 +1,1 @@
-This is a CST-1 Jira integration test
+This is a CST-1 Jira integration test.
