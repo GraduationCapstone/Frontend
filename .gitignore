@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+pnpm-lock.yaml
+
+# builds
+dist/
+build/
+
+# environment
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# editor
+.vscode/
+.idea/
+
+# system
+.DS_Store
+
+# optional: if using tailwind JIT cache
+.tailwindcss-cache
