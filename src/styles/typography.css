@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+@layer base {
+    body {
+        font-family: 'Pretendard', sans-serif;
+        letter-spacing: 0;
+    }
+}
+
+@layer components {
+    /* text header */
+    .text-extra-eng{
+        @apply text-[48px] leading-[72px] font-bold;
+    }
+    .text-extra-ko{
+        @apply text-[48px] leading-[72px] font-bold;
+        letter-spacing: -0.02em;
+    }
+
+    .text-h1-eng{
+        @apply text-[28px] leading-[42px] font-semibold;
+    }
+    .text-h1-ko{
+        @apply text-[28px] leading-[42px] font-semibold;
+        letter-spacing: -0.02em;
+    }
+
+    .text-h2-eng{
+        @apply text-[20px] leading-[32px] font-semibold;
+    }
+    .text-h2-ko{
+        @apply text-[20px] leading-[32px] font-semibold;
+        letter-spacing: -0.02em;
+    }
+
+    .text-h3-eng{
+        @apply text-[18px] leading-[28px] font-semibold;
+    }
+    .text-h3-ko{
+        @apply text-[18px] leading-[28px] font-semibold;
+        letter-spacing: -0.02em;
+    }
+
+    .text-h4-eng{
+        @apply text-[16px] leading-[24px] font-semibold;
+    }
+    .text-h4-ko{
+        @apply text-[16px] leading-[24px] font-semibold;
+        letter-spacing: -0.02em;
+    }
+
+    .text-h5-eng{
+        @apply text-[14px] leading-[20px] font-semibold;
+    }
+    .text-h5-ko{
+        @apply text-[14px] leading-[20px] font-semibold;
+        letter-spacing: -0.02em;
+    }
+
+
+    /* text body */
+    .text-large-eng{
+        @apply text-[18px] leading-[28px] font-medium;
+    }
+    .text-large-ko{
+        @apply text-[18px] leading-[28px] font-medium;
+        letter-spacing: -0.02em;
+    }
+
+    .text-medium-eng{
+        @apply text-[16px] leading-[24px] font-medium;
+    }
+    .text-medium-ko{
+        @apply text-[16px] leading-[24px] font-medium;
+        letter-spacing: -0.02em;
+    }
+
+    .text-regular-eng{
+        @apply text-[14px] leading-[20px] font-medium;
+    }
+    .text-regular-ko{
+        @apply text-[14px] leading-[20px] font-medium;
+        letter-spacing: -0.02em;
+    }
+
+    .text-small-eng{
+        @apply text-[12px] leading-[18px] font-medium;
+    }
+    .text-small-ko{
+        @apply text-[12px] leading-[18px] font-medium;
+        letter-spacing: -0.02em;
+    }
+}
