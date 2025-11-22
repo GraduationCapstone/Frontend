@@ -1,0 +1,93 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+@layer base {
+    body {
+        font-family: 'Pretendard', sans-serif;
+        letter-spacing: 0;
+    }
+}
+
+@layer components {
+    /* text header */
+    .text-extra-eng{
+        @apply text-[3rem] leading-[4.5rem] font-bold;
+    }
+    .text-extra-ko{
+        @apply text-[3rem] leading-[4.5rem] font-bold;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-h1-eng{
+        @apply text-[1.75rem] leading-[2.625rem] font-semibold;
+    }
+    .text-h1-ko{
+        @apply text-[1.75rem] leading-[2.625rem] font-semibold;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-h2-eng{
+        @apply text-[1.25rem] leading-[2rem] font-semibold;
+    }
+    .text-h2-ko{
+        @apply text-[1.25rem] leading-[2rem] font-semibold;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-h3-eng{
+        @apply text-[1.125rem] leading-[1.75rem] font-semibold;
+    }
+    .text-h3-ko{
+        @apply text-[1.125rem] leading-[1.75rem] font-semibold;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-h4-eng{
+        @apply text-[1rem] leading-[1.5rem] font-semibold;
+    }
+    .text-h4-ko{
+        @apply text-[1rem] leading-[1.5rem] font-semibold;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-h5-eng{
+        @apply text-[0.875rem] leading-[1.25rem] font-semibold;
+    }
+    .text-h5-ko{
+        @apply text-[0.875rem] leading-[1.25rem] font-semibold;
+        letter-spacing: -0.02rem;
+    }
+
+
+    /* text body */
+    .text-large-eng{
+        @apply text-[1.125rem] leading-[1.75rem] font-medium;
+    }
+    .text-large-ko{
+        @apply text-[1.125rem] leading-[1.75rem] font-medium;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-medium-eng{
+        @apply text-[1rem] leading-[1.5rem] font-medium;
+    }
+    .text-medium-ko{
+        @apply text-[1rem] leading-[1.5rem] font-medium;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-regular-eng{
+        @apply text-[0.875rem] leading-[1.25rem] font-medium;
+    }
+    .text-regular-ko{
+        @apply text-[0.875rem] leading-[1.25rem] font-medium;
+        letter-spacing: -0.02rem;
+    }
+
+    .text-small-eng{
+        @apply text-[0.75rem] leading-[1.125rem] font-medium;
+    }
+    .text-small-ko{
+        @apply text-[0.75rem] leading-[1.125rem] font-medium;
+        letter-spacing: -0.02rem;
+    }
+}
