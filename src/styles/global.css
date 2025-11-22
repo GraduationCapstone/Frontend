@@ -1,2 +1,72 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import "tailwind";
 @import "./typography.css";
-@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* 1. Colors */
+    --color-primary-sg400: #4fe2ca;
+    --color-primary-sg500: #0ecb80;
+    --color-primary-sg550: #00b647;
+    --color-primary-sg600: #00a497;
+
+    --color-secondary-aq400: #44e4f2;
+    --color-secondary-sg100: #eff9f7;
+
+    --color-chip-pass: #1dc484;
+    --color-chip-block: #ffaf04;
+    --color-chip-fail: #f56868;
+    --color-chip-untest: #bec5cb;
+
+    --color-grayscale-white: #fcfcff;
+    --color-grayscale-gy50: #f8f8fb;
+    --color-grayscale-gy100: #f6f8fa;
+    --color-grayscale-gy200: #eef1f5;
+    --color-grayscale-gy300: #e5e8ec;
+    --color-grayscale-gy400: #bec5cb;
+    --color-grayscale-gy500: #9da5ad;
+    --color-grayscale-gy600: #7b8691;
+    --color-grayscale-gy700: #5f6875;
+    --color-grayscale-gy800: #424952;
+    --color-grayscale-gy900: #2d3239;
+    --color-grayscale-black: #1f2328;
+
+    /* 2. Spacing */
+    --layout-margin: 32px;
+    --layout-margin-l: 100px;
+    --layout-gutter: 16px;
+
+    --gap-xxl: 44px;
+    --gap-xl: 32px;
+    --gap-l: 28px;
+    --gap-m: 20px;
+    --gap-s: 16px;
+    --gap-xs: 12px;
+    --gap-xxs: 8px;
+
+    /* 3. Width */
+    --width-max: 1260px;
+    --width-xl: 912px;
+    --width-l: 564px;
+    --width-m: 332px;
+    --width-s: 248px;
+    --width-xs: 192px;
+    --width-min: 116px;
+
+    --overlay-modal: 564px;
+    --overlay-center-sheet: 796px;
+    --overlay-side-sheet: 332px;
+    --overlay-dropdown-menu: 232px;
+    --overlay-menu: 132px;
+  }
+
+  /* Wide screen styles */
+  @media (min-width: 1920px) {
+    :root {
+      --layout-margin: 40px; /* 32 -> 40 */
+      --layout-margin-l: 110px; /* 100 -> 116*/
+      --width-min: 132px; /*116 -> 132 */
+    }
+  }
+
+}
