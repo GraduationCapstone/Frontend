@@ -1,0 +1,73 @@
+@config "../../tailwind.config.js";
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import "tailwindcss";
+@import "./typography.css";
+
+@layer base {
+  :root {
+    /* 1. Colors */
+    --color-primary-sg400: #4fe2ca;
+    --color-primary-sg500: #0ecb80;
+    --color-primary-sg550: #00b647;
+    --color-primary-sg600: #00a497;
+
+    --color-secondary-aq400: #44e4f2;
+    --color-secondary-sg100: #eff9f7;
+
+    --color-chip-pass: #1dc484;
+    --color-chip-block: #ffaf04;
+    --color-chip-fail: #f56868;
+    --color-chip-untest: #bec5cb;
+
+    --color-grayscale-white: #fcfcff;
+    --color-grayscale-gy50: #f8f8fb;
+    --color-grayscale-gy100: #f6f8fa;
+    --color-grayscale-gy200: #eef1f5;
+    --color-grayscale-gy300: #e5e8ec;
+    --color-grayscale-gy400: #bec5cb;
+    --color-grayscale-gy500: #9da5ad;
+    --color-grayscale-gy600: #7b8691;
+    --color-grayscale-gy700: #5f6875;
+    --color-grayscale-gy800: #424952;
+    --color-grayscale-gy900: #2d3239;
+    --color-grayscale-black: #1f2328;
+
+    /* 2. Spacing */
+    --layout-margin: 2rem;
+    --layout-margin-l: 6.25rem;
+    --layout-gutter: 1rem;
+
+    --gap-xxl: 2.75rem;
+    --gap-xl: 2rem;
+    --gap-l: 1.75rem;
+    --gap-m: 1.25rem;
+    --gap-s: 1rem;
+    --gap-xs: 0.75rem;
+    --gap-xxs: 0.5rem;
+
+    /* 3. Width */
+    --width-max: 78.75rem;
+    --width-xl: 57rem;
+    --width-l: 35.25rem;
+    --width-m: 20.75rem;
+    --width-s: 15.5rem;
+    --width-xs: 12rem;
+    --width-min: 7.25rem;
+
+    --overlay-modal: 35.25rem;
+    --overlay-center-sheet: 49.75rem;
+    --overlay-side-sheet: 20.75rem;
+    --overlay-dropdown-menu: 14.5rem;
+    --overlay-menu: 8.25rem;
+  }
+
+  /* Wide screen styles */
+  @media (min-width: 120rem) { /* 1920px */
+    :root {
+      --layout-margin: 2.5rem; /* 40px */
+      --layout-margin-l: 6.875rem; /* 110px */
+      --width-min: 8.25rem; /* 132px */
+    }
+  }
+
+}
