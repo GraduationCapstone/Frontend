@@ -1,28 +1,19 @@
 ---
-name: enhancement_request
-about: Suggest an enhancement for this project
-title: "[ENHANCEMENT]"
+name: 🚀 개선/보완 요청
+about: 기존 기능의 성능 향상, UI 개선, 리팩토링 등을 제안합니다.
+title: '[enhancement] 개선할 내용'
 labels: ''
 assignees: ''
-
 ---
 
----
-name: 기능 요청
-about: 개선 사항을 제안합니다.
-title: '[ENHANCEMENT] 기능 설명'
-labels: 
-assignees: ''
----
+## 🧐 현재 상황 및 문제점
+## 💡 개선 방안
+- 
+- 
 
-## 🙏🏻 기능 요청 사항
-<!-- 어떤 기능을 추가하거나 개선하고 싶은지 설명해주세요 -->
-
-## 🔨 해결 방법
-<!-- 이 기능을 어떻게 구현할지에 대한 간단한 설명을 적어주세요 -->
-
-## ✌🏻 대안
-<!-- 이 기능의 대체 방안이 있으면 알려주세요 -->
-
-## ➕ 추가 정보
-<!-- 기능 요청과 관련하여 추가적으로 설명할 내용이 있으면 적어주세요 -->
+## 🖇️ 참고 자료
+## ✅ 작업 유형
+- [ ] UI/UX 개선
+- [ ] 성능 최적화
+- [ ] 코드 리팩토링
+- [ ] 기타
