@@ -1,5 +1,5 @@
 ---
-name: ✨ 기능 추가 요청
+name: feature_template
 about: 프로젝트에 새로운 가치를 더할 기능을 제안합니다.
 title: '[feature] 제안하는 기능 이름'
 labels: ''
