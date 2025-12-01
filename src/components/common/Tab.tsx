@@ -35,7 +35,7 @@ export default function Tab({ label, isSelected = false, disabled = false, onCli
         ${isSelected && !disabled ? 'border-primary-sg600' : 'border-transparent'}
         
         /* 3. 텍스트 기본 스타일 (Pretendard, 16px, Semibold, Leading-6) */
-        text-base font-semibold font-['Pretendard'] leading-6
+        text-h4-eng
         
         /* 4. 상태별 텍스트 색상 변화 (Transition) */
         transition-colors duration-200 ease-in-out

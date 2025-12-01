@@ -32,12 +32,7 @@ export default function Header({ isLoggedIn = false }: HeaderProps) {
             <button className="px-5 py-2 flex justify-center items-center rounded-lg hover:bg-grayscale-gy100 transition-colors">
               <span className="
                 text-grayscale-black 
-                text-base 
-                font-semibold 
-                font-['Pretendard'] 
-                leading-6
-                
-                /* 👇 자간 추가: 피그마 너비(149px)를 맞추기 위한 핵심 */
+                text-h4-eng
                 tracking-[-0.02em]
               ">
                 Project Management
@@ -48,12 +43,7 @@ export default function Header({ isLoggedIn = false }: HeaderProps) {
             <button className="px-5 py-2 flex justify-center items-center rounded-lg hover:bg-grayscale-gy100 transition-colors">
               <span className="
                 text-grayscale-black 
-                text-base 
-                font-semibold 
-                font-['Pretendard'] 
-                leading-6
-                
-                /* 👇 자간 추가: 피그마 너비(126px)를 맞추기 위한 핵심 */
+                text-h4-eng
                 tracking-[-0.02em]
               ">
                 Service Introduce
