@@ -36,9 +36,8 @@ export default function ProfileIcon({ isActive = true, initial = 'U' }: ProfileI
         className="
           text-grayscale-white 
           font-semibold 
-          font-['Pretendard']
           text-[12px] 
-          /* 디자이너의 여백(11.54px)을 맞추기 위해 텍스트 높이를 12.92px로 설정 */
+          /* 여백(11.54px)을 맞추기 위해 텍스트 높이를 12.92px로 설정 */
           leading-[12.92px]
         "
       >
