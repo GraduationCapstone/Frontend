@@ -32,6 +32,12 @@
     --color-grayscale-gy900: #2d3239;
     --color-grayscale-black: #1f2328;
 
+    --color-system-deactive: #bec5cb;
+    --color-system-active: #01B777;
+    --color-system-success: #3D85FF;
+    --color-system-errors: #EF5D58;
+    --color-system-warning: #EFB058;
+
     /* 2. Spacing */
     --layout-margin: 2rem;
     --layout-margin-l: 6.25rem;
