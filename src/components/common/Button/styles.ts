@@ -1,9 +1,10 @@
-import type { ButtonProps } from "./types";
+import type { ButtonProps, IconButtonProps, IconButtonVariant } from "./types";
 
 export const cn = (...classes: Array<string | undefined | false>) =>
     classes.filter(Boolean).join(" ");
-  
   type Size = NonNullable<ButtonProps["size"]>;
+
+  type IconVariant = IconButtonVariant;
 
 const SOLID_STATE_DEFAULT = {
   default: "bg-grayscale-gy900 text-grayscale-white",
@@ -52,6 +53,44 @@ const TEXT_PRESET = {
       "disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:bg-transparent",
   } as const;
 
+const ICON_BASE = {
+    root: "inline-flex items-center justify-center rounded-xl gap-[0.5rem] pl-[0.75rem] pr-[1rem] py-[0.5rem] rounded-[0.75rem]",
+    icon: "w-[1.5rem] h-[1.5rem] bg-current [mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] " +
+      "[webkit-mask-repeat:no-repeat] [webkit-mask-position:center] [webkit-mask-size:contain]",
+    label: "text-h3-eng text-center",
+  }
+  const ICON_STATE: Record<
+  IconVariant,
+  { default: string; hover: string; pressing: string; clicked: string; deactive: string }
+> = {
+  download: {
+    deactive:
+    "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
+    default: "bg-grayscale-gy900 text-grayscale-white",
+    hover: "hover:bg-primary-sg500 hover:text-grayscale-white",
+    pressing: "active:bg-primary-sg550 active:text-grayscale-white",
+    clicked: "focus:text-grayscale-white",
+  },
+  settings: {
+    deactive:
+      "disabled:bg-grayscale-white disabled:text-grayscale-gy500 disabled:cursor-not-allowed disabled:shadow-ds-200",
+    default: "bg-grayscale-white text-grayscale-black shadow-ds-200",
+    hover: "hover:bg-grayscale-gy100 hover:text-grayscale-black hover:shadow-ds-200",
+    pressing: "active:bg-grayscale-gy200 active:text-grayscale-black active:shadow-ds-200",
+    clicked: "focus:bg-grayscale-white focus:text-grayscale-black focus:shadow-ds-200",
+  },
+  profile: {
+    deactive:
+      "disabled:bg-transparent disabled:text-system-deactive disabled:cursor-not-allowed text-h4-eng",
+    default: "bg-transparent text-grayscale-white text-h4-eng",
+    hover: "hover:bg-[rgba(252,252,255,0.20)] hover:text-grayscale-white text-h4-eng",
+    pressing: "active:bg-[rgba(252,252,255,0.30)] active:text-grayscale-white text-h4-eng",
+    clicked: "focus:bg-transparent focus:text-primary-sg600 text-h4-eng",
+  },
+};
+// ----------------------------------------
+
+// BUTTON
   const pickSolidState = (variant: ButtonProps["variant"], size: Size) => {
     if (variant === "solidStaticL" && size === "L") return SOLID_STATE_STATIC_L;
     return SOLID_STATE_DEFAULT;
@@ -114,5 +153,44 @@ const TEXT_PRESET = {
         className
       ),
       label: cn(baseLabel, preset.label, labelClassName),
+    };
+  };
+
+// ICON BUTTON
+
+export const getIconButtonClassNames = (
+    props: Pick<
+      IconButtonProps,
+      "variant" | "className" | "widthClassName" | "paddingClassName" | "iconClassName" | "labelClassName"
+    >
+  ) => {
+    const {
+      variant = "download",
+      className,
+      widthClassName,
+      paddingClassName,
+      iconClassName,
+      labelClassName,
+    } = props;
+  
+    const state = ICON_STATE[variant];
+    const rootBase = ICON_BASE.root;
+    const iconBase = ICON_BASE.icon;
+    const labelBase = ICON_BASE.label;
+  
+    return {
+      root: cn(
+        rootBase,
+        state.default,
+        state.hover,
+        state.pressing,
+        state.clicked,
+        state.deactive,
+        widthClassName,
+        paddingClassName,
+        className
+      ),
+      icon: cn(iconBase, iconClassName),
+      label: cn(labelBase, labelClassName),
     };
   };
