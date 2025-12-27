@@ -43,3 +43,12 @@ export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
     iconClassName?: string;
     labelClassName?: string;
 }
+
+export interface IconOnlyButtonProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "aria-label"> {
+  ariaLabel: string;
+  iconSrc: string;
+
+  className?: string;
+  iconClassName?: string;
+}

@@ -1,4 +1,4 @@
-import type { ButtonProps, IconButtonProps, IconButtonVariant } from "./types";
+import type { ButtonProps, IconButtonProps, IconButtonVariant, IconOnlyButtonProps } from "./types";
 
 export const cn = (...classes: Array<string | undefined | false>) =>
     classes.filter(Boolean).join(" ");
@@ -88,6 +88,29 @@ const ICON_BASE = {
     clicked: "focus:bg-transparent focus:text-primary-sg600 text-h4-eng",
   },
 };
+
+const ICON_ONLY_BASE = {
+  root:
+    "inline-flex p-[0.25rem] items-center gap-[0.5rem] rounded-[0.5rem] " +
+    "transition-colors duration-200 ease-in-out " +
+    "focus:outline-none focus-visible:outline-none",
+  icon:
+    "bg-current shrink-0 " +
+    "[mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] " +
+    "[webkit-mask-repeat:no-repeat] [webkit-mask-position:center] [webkit-mask-size:contain]",
+} as const;
+
+const ICON_ONLY_STATE = {
+  deactive:
+    "disabled:bg-transparent disabled:text-system-deactive disabled:cursor-not-allowed " +
+    "disabled:hover:bg-transparent disabled:active:bg-transparent",
+  default: "bg-transparent text-grayscale-black",
+  hover: "hover:bg-[rgba(31,35,40,0.05)]",
+  pressing: "active:bg-[rgba(31,35,40,0.10)] active:text-grayscale-black",
+  clicked: "focus:bg-transparent focus:text-grayscale-black",
+} as const;
+
+
 // ----------------------------------------
 
 // BUTTON
@@ -192,5 +215,25 @@ export const getIconButtonClassNames = (
       ),
       icon: cn(iconBase, iconClassName),
       label: cn(labelBase, labelClassName),
+    };
+  };
+
+  // ICON ONLY BUTTON
+  export const getIconOnlyButtonClassNames = (
+    props: Pick<IconOnlyButtonProps, "className" | "iconClassName">
+  ) => {
+    const { className, iconClassName } = props;
+  
+    return {
+      root: cn(
+        ICON_ONLY_BASE.root,
+        ICON_ONLY_STATE.default,
+        ICON_ONLY_STATE.hover,
+        ICON_ONLY_STATE.pressing,
+        ICON_ONLY_STATE.clicked,
+        ICON_ONLY_STATE.deactive,
+        className
+      ),
+      icon: cn(ICON_ONLY_BASE.icon, iconClassName ?? "w-6 h-6"), // 1.5rem
     };
   };
