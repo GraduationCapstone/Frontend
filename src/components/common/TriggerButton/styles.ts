@@ -49,7 +49,7 @@ export const getSelectTriggerClassNames = (
   const preset = PRESET[variant];
 
   const rootBase =
-    "font-sans transition-colors duration-200 ease-in-out focus-visible:outline-none";
+    "transition-colors ease-in-out focus-visible:outline-none";
   const labelBase = "min-w-0 truncate text-left";
 
   return {
