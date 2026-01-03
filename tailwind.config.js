@@ -1,3 +1,5 @@
+import { sys } from 'typescript';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -52,6 +54,13 @@ export default {
           gy800: "var(--color-grayscale-gy800)",
           gy900: "var(--color-grayscale-gy900)",
           black: "var(--color-grayscale-black)",
+        },
+        system: {
+          deactive: "var(--color-system-deactive)",
+          active: "var(--color-system-active)",
+          success: "var(--color-system-success)",
+          errors: "var(--color-system-errors)",
+          warning: "var(--color-system-warning)",
         },
       },
       spacing: {

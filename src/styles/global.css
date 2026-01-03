@@ -7,7 +7,7 @@
   :root {
     /* 1. Colors */
     --color-primary-sg400: #4fe2ca;
-    --color-primary-sg500: #0ecb80;
+    --color-primary-sg500: #0EC8B0;
     --color-primary-sg550: #00b6A7;
     --color-primary-sg600: #00a497;
 
@@ -31,6 +31,12 @@
     --color-grayscale-gy800: #424952;
     --color-grayscale-gy900: #2d3239;
     --color-grayscale-black: #1f2328;
+
+    --color-system-deactive: #bec5cb;
+    --color-system-active: #01B777;
+    --color-system-success: #3D85FF;
+    --color-system-errors: #EF5D58;
+    --color-system-warning: #EFB058;
 
     /* 2. Spacing */
     --layout-margin: 2rem;
