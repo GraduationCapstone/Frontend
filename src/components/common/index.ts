@@ -6,3 +6,4 @@ export * from "./FloatingBtn";
 export * from "./ProfileIcon";
 export * from "./Tab";
 export * from "./TriggerButton";
+export * from "./InputField";
