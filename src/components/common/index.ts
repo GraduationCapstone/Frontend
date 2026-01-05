@@ -9,3 +9,4 @@ export * from "./TriggerButton";
 export * from "./InputField";
 export * from "./Tabs";
 export * from "./StatusBadge";
+export * from "./Tooltip";
