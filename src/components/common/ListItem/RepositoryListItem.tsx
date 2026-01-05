@@ -1,12 +1,12 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useState, ReactNode } from "react";
 import CheckboxButton from "../CheckButton/CheckButton";
 import Chip from "../Chip/Chip";
 
-// 1. 아이콘 경로 import (프로젝트 구조 기반)
+// 아이콘 경로
 import starIcon from "../../../assets/icons/star.svg";
 import forkIcon from "../../../assets/icons/fork.svg";
-import issueIcon from "../../../assets/icons/issue_opened.svg"; // 추가됨
-import prIcon from "../../../assets/icons/pull_request.svg";    // 추가됨
+import issueIcon from "../../../assets/icons/issue_opened.svg";
+import prIcon from "../../../assets/icons/pull_request.svg";
 import dotIcon from "../../../assets/icons/dot.svg";
 
 export interface RepositoryListItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -17,17 +17,17 @@ export interface RepositoryListItemProps extends React.HTMLAttributes<HTMLDivEle
     name: string;
     color: string;
   };
-  // 2. 통계 정보 타입 확장 (issues, pullRequests 추가)
   stats?: {
     forks?: number;
     stars?: number;
-    issues?: number;       // Issue Opened
-    pullRequests?: number; // Pull Request
+    issues?: number;
+    pullRequests?: number;
   };
   updatedAt?: string;
   disabled?: boolean;
   selected?: boolean;
   onSelectChange?: (checked: boolean) => void;
+  activityGraph?: ReactNode;
 }
 
 const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
@@ -44,11 +44,11 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
       onSelectChange,
       className,
       onClick,
+      activityGraph,
       ...rest
     },
     ref
   ) => {
-    // 내부 상태 관리 로직 (클릭 시 바로 초록색 체크박스 뜨게 함)
     const [internalSelected, setInternalSelected] = useState(false);
     const isControlled = selected !== undefined;
     const isSelected = isControlled ? selected : internalSelected;
@@ -59,7 +59,6 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
       onSelectChange?.(nextValue);
     };
 
-    // 스타일 변수
     const titleColor = disabled ? "text-system-deactive" : "text-grayscale-black";
     const contentColor = disabled ? "text-system-deactive" : "text-grayscale-gy800";
     const iconOpacity = disabled ? "opacity-50 grayscale" : "opacity-100";
@@ -79,9 +78,15 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
           onClick?.(e);
         }}
         className={`
-          group relative w-full inline-flex items-start gap-5 px-4 py-3
+          group relative 
+          /* ✨ 수정: 너비 1260px, 패딩 py-4 (16px) 적용 -> 높이 112px 완성 */
+          w-[1260px] px-5 py-4 
+          
+          inline-flex items-start gap-5 
           bg-grayscale-white border-b border-grayscale-gy300
           transition-colors duration-200
+          
+          /* Interaction States */
           ${disabled 
             ? "cursor-not-allowed" 
             : "cursor-pointer hover:bg-grayscale-gy100 active:bg-grayscale-gy200"
@@ -90,7 +95,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         `}
         {...rest}
       >
-        {/* Left: Checkbox */}
+        {/* 1. Left: Checkbox */}
         <div className="flex-shrink-0 pt-1">
           <CheckboxButton
             disabled={disabled}
@@ -105,7 +110,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
           />
         </div>
 
-        {/* Right: Content */}
+        {/* 2. Middle: Main Content */}
         <div className="flex-1 flex flex-col items-start gap-2 min-w-0">
           
           {/* Header */}
@@ -134,11 +139,8 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
             </p>
           )}
 
-          {/* Footer Meta Info: 순서 재배치 */}
-          {/* 순서: Language -> Fork -> Star -> Issue -> PR -> UpdatedAt */}
+          {/* Footer Meta Info */}
           <div className="flex flex-wrap items-center gap-2 overflow-hidden">
-            
-            {/* 1. Language */}
             {language && (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 flex items-center justify-center">
@@ -157,14 +159,12 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
               </div>
             )}
 
-            {/* Separator */}
             {language && (
                <div className="w-1.5 h-1.5 flex items-center justify-center">
                  <img src={dotIcon} alt="dot" className={`w-[3px] h-[3px] ${disabled ? "opacity-40" : "brightness-50"}`} />
                </div>
             )}
 
-            {/* 2. Fork */}
             {stats?.forks !== undefined && (
               <>
                 <div className="flex items-center gap-0.5">
@@ -179,7 +179,6 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
               </>
             )}
 
-            {/* 3. Star */}
             {stats?.stars !== undefined && (
               <>
                 <div className="flex items-center gap-0.5">
@@ -194,7 +193,6 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
               </>
             )}
 
-            {/* 4. Issue Opened (New) */}
             {stats?.issues !== undefined && (
               <>
                 <div className="flex items-center gap-0.5">
@@ -209,7 +207,6 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
               </>
             )}
 
-            {/* 5. Pull Request (New) */}
             {stats?.pullRequests !== undefined && (
               <>
                 <div className="flex items-center gap-0.5">
@@ -224,11 +221,21 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
               </>
             )}
 
-            {/* 6. Updated At */}
             {updatedAt && (
               <span className={`text-regular-eng ${contentColor}`}>{updatedAt}</span>
             )}
           </div>
+        </div>
+
+        {/* 3. Right: Activity Graph Area */}
+        <div className={`
+            flex-shrink-0 
+            w-60 h-20 
+            relative overflow-hidden
+            flex items-center justify-center
+            ${disabled ? "opacity-50" : ""}
+        `}>
+          {activityGraph ? activityGraph : <div className="w-full h-full" />}
         </div>
       </div>
     );
