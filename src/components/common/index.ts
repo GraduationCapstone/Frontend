@@ -8,3 +8,4 @@ export * from "./Tab";
 export * from "./TriggerButton";
 export * from "./InputField";
 export * from "./Tabs";
+export * from "./StatusBadge";
