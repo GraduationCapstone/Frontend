@@ -7,3 +7,4 @@ export * from "./ProfileIcon";
 export * from "./Tab";
 export * from "./TriggerButton";
 export * from "./InputField";
+export * from "./Tabs";

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent, FocusEvent } from "react";
 
-import searchIcon from "../../assets/icons/search.svg";
+import SearchIcon from "../../assets/icons/search.svg?react";
 
 type InputState = "deactive" | "default" | "typing" | "typed";
 
@@ -9,36 +9,28 @@ interface InputFieldProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  widthClass?: string;
+  heightClass?: string;
+  inputClassName?: string;
 }
-
-const SearchIcon = ({ className = "" }: { className?: string }) => {
-  return (
-    <span
-      aria-hidden
-      className={`shrink-0 bg-current ${className}`}
-      style={{
-        WebkitMaskImage: `url("${searchIcon}")`,
-        maskImage: `url("${searchIcon}")`,
-        WebkitMaskRepeat: "no-repeat",
-        maskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        maskPosition: "center",
-        WebkitMaskSize: "contain",
-        maskSize: "contain",
-      }}
-    />
-  );
-};
 
 const InputField = ({
   placeholder = "placeholder",
   disabled = false,
   className = "",
+  widthClass,
+  heightClass,
+  inputClassName = "",
 }: InputFieldProps) => {
   const [value, setValue] = useState("");
   const [state, setState] = useState<InputState>(
     disabled ? "deactive" : "default"
   );
+
+  useEffect(() => {
+    if (disabled) setState("deactive");
+    else setState(value.length > 0 ? "typed" : "default");
+  }, [disabled, value.length]);
 
   const handleFocus = (_: FocusEvent<HTMLInputElement>) => {
     if (disabled) return;
@@ -63,16 +55,17 @@ const InputField = ({
     typed: "text-grayscale-black text-h4-kr",
   }[state];
 
-  const iconStyle = state === "deactive" ? "text-gray-300" : "text-gray-500";
+  const iconColorClass = state === "deactive" ? "text-system-deactive" : "text-grayscale-black";
+
+  const sizeClass = widthClass ?? "w-full min-w-0 max-w-[35.25rem]";
+  const hClass = heightClass ?? "h-[3rem]";
 
   return (
     <div
       className={[
-        "flex items-center",
-        // 반응형....
-        "w-full max-w-[47rem] desktop:max-w-[35.25rem]]",
-        "h-[3rem] pl-[1.25rem] pr-[1rem] gap-[1.25rem]",
-        "rounded-[1rem] bg-grayscale-white",
+        "flex items-center rounded-[1rem] pl-[1.25rem] pr-[1rem] gap-[1.25rem] bg-grayscale-white",
+        sizeClass,
+        hClass,
         textStyle,
         className,
       ].join(" ")}
@@ -89,12 +82,13 @@ const InputField = ({
         onBlur={handleBlur}
         onChange={handleChange}
         className={[
-          "flex-1 bg-transparent outline-none",
+          "flex-1 min-w-0 bg-transparent outline-none",
           disabled ? "cursor-not-allowed" : "",
+          inputClassName,
         ].join(" ")}
       />
+      <SearchIcon className={"shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current"} />
 
-      <SearchIcon className={`w-[1.5rem] h-[1.5rem] ${iconStyle}`} />
     </div>
   );
 };
