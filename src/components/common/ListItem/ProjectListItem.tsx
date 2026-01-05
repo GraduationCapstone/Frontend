@@ -40,7 +40,10 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
 
     const textColorClass = disabled ? "text-system-deactive" : "text-grayscale-black";
     const subTextColorClass = disabled ? "text-system-deactive" : "text-grayscale-gy800";
-    const dotColorClass = disabled ? "bg-system-deactive" : "bg-grayscale-gy800";
+    
+    // dotColorClass는 이제 이미지로 대체되어 제거하거나, 
+    // 이미지가 색상 제어가 안 된다면 opacity로 비활성화 느낌을 줄 수 있습니다.
+    const dotOpacityClass = disabled ? "opacity-30" : "opacity-100";
 
     return (
       <div
@@ -68,16 +71,12 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
       >
         {/* 1. Top Row */}
         <div className="self-stretch flex justify-start items-center gap-5">
-          {/* typography.css: text-large-eng (18px Medium) 사용 */}
-          {/* 이전: text-[1.125rem] font-normal */}
           <span className={`text-large-eng ${textColorClass}`}>
             {code}
           </span>
           <div className="self-stretch p-1 flex flex-col justify-start items-start">
              <div className="w-0 flex-1 outline outline-1 outline-offset-[-0.50px] outline-grayscale-gy400"></div>
           </div>
-          {/* typography.css: text-h3-eng (18px Semibold) 사용 */}
-          {/* 이전: text-[1.125rem] font-semibold */}
           <span className={`text-h3-eng ${textColorClass}`}>
             {title}
           </span>
@@ -87,11 +86,17 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         <div className="w-full flex justify-start items-center gap-2 overflow-hidden">
           {languages?.map((lang, index) => (
             <div key={index} className="flex items-center gap-2">
+              {/* ✨ 수정됨: CSS div -> dotIcon 이미지 사용 */}
               {index > 0 && (
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <div className={`w-[3px] h-[3px] rounded-full ${dotColorClass}`}></div>
+                    <img 
+                      src={dotIcon} 
+                      alt="dot" 
+                      className={`w-[3px] h-[3px] ${dotOpacityClass}`} 
+                    />
                 </div>
               )}
+              
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 flex items-center justify-center">
                   <div
@@ -99,7 +104,6 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
                     style={{ backgroundColor: disabled ? "var(--color-system-deactive)" : lang.color }}
                   />
                 </div>
-                {/* typography.css: text-regular-eng (14px Medium) 사용 */}
                 <span className={`text-regular-eng ${subTextColorClass}`}>
                   {lang.name}
                 </span>
@@ -107,14 +111,18 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
             </div>
           ))}
 
+          {/* ✨ 수정됨: 날짜 앞 구분점도 dotIcon 사용 */}
           {languages && languages.length > 0 && updatedAt && (
             <div className="w-1.5 h-1.5 flex items-center justify-center">
-                 <div className={`w-[3px] h-[3px] rounded-full ${dotColorClass}`}></div>
+                 <img 
+                   src={dotIcon} 
+                   alt="dot" 
+                   className={`w-[3px] h-[3px] ${dotOpacityClass}`} 
+                 />
             </div>
           )}
 
           {updatedAt && (
-            // typography.css: text-regular-eng (14px Medium) 사용
             <span className={`text-regular-eng ${subTextColorClass}`}>
               {updatedAt}
             </span>
