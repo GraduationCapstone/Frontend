@@ -6,3 +6,8 @@ export * from "./FloatingBtn";
 export * from "./ProfileIcon";
 export * from "./Tab";
 export * from "./TriggerButton";
+export * from "./InputField";
+export * from "./Tabs";
+export * from "./StatusBadge";
+export * from "./Tooltip";
+export * from "./Dropbox";
