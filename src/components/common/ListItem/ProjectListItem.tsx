@@ -58,8 +58,8 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
           }
         }}
         className={`
-          group relative w-[912px] px-5 py-4 rounded-2xl 
-          shadow-[0px_0px_12px_0px_rgba(31,35,40,0.10)]
+          group relative w-xl px-5 py-4 rounded-2xl 
+          shadow-ds-200
           flex flex-col justify-start items-start gap-3
           transition-all duration-200
           bg-grayscale-white

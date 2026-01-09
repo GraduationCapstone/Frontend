@@ -126,7 +126,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
         </div>
 
         {/* 6. Date Column (수정됨: 옆으로 배치) */}
-        <div className="w-48 px-2 flex justify-start items-center gap-2 overflow-hidden">
+        <div className="w-xs px-2 flex justify-start items-center gap-2 overflow-hidden">
             {/* Untest일 경우 하이픈 하나만 중앙 정렬 */}
             {isUntest ? (
                <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>-</span>

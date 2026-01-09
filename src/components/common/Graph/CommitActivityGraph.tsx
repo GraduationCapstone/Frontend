@@ -18,7 +18,7 @@ export default function CommitActivityGraph({ className }: CommitActivityGraphPr
         className="
           absolute 
           w-44 h-9 
-          left-[37px] top-[19px] 
+          left-[2.3125rem] top-[1.1875rem]
           outline outline-2 outline-offset-[-1px] outline-primary-sg500
         "
       >

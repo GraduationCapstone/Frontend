@@ -79,8 +79,8 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         }}
         className={`
           group relative 
-          /* ✨ 수정: 너비 1260px, 패딩 py-4 (16px) 적용 -> 높이 112px 완성 */
-          w-[1260px] px-5 py-4 
+          /* 너비 1260px, 패딩 py-4 (16px) 적용 -> 높이 112px 완성 */
+          w-max px-5 py-4 
           
           inline-flex items-start gap-5 
           bg-grayscale-white border-b border-grayscale-gy300
@@ -161,7 +161,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
 
             {language && (
                <div className="w-1.5 h-1.5 flex items-center justify-center">
-                 <img src={dotIcon} alt="dot" className={`w-[3px] h-[3px] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                 <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
                </div>
             )}
 
@@ -174,7 +174,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.forks}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[3px] h-[3px] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
                 </div>
               </>
             )}
@@ -188,7 +188,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.stars}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[3px] h-[3px] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
                 </div>
               </>
             )}
@@ -202,7 +202,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.issues}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[3px] h-[3px] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
                 </div>
               </>
             )}
@@ -216,7 +216,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.pullRequests}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[3px] h-[3px] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
                 </div>
               </>
             )}
