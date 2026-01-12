@@ -80,9 +80,10 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         className={`
           group relative 
           /* 너비 1260px, 패딩 py-4 (16px) 적용 -> 높이 112px 완성 */
-          w-max px-5 py-4 
+          w-full max-w-[var(--width-max)]
+          px-5 py-4 
+          flex items-start gap-5 
           
-          inline-flex items-start gap-5 
           bg-grayscale-white border-b border-grayscale-gy300
           transition-colors duration-200
           
