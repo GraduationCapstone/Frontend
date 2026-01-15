@@ -5,6 +5,7 @@ import Footer from '../../components/layout/Footer';
 import Dropbox from '../../components/common/Dropbox';
 import InputField from '../../components/common/InputField';
 import { Button } from '../../components/common/Button';
+import SideSheet from '../../components/common/SideSheet';
 import bgVideo from '../../assets/bg/BG.mp4';
 
 // Controller로부터 받을 Props 타입 정의
@@ -13,6 +14,9 @@ interface HomeViewProps {
   selectedProject: string;
   testName: string;
   canStart: boolean;
+  isSideSheetOpen: boolean;
+  onProfileClick: () => void; 
+  onCloseSideSheet: () => void; 
   onProjectChange: (value: string) => void;
   onTestNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onStartTest: () => void;
@@ -23,6 +27,9 @@ export default function HomeView({
   selectedProject,
   testName,
   canStart,
+  isSideSheetOpen,      
+  onProfileClick,    
+  onCloseSideSheet,
   onProjectChange,
   onTestNameChange,
   onStartTest,
@@ -49,7 +56,24 @@ export default function HomeView({
 
       {/* --- 메인 콘텐츠 (z-index가 비디오보다 높아야 함) --- */}
       {/* 1. Header */}
-      <Header isLoggedIn={true} variant="default" />
+      <Header 
+      isLoggedIn={true}
+      variant="default"
+      onProfileClick={onProfileClick}
+      />
+
+      {isSideSheetOpen && (
+        <div 
+          className="fixed inset-0 z-[55] bg-transparent cursor-default"
+          onClick={onCloseSideSheet}
+        />
+      )}
+
+      <SideSheet 
+        isOpen={isSideSheetOpen} 
+        onClose={onCloseSideSheet}
+        className="absolute top-[5rem] right-[2.5rem] z-[60]"
+      />
 
       {/* 2. Main Content */}
       <main className="flex-1 w-full max-w-[120rem] px-[2rem] pt-[18rem] pb-[6rem] flex flex-col items-center gap-[11rem] z-0">

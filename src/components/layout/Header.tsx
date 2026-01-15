@@ -10,9 +10,10 @@ interface HeaderProps {
    * - transparent: 투명 배경 (로그인 전 기본)
    */
   variant?: 'default' | 'transparent';
+  onProfileClick?: () => void;
 }
 
-export default function Header({ isLoggedIn = false, variant = 'default' }: HeaderProps) {
+export default function Header({ isLoggedIn = false, variant = 'default', onProfileClick }: HeaderProps) {
   // 1. 배경색 설정 (테두리 없음)
   const bgClass = variant === 'default' 
     ? 'bg-grayscale-white'  // 흰색 배경
@@ -70,9 +71,12 @@ export default function Header({ isLoggedIn = false, variant = 'default' }: Head
             </button>
           </nav>
 
-          <div className="flex-shrink-0">
+          <button 
+            className="flex-shrink-0 outline-none" 
+            onClick={onProfileClick}
+          >
             <ProfileIcon isActive={true} initial="U" />
-          </div>
+          </button>
         </>
         ) : (
         <button 

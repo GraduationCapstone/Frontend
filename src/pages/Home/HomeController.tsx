@@ -9,6 +9,9 @@ export default function HomeController() {
     selectedProject,
     testName,
     canStart,
+    isSideSheetOpen,      
+    handleProfileClick,   
+    handleCloseSideSheet, 
     handleProjectChange,
     handleTestNameChange,
     handleStartTest,
@@ -21,6 +24,9 @@ export default function HomeController() {
       selectedProject={selectedProject}
       testName={testName}
       canStart={canStart}
+      isSideSheetOpen={isSideSheetOpen}      
+      onProfileClick={handleProfileClick}    
+      onCloseSideSheet={handleCloseSideSheet}
       onProjectChange={handleProjectChange}
       onTestNameChange={handleTestNameChange}
       onStartTest={handleStartTest}

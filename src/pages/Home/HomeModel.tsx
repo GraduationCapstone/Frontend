@@ -5,6 +5,7 @@ export const useHomeModel = () => {
   // 1. 상태 관리 (Data)
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [testName, setTestName] = useState<string>('');
+  const [isSideSheetOpen, setIsSideSheetOpen] = useState<boolean>(false);
 
   // 2. Mock Data (실제 API 연동 시 이 부분을 대체)
   const projectItems = [
@@ -32,12 +33,25 @@ export const useHomeModel = () => {
     // 여기에 페이지 이동이나 API 호출 로직 추가
   };
 
+  // ✅ 프로필 클릭 시 사이드시트 토글
+  const handleProfileClick = () => {
+    setIsSideSheetOpen((prev) => !prev);
+  };
+  
+  // ✅ 사이드시트 닫기
+  const handleCloseSideSheet = () => {
+    setIsSideSheetOpen(false);
+  };
+
   // Controller에서 사용할 값과 함수들을 반환
   return {
     projectItems,
     selectedProject,
     testName,
     canStart,
+    isSideSheetOpen,       
+    handleProfileClick,    
+    handleCloseSideSheet,  
     handleProjectChange,
     handleTestNameChange,
     handleStartTest,
