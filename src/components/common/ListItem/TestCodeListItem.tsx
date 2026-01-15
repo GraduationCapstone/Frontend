@@ -1,5 +1,6 @@
 import { forwardRef, useState } from "react";
 import moreIcon from "../../../assets/icons/kebab.svg"; 
+import StatusBadge, { StatusBadgeType } from "../StatusBadge";
 
 export type TestCodeStatus = 'Untest' | 'Pass' | 'Fail';
 
@@ -50,14 +51,6 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
 
     const isUntest = status === 'Untest';
 
-    // 🎨 상태별 스타일
-    let chipBgColor = "";
-    switch (status) {
-      case 'Untest': chipBgColor = "bg-chip-untest"; break;
-      case 'Pass': chipBgColor = "bg-chip-pass"; break;
-      case 'Fail': chipBgColor = "bg-chip-fail"; break;
-    }
-
     const mainTextColor = disabled 
       ? "text-system-deactive" 
       : isSelected 
@@ -74,9 +67,13 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
       <div
         ref={ref}
         role="button"
-        // ... (이벤트 핸들러 및 래퍼 클래스 동일)
+        aria-disabled={disabled}
+        aria-selected={isSelected}
+        onClick={(e) => {
+           if (!disabled) { handleToggle(); onClick?.(e); }
+        }}
         className={`
-          group relative w-full inline-flex items-center gap-5 px-4 py-4
+          group relative w-full inline-flex items-center gap-m px-gap-s py-gap-s
           border-b border-grayscale-gy300
           transition-colors duration-200
           bg-grayscale-white
@@ -84,9 +81,6 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
           ${disabled ? "cursor-not-allowed" : "cursor-pointer"}
           ${className || ""}
         `}
-        onClick={(e) => {
-           if (!disabled) { handleToggle(); onClick?.(e); }
-        }}
         {...rest}
       >
         {/* 1. ID */}
@@ -101,9 +95,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
 
         {/* 3. Status */}
         <div className="w-32 px-2 inline-flex flex-col justify-start items-start gap-2.5">
-          <div className={`px-3 py-1 rounded-3xl inline-flex justify-center items-center gap-2.5 ${chipBgColor}`}>
-            <span className="text-medium-eng text-grayscale-white">{status}</span>
-          </div>
+          <StatusBadge type={status.toLowerCase() as StatusBadgeType} />
         </div>
 
         {/* 4. Duration */}
@@ -117,7 +109,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
         <div className="w-32 px-2 flex justify-start items-center gap-2 overflow-hidden">
             {!isUntest && (
                 <div className="w-6 h-6 relative bg-primary-sg600 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-grayscale-white leading-none mt-[1px]">U</span>
+                    <span className="text-[10px] font-bold text-grayscale-white leading-none mt-px">U</span>
                 </div>
             )}
             <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} ${isUntest ? "text-center" : "text-left"}`}>

@@ -89,7 +89,7 @@ const TestListItemSimple = forwardRef<HTMLDivElement, TestListItemSimpleProps>(
           }
         }}
         className={`
-          group relative w-full inline-flex items-center gap-5 px-4 py-4
+          group relative w-full inline-flex items-center gap-m px-gap-s py-gap-s
           border-b border-grayscale-gy300
           transition-colors duration-200
           
@@ -102,28 +102,28 @@ const TestListItemSimple = forwardRef<HTMLDivElement, TestListItemSimpleProps>(
         {...rest}
       >
         {/* 1. ID Column (w-24) */}
-        <div className="w-24 px-2 flex justify-start items-center gap-2.5">
+        <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
           <span className={`text-medium-eng ${mainTextColor}`}>
             {testId}
           </span>
         </div>
 
         {/* 2. Title Column (flex-1) */}
-        <div className="flex-1 px-2 flex justify-center items-center gap-2.5">
+        <div className="flex-1 px-gap-xxs flex justify-center items-center gap-2.5">
           <span className={`flex-1 text-h3-eng line-clamp-1 ${mainTextColor}`}>
             {title}
           </span>
         </div>
 
         {/* 3. Coverage Column (w-32) */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
             {coverage || "-"}
           </span>
         </div>
 
         {/* 4. Duration Column (w-32) */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
             {duration || "-"}
           </span>
@@ -131,7 +131,7 @@ const TestListItemSimple = forwardRef<HTMLDivElement, TestListItemSimpleProps>(
 
         {/* 5. Menu Icon */}
         <div 
-            className="p-1 rounded-lg flex justify-start items-center gap-2 hover:bg-grayscale-gy100 transition-colors"
+            className="p-1 rounded-lg flex justify-start items-center gap-xxs hover:bg-grayscale-gy100 transition-colors"
             onClick={(e) => {
                 e.stopPropagation();
                 onMenuClick?.(e);

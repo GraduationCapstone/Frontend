@@ -1,5 +1,6 @@
 import { forwardRef, useState } from "react";
 import moreIcon from "../../../assets/icons/kebab.svg"; 
+import StatusBadge, { StatusBadgeType } from "../StatusBadge";
 
 export type TestCodeStatus = 'Untest' | 'Pass' | 'Fail';
 
@@ -44,25 +45,13 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
     };
 
     const isUntest = status === 'Untest';
-    
-    // 2. 🎨 상태별 칩 색상 및 텍스트 정의
-    let chipBgColor = "";
-    let chipText = "";
 
-    switch (status) {
-      case 'Untest':
-        chipBgColor = "bg-chip-untest";
-        chipText = "U";
-        break;
-      case 'Pass':
-        chipBgColor = "bg-chip-pass";
-        chipText = "P";
-        break;
-      case 'Fail':
-        chipBgColor = "bg-chip-fail";
-        chipText = "F";
-        break;
-    }
+    const badgeTypeMap: Record<TestCodeStatus, StatusBadgeType> = {
+      Untest: 'untestShort',
+      Pass: 'passShort',
+      Fail: 'failShort',
+    };
+
 
     // 3. 텍스트 색상 로직 (Selected 상태 반영)
     const mainTextColor = disabled 
@@ -93,7 +82,7 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
           }
         }}
         className={`
-          group relative w-full inline-flex items-center gap-5 px-4 py-4
+          group relative w-full inline-flex items-center gap-m px-gap-s py-gap-s
           border-b border-grayscale-gy300
           transition-colors duration-200
           
@@ -106,30 +95,26 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
         {...rest}
       >
         {/* 1. ID Column */}
-        <div className="w-24 px-2 flex justify-start items-center gap-2.5">
+        <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
           <span className={`text-medium-eng ${mainTextColor}`}>
             {codeId}
           </span>
         </div>
 
         {/* 2. Title Column */}
-        <div className="flex-1 px-2 flex justify-center items-center gap-2.5">
+        <div className="flex-1 px-gap-xxs flex justify-center items-center gap-2.5">
           <span className={`flex-1 text-h3-eng line-clamp-1 ${mainTextColor}`}>
             {title}
           </span>
         </div>
 
         {/* 3. Status Column */}
-        <div className="w-32 px-2 inline-flex flex-col justify-start items-start gap-2.5">
-          <div className={`px-3 py-1 rounded-3xl inline-flex justify-center items-center gap-2.5 ${chipBgColor}`}>
-            <span className="text-medium-eng text-grayscale-white">
-              {chipText}
-            </span>
-          </div>
+        <div className="w-32 px-gap-xxs inline-flex flex-col justify-start items-start gap-2.5">
+          <StatusBadge type={badgeTypeMap[status]} />
         </div>
 
         {/* 4. Duration Column */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
             {isUntest ? "-" : duration}
           </span>
@@ -137,7 +122,7 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
 
         {/* 5. Menu Icon */}
         <div 
-            className="p-1 rounded-lg flex justify-start items-center gap-2 hover:bg-grayscale-gy100 transition-colors"
+            className="p-1 rounded-lg flex justify-start items-center gap-xxs hover:bg-grayscale-gy100 transition-colors"
             onClick={(e) => {
                 e.stopPropagation();
                 onMenuClick?.(e);

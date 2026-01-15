@@ -6,8 +6,8 @@ import Chip from "../Chip/Chip";
 import starIcon from "../../../assets/icons/star.svg";
 import forkIcon from "../../../assets/icons/fork.svg";
 import issueIcon from "../../../assets/icons/issue_opened.svg";
-import prIcon from "../../../assets/icons/pull_request.svg";
-import dotIcon from "../../../assets/icons/dot.svg";
+//import prIcon from "../../../assets/icons/pull_request.svg";
+import DotIcon from "../../../assets/icons/dot.svg?react";
 
 export interface RepositoryListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -62,6 +62,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
     const titleColor = disabled ? "text-system-deactive" : "text-grayscale-black";
     const contentColor = disabled ? "text-system-deactive" : "text-grayscale-gy800";
     const iconOpacity = disabled ? "opacity-50 grayscale" : "opacity-100";
+    const dotStyleClass = disabled ? "opacity-40" : "brightness-50";
 
     return (
       <div
@@ -79,10 +80,9 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         }}
         className={`
           group relative 
-          /* 너비 1260px, 패딩 py-4 (16px) 적용 -> 높이 112px 완성 */
-          w-full max-w-[var(--width-max)]
-          px-5 py-4 
-          flex items-start gap-5 
+          w-full max-w-max
+          px-gap-m py-gap-s 
+          flex items-start gap-m
           
           bg-grayscale-white border-b border-grayscale-gy300
           transition-colors duration-200
@@ -112,10 +112,10 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         </div>
 
         {/* 2. Middle: Main Content */}
-        <div className="flex-1 flex flex-col items-start gap-2 min-w-0">
+        <div className="flex-1 flex flex-col items-start gap-xxs min-w-0">
           
           {/* Header */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-s">
             <span className={`text-h3-eng truncate ${titleColor}`}>
               {title}
             </span>
@@ -141,7 +141,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
           )}
 
           {/* Footer Meta Info */}
-          <div className="flex flex-wrap items-center gap-2 overflow-hidden">
+          <div className="flex flex-wrap items-center gap-xxs overflow-hidden">
             {language && (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 flex items-center justify-center">
@@ -162,7 +162,10 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
 
             {language && (
                <div className="w-1.5 h-1.5 flex items-center justify-center">
-                 <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                 <DotIcon 
+                   className={`w-0.75 h-0.75 ${dotStyleClass}`} 
+                   aria-label="dot"
+                 />
                </div>
             )}
 
@@ -175,8 +178,10 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.forks}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
-                </div>
+                    <DotIcon 
+                   className={`w-0.75 h-0.75 ${dotStyleClass}`} 
+                   aria-label="dot"
+                 />                </div>
               </>
             )}
 
@@ -189,7 +194,10 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.stars}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                    <DotIcon 
+                   className={`w-0.75 h-0.75 ${dotStyleClass}`} 
+                   aria-label="dot"
+                 />
                 </div>
               </>
             )}
@@ -203,12 +211,15 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <span className={`text-regular-eng ${contentColor}`}>{stats.issues}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
+                    <DotIcon 
+                   className={`w-0.75 h-0.75 ${dotStyleClass}`} 
+                   aria-label="dot"
+                 />
                 </div>
               </>
             )}
 
-            {stats?.pullRequests !== undefined && (
+            {/*{stats?.pullRequests !== undefined && (
               <>
                 <div className="flex items-center gap-0.5">
                   <div className="w-5 h-5 flex items-center justify-center">
@@ -220,7 +231,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                     <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
                 </div>
               </>
-            )}
+            )}*/}
 
             {updatedAt && (
               <span className={`text-regular-eng ${contentColor}`}>{updatedAt}</span>

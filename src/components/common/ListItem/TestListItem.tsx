@@ -93,7 +93,7 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
           }
         }}
         className={`
-          group relative w-full inline-flex items-center gap-5 px-4 py-4
+          group relative w-full inline-flex items-center gap-m px-gap-s py-gap-s
           border-b border-grayscale-gy300
           transition-colors duration-200
           
@@ -111,37 +111,37 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
         {...rest}
       >
         {/* 1. ID Column */}
-        <div className="w-24 px-2 flex justify-start items-center gap-2.5">
+        <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
           <span className={`text-medium-eng ${mainTextColor}`}>
             {testId}
           </span>
         </div>
 
         {/* 2. Title Column */}
-        <div className="flex-1 px-2 flex justify-center items-center gap-2.5">
+        <div className="flex-1 px-gap-xxs flex justify-center items-center gap-2.5">
           <span className={`flex-1 text-h3-eng line-clamp-1 ${mainTextColor}`}>
             {title}
           </span>
         </div>
 
         {/* 3. Coverage Column */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
             {coverage || "-"}
           </span>
         </div>
 
         {/* 4. Duration Column */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
             {duration || "-"}
           </span>
         </div>
 
         {/* 5. User Column */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2 overflow-hidden">
+        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2 overflow-hidden">
             <div className={`w-6 h-6 relative ${userIconBg} rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center`}>
-                <span className="text-[10px] font-bold text-grayscale-white leading-none mt-[1px]">U</span>
+                <span className="text-[10px] font-bold text-grayscale-white leading-none mt-px">U</span>
             </div>
             <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor}`}>
                 {user || "-"}
@@ -149,7 +149,7 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
         </div>
 
         {/* 6. Date Column */}
-        <div className="w-48 px-2 flex justify-start items-center gap-2 overflow-hidden">
+        <div className="w-xs px-gap-xxs flex justify-start items-center gap-2 overflow-hidden">
            <span className={`text-medium-eng ${subTextColor}`}>
              {datePart}
            </span>

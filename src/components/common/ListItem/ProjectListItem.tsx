@@ -1,5 +1,5 @@
 import { forwardRef, useState } from "react";
-import dotIcon from "../../../assets/icons/dot.svg";
+import DotIcon from "../../../assets/icons/dot.svg?react";
 
 export interface ProjectListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   code: string;
@@ -59,10 +59,10 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         }}
         className={`
           group relative
-          w-full max-w-[var(--width-xl)]
-          px-5 py-4 rounded-2xl 
+          w-full max-w-xl
+          px-gap-m py-gap-s rounded-2xl
           shadow-ds-200
-          flex flex-col justify-start items-start gap-3
+          flex flex-col justify-start items-start gap-xs
           transition-all duration-200
           bg-grayscale-white
           ${!disabled && "hover:bg-grayscale-gy100 active:bg-grayscale-gy200"}
@@ -72,12 +72,12 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         {...rest}
       >
         {/* 1. Top Row */}
-        <div className="self-stretch flex justify-start items-center gap-5">
+        <div className="self-stretch flex justify-start items-center gap-m">
           <span className={`text-large-eng ${textColorClass}`}>
             {code}
           </span>
           <div className="self-stretch p-1 flex flex-col justify-start items-start">
-             <div className="w-0 flex-1 outline outline-1 outline-offset-[-0.50px] outline-grayscale-gy400"></div>
+             <div className="w-0 flex-1 outline-1 outline-offset-[-0.50px] outline-grayscale-gy400"></div>
           </div>
           <span className={`text-h3-eng ${textColorClass}`}>
             {title}
@@ -85,21 +85,19 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         </div>
 
         {/* 2. Bottom Row */}
-        <div className="w-full flex justify-start items-center gap-2 overflow-hidden">
+        <div className="w-full flex justify-start items-center gap-xxs overflow-hidden">
           {languages?.map((lang, index) => (
-            <div key={index} className="flex items-center gap-2">
-              {/* ✨ 수정됨: CSS div -> dotIcon 이미지 사용 */}
+            <div key={index} className="flex items-center gap-xxs">
               {index > 0 && (
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <img 
-                      src={dotIcon} 
-                      alt="dot" 
-                      className={`w-[3px] h-[3px] ${dotOpacityClass}`} 
+                    <DotIcon 
+                      className={`w-0.75 h-0.75 ${dotOpacityClass}`} 
+                      aria-label="dot"
                     />
                 </div>
               )}
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-xxs">
                 <div className="w-5 h-5 flex items-center justify-center">
                   <div
                     className="w-2.5 h-2.5 rounded-full"
@@ -116,11 +114,10 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
           {/* ✨ 수정됨: 날짜 앞 구분점도 dotIcon 사용 */}
           {languages && languages.length > 0 && updatedAt && (
             <div className="w-1.5 h-1.5 flex items-center justify-center">
-                 <img 
-                   src={dotIcon} 
-                   alt="dot" 
-                   className={`w-[3px] h-[3px] ${dotOpacityClass}`} 
-                 />
+                 <DotIcon 
+                      className={`w-0.75 h-0.75 ${dotOpacityClass}`} 
+                      aria-label="dot"
+                    />
             </div>
           )}
 
