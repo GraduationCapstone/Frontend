@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import dismissIcon from "../../../assets/icons/dismiss.svg";
-import { Button } from "../Button"; // 기존 Button 컴포넌트 재사용
+import { Button, IconOnlyButton } from "../Button";
 
 interface SimpleModalProps {
   title?: string;
@@ -25,14 +25,13 @@ export default function SimpleModal({
 
   return (
     // Backdrop (옵션: 배경이 필요하다면 추가)
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       
       {/* Modal Container */}
       <div
         className={`
-          /* 1. Layout & Size (반응형 X, 고정 크기) */
-          w-overlay-modal
-          h-[17.5rem]
+          w-overlay-modal max-w-full
+          h-70
           flex flex-col justify-between items-center
           
           /* 2. Spacing & Shape */
@@ -41,7 +40,7 @@ export default function SimpleModal({
           
           /* 3. Style (Background & Shadow) */
           bg-grayscale-white
-          shadow-ds-300
+          shadow-ds-400
         `}
       >
         {/* === 1. Header === */}
@@ -51,24 +50,16 @@ export default function SimpleModal({
           </span>
           
           {/* Close Button */}
-          <button
-            type="button"
+          <IconOnlyButton
+            ariaLabel="close"
+            iconSrc={dismissIcon}
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-grayscale-gy100 transition-colors"
-          >
-            <div className="w-6 h-6 flex items-center justify-center">
-              <img 
-                src={dismissIcon} 
-                alt="close" 
-                className="w-6 h-6" 
-              />
-            </div>
-          </button>
+          />
         </div>
 
         {/* === 2. Content Area === */}
         {/* w-80 (20rem) -> w-[20rem] or w-80 (Tailwind Default) */}
-        <div className="w-80 flex flex-col gap-gap-s">
+        <div className="w-m max-w-full flex flex-col gap-gap-s">
           {items.map((item, index) => (
             <div key={index} className="self-stretch flex justify-between items-center">
               <span className="text-h4-eng text-grayscale-black">
@@ -88,7 +79,7 @@ export default function SimpleModal({
             label="Btn"
             variant="solid"
             size="M"
-            widthClassName="w-full" // w-60을 채우기 위해
+            widthClassName="w-full"
             onClick={onConfirm}
           />
         </div>

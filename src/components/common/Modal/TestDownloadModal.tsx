@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import dismissIcon from "../../../assets/icons/dismiss.svg";
 import downloadIcon from "../../../assets/icons/download.svg";
-import { Button } from "../Button"; //
+import { Button, IconOnlyButton } from "../Button";
 
 interface TestDownloadModalProps {
   isOpen: boolean;
@@ -32,14 +32,14 @@ export default function TestDownloadModal({
 
   return (
     // Backdrop
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       
       {/* Modal Container */}
       <div
         className={`
           /* 1. Layout & Size */
-          w-overlay-modal   /* 35.25rem (564px) */
-          h-[17.5rem]       /* 280px (CSS 요청사항 반영) */
+          w-overlay-modal max-w-full  /* 35.25rem (564px) */
+          h-70      /* 280px (CSS 요청사항 반영) */
           flex flex-col justify-between items-center
           
           /* 2. Spacing & Shape */
@@ -48,40 +48,32 @@ export default function TestDownloadModal({
           
           /* 3. Style */
           bg-grayscale-white
-          shadow-ds-300
+          shadow-ds-400
         `}
       >
         {/* === Header === */}
         <div className="self-stretch flex justify-between items-center">
-          <span className="text-h3-eng text-grayscale-black font-semibold">
+          <span className="text-h3-eng text-grayscale-black">
             {title}
           </span>
           
           {/* Close Button */}
-          <button
-            type="button"
+        <IconOnlyButton
+            ariaLabel="close"
+            iconSrc={dismissIcon}
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-grayscale-gy100 transition-colors"
-          >
-            <div className="w-6 h-6 flex items-center justify-center">
-              <img 
-                src={dismissIcon} 
-                alt="close" 
-                className="w-6 h-6" 
-              />
-            </div>
-          </button>
+          />
         </div>
 
         {/* === Content === */}
         {/* w-80 (20rem) fixed width content area */}
-        <div className="w-80 flex flex-col gap-gap-s">
+        <div className="w-m max-w-full flex flex-col gap-gap-s">
           {items.map((item, index) => (
             <div key={index} className="self-stretch flex justify-between items-center">
-              <span className="text-h4-eng text-grayscale-black font-semibold">
+              <span className="text-h4-eng text-grayscale-black">
                 {item.label}
               </span>
-              <span className="text-h4-eng text-grayscale-gy400 font-semibold">
+              <span className="text-h4-eng text-grayscale-gy400">
                 {item.value}
               </span>
             </div>
