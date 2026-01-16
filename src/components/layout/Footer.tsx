@@ -9,7 +9,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
     <footer
       className={`
         w-full 
-        h-[60px] 
+        h-[3.75rem]
         px-10
         flex 
         items-center 

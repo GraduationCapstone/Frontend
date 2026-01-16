@@ -10,9 +10,9 @@ export default function Header({ isLoggedIn = false }: HeaderProps) {
   return (
     <header
       className="
-        w-full h-[72px] px-10 fixed top-0 left-0 z-50
+        w-full h-[4.5rem] px-10 fixed top-0 left-0 z-50
         bg-grayscale-white border-b border-grayscale-gy200
-        flex items-center justify-start gap-[60px]
+        flex items-center justify-start gap-[3.75rem]
       "
     >
       {/* 1. Logo */}
