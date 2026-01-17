@@ -69,3 +69,11 @@ export const getSelectTriggerClassNames = (
     icon: cn("w-[1.25rem] h-[1.25rem] shrink-0", iconClassName),
   };
 };
+
+export const Btn_Static_Clear_S_Text_Icon = (
+  props: Omit<Parameters<typeof getSelectTriggerClassNames>[0], "variant"> = {}
+) => getSelectTriggerClassNames({ variant: "static", ...props });
+
+export const Btn_Dynamic_Clear_S_Icons_Text = (
+  props: Omit<Parameters<typeof getSelectTriggerClassNames>[0], "variant"> = {}
+) => getSelectTriggerClassNames({ variant: "dynamic", ...props });

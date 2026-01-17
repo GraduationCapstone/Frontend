@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from "react";
-import boxIconUrl from "../../../assets/icons/box.svg";
-import checkedIconUrl from "../../../assets/icons/checkbox.svg";
+import BoxIcon from "../../../assets/icons/box.svg?react";
+import CheckedIcon from "../../../assets/icons/checkbox.svg?react";
+
+export type SvgIconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
 type IconSet = {
-  box: string;
-  checked: string;
+  box: SvgIconComponent;
+  checked: SvgIconComponent;
 };
 
 export interface CheckboxButtonProps
@@ -21,7 +23,6 @@ export interface CheckboxButtonProps
   className?: string;
 
   icons?: Partial<IconSet>;
-  renderMode?: "mask" | "img";
 }
 
 const cn = (...classes: Array<string | undefined | false>) =>
@@ -37,25 +38,32 @@ export default function CheckboxButton({
   labelClassName,
   className,
   icons,
-  renderMode = "mask",
+
+  onClick: userOnClick,
+  onKeyDown: userOnKeyDown,
+  onPointerEnter: userOnPointerEnter,
+  onPointerLeave: userOnPointerLeave,
+  onPointerDown: userOnPointerDown,
+  onPointerUp: userOnPointerUp,
+  onPointerCancel: userOnPointerCancel,
+
   ...rest
 }: CheckboxButtonProps) {
   const ICONS: IconSet = {
-    box: icons?.box ?? boxIconUrl,
-    checked: icons?.checked ?? checkedIconUrl,
+    box: icons?.box ?? BoxIcon,
+    checked: icons?.checked ?? CheckedIcon,
   };
 
-  const isControlled = typeof checked === "boolean";
+  const isControlled = typeof checked === "boolean" && typeof onCheckedChange === "function";
   const [innerChecked, setInnerChecked] = useState<boolean>(defaultChecked ?? false);
   const isChecked = isControlled ? (checked as boolean) : innerChecked;
 
   const [isHover, setIsHover] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
-  const iconSrc = useMemo(() => {
-    if (disabled) return isChecked ? ICONS.checked : ICONS.box;
-    if (isPressing) return ICONS.checked;
+
+  const Icon = useMemo(() => {
     return isChecked ? ICONS.checked : ICONS.box;
-  }, [disabled, isChecked, isPressing, ICONS.box, ICONS.checked]);
+  }, [isChecked, ICONS.box, ICONS.checked]);
 
   const toggle = () => {
     if (disabled) return;
@@ -64,12 +72,17 @@ export default function CheckboxButton({
     onCheckedChange?.(next);
   };
 
-  const onKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (e) => {
-    if (disabled) return;
-    if (e.key === " " || e.key === "Enter") {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    toggle();
+    userOnClick?.(e);
+  };
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (e) => {
+    if (!disabled && (e.key === " " || e.key === "Enter")) {
       e.preventDefault();
       toggle();
     }
+    userOnKeyDown?.(e);
   };
 
   return (
@@ -80,16 +93,6 @@ export default function CheckboxButton({
       aria-checked={isChecked}
       aria-disabled={disabled ? true : undefined}
       disabled={disabled}
-      onClick={toggle}
-      onKeyDown={onKeyDown}
-      onPointerEnter={() => setIsHover(true)}
-      onPointerLeave={() => {
-        setIsHover(false);
-        setIsPressing(false);
-      }}
-      onPointerDown={() => setIsPressing(true)}
-      onPointerUp={() => setIsPressing(false)}
-      onPointerCancel={() => setIsPressing(false)}
       className={cn(
         "inline-flex p-[0.25rem] items-center gap-[0.5rem] rounded-[0.5rem] bg-grayscale-white",
         !disabled && isHover && "bg-grayscale-gy100 text-grayscale-gy400",
@@ -97,34 +100,47 @@ export default function CheckboxButton({
         disabled && "text-system-deactive cursor-not-allowed bg-grayscale-white",
         !disabled && "text-grayscale-gy400 bg-grayscale-white",
         !disabled && isChecked && "text-primary-sg500",
-
         className
       )}
       {...rest}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onPointerEnter={(e) => {
+        setIsHover(true);
+        userOnPointerEnter?.(e);
+      }}
+      onPointerLeave={(e) => {
+        setIsHover(false);
+        setIsPressing(false);
+        userOnPointerLeave?.(e);
+      }}
+      onPointerDown={(e) => {
+        setIsPressing(true);
+        userOnPointerDown?.(e);
+      }}
+      onPointerUp={(e) => {
+        setIsPressing(false);
+        userOnPointerUp?.(e);
+      }}
+      onPointerCancel={(e) => {
+        setIsPressing(false);
+        userOnPointerCancel?.(e);
+      }}
     >
-      {renderMode === "img" ? (
-        <img
-          src={iconSrc}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          className={cn("shrink-0", iconClassName ?? "w-6 h-6")} // 1.5rem
-        />
-      ) : (
-        <span
-          aria-hidden="true"
-          className={cn(
-            "bg-current shrink-0",
-            "[mask-repeat:no-repeat] [mask-position:center] [mask-size:contain]",
-            "[webkit-mask-repeat:no-repeat] [webkit-mask-position:center] [webkit-mask-size:contain]",
-            iconClassName ?? "w-6 h-6"
-          )}
-          style={{
-            WebkitMaskImage: `url("${iconSrc}")`,
-            maskImage: `url("${iconSrc}")`,
-          }}
-        />
-      )}
+      <Icon
+        aria-hidden="true"
+        className={cn(
+          "shrink-0 w-6 h-6",
+          "[&_*]:fill-current [&_*]:stroke-current",
+          iconClassName
+        )}
+      />
+      {labelClassName ? <span className={labelClassName} /> : null}
     </button>
   );
 }
+
+export function Btn_Static_Checkbox(props: CheckboxButtonProps) {
+  return <CheckboxButton {...props} />;
+}
+Btn_Static_Checkbox.displayName = "Btn_Static/Checkbox";
