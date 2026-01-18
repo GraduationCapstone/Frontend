@@ -207,12 +207,11 @@ export default function Dropbox({
         <div
           role="listbox"
           className={[
-            "inline-flex, flex-col, justify-start, items-start gap-2",
+            "inline-flex flex-col justify-start items-start gap-2",
             "py-3",
             "bg-grayscale-white",
             "rounded-2xl",
             "shadow-ds-200",
-            "flex flex-col justify-start items-start gap-1",
           ].join(" ")}
         >
           {dropdownItems.map((it) => {

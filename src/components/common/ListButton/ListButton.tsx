@@ -1,45 +1,59 @@
-import { useState } from "react";
-import type { ListButtonLeading, ListButtonProps, ListButtonTrailing, ListButtonVariant } from "./types";
-import { ICON_SRC } from "./icons";
+import { useMemo, useState } from "react";
+import type {
+  ListButtonLeading,
+  ListButtonProps,
+  ListButtonTrailing,
+  ListButtonVariant,
+  SvgIconComponent,
+  ListButtonIconVariant,
+} from "./types";
 import { getListButtonClassNames } from "./styles";
+import PlusIcon from "../../../assets/icons/plus.svg?react";
+import SwitchIcon from "../../../assets/icons/switch.svg?react";
+import CheckIcon from "../../../assets/icons/check.svg?react";
 
 const cn = (...args: Array<string | undefined | false>) => args.filter(Boolean).join(" ");
 
-const MaskIcon = (props: { src: string; className: string }) => {
-  const { src, className } = props;
-
+const SvgIcon = (props: { Icon: SvgIconComponent; className?: string }) => {
+  const { Icon, className } = props;
   return (
-    <span
-      aria-hidden
-      className={cn("shrink-0 bg-current", className)}
-      style={{
-        WebkitMaskImage: `url("${src}")`,
-        maskImage: `url("${src}")`,
-        WebkitMaskRepeat: "no-repeat",
-        maskRepeat: "no-repeat",
-        WebkitMaskPosition: "center",
-        maskPosition: "center",
-        WebkitMaskSize: "contain",
-        maskSize: "contain",
-      }}
+    <Icon
+      aria-hidden="true"
+      focusable="false"
+      className={cn("shrink-0", "[&_*]:fill-current [&_*]:stroke-current", className)}
     />
   );
+};
+
+const DEFAULT_ICONS: Record<ListButtonIconVariant, SvgIconComponent> = {
+  plus: PlusIcon,
+  switch: SwitchIcon,
+  check: CheckIcon,
+};
+
+const resolveIcon = (
+  key: ListButtonIconVariant,
+  overrides?: Partial<Record<ListButtonIconVariant, SvgIconComponent | null>>
+): SvgIconComponent | null => {
+  if (overrides && Object.prototype.hasOwnProperty.call(overrides, key)) {
+    const v = overrides[key];
+    return v ?? null;
+  }
+  return DEFAULT_ICONS[key];
 };
 
 const renderLeading = (
   leading: ListButtonLeading | undefined,
   styles: ReturnType<typeof getListButtonClassNames>,
+  iconOverrides: ListButtonProps["icons"],
   leadingClassName?: string,
   isEmptyPlaceholder?: boolean
 ) => {
+
+  const iconBox = styles.iconBox.replace("bg-current", "").trim();
+
   if (isEmptyPlaceholder) {
-    // 빈 공간 유지
-    return (
-      <span
-        className={cn(styles.iconBox.replace("bg-current", "bg-transparent"), leadingClassName)}
-        aria-hidden
-      />
-    );
+    return <span className={cn(iconBox, leadingClassName)} aria-hidden />;
   }
 
   if (!leading || leading.type === "none") return null;
@@ -64,24 +78,24 @@ const renderLeading = (
   if (leading.type === "icons") {
     return (
       <span className={cn("flex items-center gap-[10px]", leadingClassName)}>
-        {leading.icons.map((k, idx) => (
-          <MaskIcon key={`${k}-${idx}`} src={ICON_SRC[k]} className={styles.iconBox} />
-        ))}
+        {leading.icons.map((k, idx) => {
+          const IconComp = resolveIcon(k, iconOverrides);
+          if (!IconComp) return null;
+          return <SvgIcon key={`${k}-${idx}`} Icon={IconComp} className={iconBox} />;
+        })}
       </span>
     );
   }
 
-  return (
-    <MaskIcon
-      src={ICON_SRC[leading.icon]}
-      className={cn(styles.iconBox, leadingClassName)}
-    />
-  );
+  const IconComp = resolveIcon(leading.icon, iconOverrides);
+  if (!IconComp) return null;
+  return <SvgIcon Icon={IconComp} className={cn(iconBox, leadingClassName)} />;
 };
 
 const renderTrailing = (
   trailing: ListButtonTrailing | undefined,
   styles: ReturnType<typeof getListButtonClassNames>,
+  iconOverrides: ListButtonProps["icons"],
   trailingClassName?: string,
   shouldHide?: boolean,
   variant?: ListButtonVariant,
@@ -89,7 +103,10 @@ const renderTrailing = (
 ) => {
   if (!trailing || trailing.type === "none") return null;
 
-  // 아이콘 색 같이 안 바뀌게 설정
+  const iconBox = styles.iconBox.replace("bg-current", "").trim();
+  const IconComp = resolveIcon(trailing.icon, iconOverrides);
+  if (!IconComp) return null;
+
   const switchIconColor =
     variant === "dynamicWhiteMImgTextIcon" && trailing.icon === "switch" && !disabled
       ? "text-grayscale-black"
@@ -97,14 +114,9 @@ const renderTrailing = (
 
   return (
     <span className={styles.right}>
-      <MaskIcon
-        src={ICON_SRC[trailing.icon]}
-        className={cn(
-          styles.iconBox,
-          switchIconColor,
-          shouldHide && "opacity-0",
-          trailingClassName
-        )}
+      <SvgIcon
+        Icon={IconComp}
+        className={cn(iconBox, switchIconColor, shouldHide && "opacity-0", trailingClassName)}
       />
     </span>
   );
@@ -122,13 +134,14 @@ export const ListButton = ({
   labelClassName,
   leadingClassName,
   trailingClassName,
+  icons,
   onClick,
   ...rest
 }: ListButtonProps) => {
   const [isClicked, setIsClicked] = useState(false);
+
   const isDynamicWhiteSIconsText = variant === "dynamicWhiteSIconsText";
   const isDynamicWhiteMImgTextIcon = variant === "dynamicWhiteMImgTextIcon";
-  
 
   const shouldHideTrailing = isDynamicWhiteMImgTextIcon && isClicked;
   const hasTrailing = !!trailing && trailing.type !== "none";
@@ -141,8 +154,8 @@ export const ListButton = ({
     className,
   });
 
-  const isEmptyPlaceholder =
-    !isDynamicWhiteSIconsText && leading.type === "none";
+  const isEmptyPlaceholder = !isDynamicWhiteSIconsText && leading.type === "none";
+  const iconOverrides = useMemo(() => icons, [icons]);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled) return;
@@ -150,9 +163,13 @@ export const ListButton = ({
     if (isDynamicWhiteSIconsText || isDynamicWhiteMImgTextIcon) {
       setIsClicked((prev) => !prev);
     }
-    
+
     onClick?.(e);
   };
+
+  const iconBox = styles.iconBox.replace("bg-current", "").trim();
+  const CheckIcon = resolveIcon("check", iconOverrides);
+  const PlusIcon = resolveIcon("plus", iconOverrides);
 
   return (
     <button
@@ -165,31 +182,27 @@ export const ListButton = ({
     >
       <span className={styles.left}>
         {isDynamicWhiteSIconsText ? (
-          // 클릭 시 체크 보이게
           <span className={cn("flex items-center gap-[0.5rem]", leadingClassName)}>
-            <MaskIcon
-              src={ICON_SRC.check}
-              className={cn(styles.iconBox, !isClicked && "opacity-0")}
-            />
-            <MaskIcon src={ICON_SRC.plus} className={styles.iconBox} />
+            {CheckIcon ? (
+              <SvgIcon Icon={CheckIcon} className={cn(iconBox, !isClicked && "opacity-0")} />
+            ) : null}
+            {PlusIcon ? <SvgIcon Icon={PlusIcon} className={iconBox} /> : null}
           </span>
         ) : (
-          renderLeading(leading, styles, leadingClassName, isEmptyPlaceholder)
+          renderLeading(leading, styles, iconOverrides, leadingClassName, isEmptyPlaceholder)
         )}
+
         <span className={cn(styles.label, labelClassName)}>{label}</span>
       </span>
 
-      {renderTrailing(trailing, styles, trailingClassName, shouldHideTrailing, variant, disabled)}
+      {renderTrailing(trailing, styles, iconOverrides, trailingClassName, shouldHideTrailing, variant, disabled)}
     </button>
   );
 };
 
 type WrapperProps = Omit<ListButtonProps, "variant">;
 
-const defaultsByVariant: Record<
-  ListButtonVariant,
-  Pick<ListButtonProps, "leading" | "trailing">
-> = {
+const defaultsByVariant: Record<ListButtonVariant, Pick<ListButtonProps, "leading" | "trailing">> = {
   staticWhiteMIconText: {
     leading: { type: "icon", icon: "plus" },
     trailing: { type: "none" },
@@ -228,14 +241,7 @@ const withVariant = (variant: ListButtonVariant) => {
     const trailing = p.trailing ?? d.trailing;
     const leading = p.leading ?? d.leading;
 
-    return (
-      <ListButton
-        {...p}
-        variant={variant}
-        leading={leading}
-        trailing={trailing}
-      />
-    );
+    return <ListButton {...p} variant={variant} leading={leading} trailing={trailing} />;
   };
 
   return Comp;
@@ -247,4 +253,3 @@ export const DynamicWhiteMIconTextButton = withVariant("dynamicWhiteMIconText");
 export const DynamicWhiteMSmoothIconTextButton = withVariant("dynamicWhiteMSmoothIconText");
 export const DynamicWhiteSIconsTextButton = withVariant("dynamicWhiteSIconsText");
 export const DynamicWhiteSIconTextButton = withVariant("dynamicWhiteSIconText");
-

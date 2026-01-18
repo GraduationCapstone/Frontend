@@ -1,12 +1,20 @@
-import type { ButtonProps, IconButtonProps, IconButtonVariant, IconOnlyButtonProps } from "./types";
+import type { ButtonVariant, IconButtonVariant, IconOnlyButtonVariant } from "./types";
 
-export const cn = (...classes: Array<string | undefined | false>) =>
-    classes.filter(Boolean).join(" ");
-  type Size = NonNullable<ButtonProps["size"]>;
+export const cn = (...values: Array<string | undefined | null | false>) =>
+  values.filter(Boolean).join(" ");
 
-  type IconVariant = IconButtonVariant;
+// Btn_Static/GY900_L/Text (고정형)
+const BTN_STATIC_GY900_L_TEXT_STATE = {
+  default: "bg-grayscale-gy900 text-grayscale-white",
+  hover: "hover:bg-grayscale-gy900 hover:text-primary-sg400",
+  pressing: "active:bg-primary-sg500 active:text-grayscale-black",
+  clicked: "focus:bg-primary-gy900 focus:text-grayscale-white",
+  deactive:
+    "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
+} as const;
 
-const SOLID_STATE_DEFAULT = {
+// Btn_Static/GY900_M/Text (고정형)
+const BTN_STATIC_GY900_M_TEXT_STATE = {
   default: "bg-grayscale-gy900 text-grayscale-white",
   hover: "hover:bg-primary-sg500",
   pressing: "active:bg-primary-sg550 active:text-grayscale-white",
@@ -15,92 +23,178 @@ const SOLID_STATE_DEFAULT = {
     "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
 } as const;
 
-const SOLID_STATE_STATIC_L = {
-    default: "bg-grayscale-gy900 text-grayscale-white",
-    hover: "hover:bg-grayscale-gy900 hover:text-primary-sg400",
-    pressing: "active:bg-primary-sg500 active:text-grayscale-black",
-    clicked: "focus:bg-primary-gy900 focus:text-grayscale-white",
-    deactive:
-      "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
-  } as const;
-
-
-const SOLID_PRESET: Record<Size, { root: string; label: string }> = {
-  L: {
-    root: "flex w-l py-3 rounded-[1rem] shadow-ds-200 gap-2.5",
-    label: "text-h2-eng",
-  },
-  M: {
-    root: "flex w-s py-[0.5rem] rounded-[0.75rem] shadow-ds-200 gap-2.5",
-    label: "text-h3-eng text-grayscale-white",
-  },
-  S: {
-    root: "inline-flex px-[0.5rem] py-[1rem] rounded-[0.5rem] gap-2.5",
-    label: "text-h4-eng text-grayscale-white",
-  },
-};
-
-const TEXT_PRESET = {
-    root: "inline-flex px-[1.25rem] py-[0.5rem] rounded-[0.5rem] gap-2.5 bg-transparent",
-    label:
-      "text-medium-eng text-grayscale-black underline decoration-current underline-offset-auto",
-  } as const;
-
-  const TEXT_STATE_ROOT = {
-    hover: "hover:bg-[rgba(31,35,40,0.05)]",
-    pressing: "active:bg-[rgba(31,35,40,0.10)]",
-    deactive:
-      "disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:bg-transparent",
-  } as const;
-
-const ICON_BASE = {
-    root: "inline-flex items-center justify-center rounded-xl gap-[0.5rem] pl-[0.75rem] pr-[1rem] py-[0.5rem] rounded-[0.75rem]",
-    icon: "w-[1.5rem] h-[1.5rem] bg-current [mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] " +
-      "[webkit-mask-repeat:no-repeat] [webkit-mask-position:center] [webkit-mask-size:contain]",
-    label: "text-h3-eng text-center",
-  }
-  const ICON_STATE: Record<
-  IconVariant,
-  { default: string; hover: string; pressing: string; clicked: string; deactive: string }
-> = {
-  download: {
-    deactive:
+// Btn_Dynamic/SG500_S/Text (반응형)
+const BTN_DYNAMIC_SG500_S_TEXT_STATE = {
+  default: "bg-grayscale-gy900 text-grayscale-white",
+  hover: "hover:bg-primary-sg500",
+  pressing: "active:bg-primary-sg550 active:text-grayscale-white",
+  clicked: "focus:bg-grayscale-gy900 focus:text-grayscale-white",
+  deactive:
     "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
-    default: "bg-grayscale-gy900 text-grayscale-white",
-    hover: "hover:bg-primary-sg500 hover:text-grayscale-white",
-    pressing: "active:bg-primary-sg550 active:text-grayscale-white",
-    clicked: "focus:text-grayscale-white",
-  },
-  settings: {
-    deactive:
-      "disabled:bg-grayscale-white disabled:text-grayscale-gy500 disabled:cursor-not-allowed disabled:shadow-ds-200",
-    default: "bg-grayscale-white text-grayscale-black shadow-ds-200",
-    hover: "hover:bg-grayscale-gy100 hover:text-grayscale-black hover:shadow-ds-200",
-    pressing: "active:bg-grayscale-gy200 active:text-grayscale-black active:shadow-ds-200",
-    clicked: "focus:bg-grayscale-white focus:text-grayscale-black focus:shadow-ds-200",
-  },
-  profile: {
-    deactive:
-      "disabled:bg-transparent disabled:text-system-deactive disabled:cursor-not-allowed text-h4-eng",
-    default: "bg-transparent text-grayscale-white text-h4-eng",
-    hover: "hover:bg-[rgba(252,252,255,0.20)] hover:text-grayscale-white text-h4-eng",
-    pressing: "active:bg-[rgba(252,252,255,0.30)] active:text-grayscale-white text-h4-eng",
-    clicked: "focus:bg-transparent focus:text-primary-sg600 text-h4-eng",
-  },
-};
-
-const ICON_ONLY_BASE = {
-  root:
-    "inline-flex p-[0.25rem] items-center gap-[0.5rem] rounded-[0.5rem] " +
-    "transition-colors duration-200 ease-in-out " +
-    "focus:outline-none focus-visible:outline-none",
-  icon:
-    "bg-current shrink-0 " +
-    "[mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] " +
-    "[webkit-mask-repeat:no-repeat] [webkit-mask-position:center] [webkit-mask-size:contain]",
 } as const;
 
-const ICON_ONLY_STATE = {
+const BTN_DYNAMIC_CLEAR_S_TEXT_UNDERLINED_STATE_ROOT = {
+  hover: "hover:bg-[rgba(31,35,40,0.05)]",
+  pressing: "active:bg-[rgba(31,35,40,0.10)]",
+  deactive:
+    "disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:bg-transparent disabled:text-system-deactive",
+} as const;
+
+const BUTTON_PRESET: Record<ButtonVariant, { root: string; label: string }> = {
+  staticGy900LText: {
+    root:
+      "inline-flex items-center justify-center gap-2.5 rounded-2xl py-3 outline-none shadow-ds-200 w-l",
+    label: "text-h2-kr text-center",
+  },
+  staticGy900MText: {
+    root:
+      "inline-flex items-center justify-center gap-2.5 rounded-xl py-2 outline-none shadow-ds-200 w-s",
+    label: "text-h3-kr",
+  },
+  dynamicSg500SText: {
+    root:
+      "inline-flex items-center justify-center gap-2.5 rounded-lg px-4 py-2 outline-none",
+    label: "text-h4-kr",
+  },
+  dynamicClearSTextUnderlined: {
+    root: "inline-flex px-5 py-2 rounded-lg gap-2.5 bg-transparent",
+    label:
+      "text-medium-eng underline decoration-current underline-offset-auto",
+      // typo 수정 후 맞추기 ⭐️⭐️⭐️⭐️⭐️⭐️
+  },
+};
+
+const BUTTON_STATE: Record<
+  Exclude<ButtonVariant, "dynamicClearSTextUnderlined">,
+  { default: string; hover: string; pressing: string; clicked: string; deactive: string }
+> = {
+  staticGy900LText: BTN_STATIC_GY900_L_TEXT_STATE,
+  staticGy900MText: BTN_STATIC_GY900_M_TEXT_STATE,
+  dynamicSg500SText: BTN_DYNAMIC_SG500_S_TEXT_STATE,
+};
+
+export const getButtonRootClassName = (args: {
+  variant: ButtonVariant;
+  className?: string;
+}) => {
+  const { variant, className } = args;
+
+  const preset = BUTTON_PRESET[variant];
+
+  if (variant === "dynamicClearSTextUnderlined") {
+    return cn(
+      preset.root,
+      BTN_DYNAMIC_CLEAR_S_TEXT_UNDERLINED_STATE_ROOT.hover,
+      BTN_DYNAMIC_CLEAR_S_TEXT_UNDERLINED_STATE_ROOT.pressing,
+      BTN_DYNAMIC_CLEAR_S_TEXT_UNDERLINED_STATE_ROOT.deactive,
+      className
+    );
+  }
+
+  const st = BUTTON_STATE[variant];
+  return cn(
+    preset.root,
+    st.default,
+    st.hover,
+    st.pressing,
+    st.clicked,
+    st.deactive,
+    className
+  );
+};
+
+export const getButtonLabelClassName = (variant: ButtonVariant) => {
+  return BUTTON_PRESET[variant].label;
+};
+
+// Btn_Dynamic/GY900_M/Icon_Text (반응형)
+const ICONBTN_DYNAMIC_GY900_M_ICON_TEXT_STATE = {
+  deactive:
+    "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
+  default: "bg-grayscale-gy900 text-grayscale-white",
+  hover: "hover:bg-primary-sg500 hover:text-grayscale-white",
+  pressing: "active:bg-primary-sg550 active:text-grayscale-white",
+  clicked: "focus:text-grayscale-white",
+} as const;
+
+// Btn_Dynamic/White_M_DS/Icon_Text (반응형)
+const ICONBTN_DYNAMIC_WHITE_M_DS_ICON_TEXT_STATE = {
+  deactive:
+    "disabled:bg-grayscale-white disabled:text-grayscale-gy500 disabled:cursor-not-allowed disabled:shadow-ds-200",
+  default: "bg-grayscale-white text-grayscale-black shadow-ds-200",
+  hover: "hover:bg-grayscale-gy100 hover:text-grayscale-black hover:shadow-ds-200",
+  pressing: "active:bg-grayscale-gy200 active:text-grayscale-black active:shadow-ds-200",
+  clicked: "focus:bg-grayscale-white focus:text-grayscale-black focus:shadow-ds-200",
+} as const;
+
+// Btn_Dynamic/Clear_S/Icon_Text (반응형)
+const ICONBTN_DYNAMIC_CLEAR_S_ICON_TEXT_STATE = {
+  deactive:
+    "disabled:bg-transparent disabled:text-system-deactive disabled:cursor-not-allowed",
+  default: "bg-transparent text-grayscale-white",
+  hover:
+    "hover:bg-[rgba(252,252,255,0.20)] hover:text-grayscale-white",
+  pressing:
+    "active:bg-[rgba(252,252,255,0.30)] active:text-grayscale-white",
+  clicked: "focus:bg-transparent focus:text-primary-sg600",
+} as const;
+
+const ICONBUTTON_PRESET: Record<IconButtonVariant, { root: string; label: string }> = {
+  dynamicGy900MIconText: {
+    root:
+      "inline-flex items-center justify-center gap-2 rounded-xl pl-3 pr-4 py-2 outline-none",
+    label: "text-h3-kr",
+  },
+  dynamicWhiteMDsIconText: {
+    root:
+      "inline-flex items-center justify-center gap-2 rounded-xl pl-3 pr-4 py-2 outline-none shadow-ds-200",
+    label: "text-h3-kr",
+  },
+  dynamicClearSIconText: {
+    root:
+      "inline-flex items-center justify-center gap-2 rounded-lg pl-3 pr-4 py-2 outline-none",
+    label: "text-h4-kr",
+  },
+};
+
+const ICONBUTTON_STATE: Record<
+  IconButtonVariant,
+  { default: string; hover: string; pressing: string; clicked: string; deactive: string }
+> = {
+  dynamicGy900MIconText: ICONBTN_DYNAMIC_GY900_M_ICON_TEXT_STATE,
+  dynamicWhiteMDsIconText: ICONBTN_DYNAMIC_WHITE_M_DS_ICON_TEXT_STATE,
+  dynamicClearSIconText: ICONBTN_DYNAMIC_CLEAR_S_ICON_TEXT_STATE,
+};
+
+export const getIconButtonRootClassName = (args: {
+  variant: IconButtonVariant;
+  className?: string;
+}) => {
+  const { variant, className } = args;
+  const preset = ICONBUTTON_PRESET[variant];
+  const st = ICONBUTTON_STATE[variant];
+
+  return cn(
+    preset.root,
+    st.default,
+    st.hover,
+    st.pressing,
+    st.clicked,
+    st.deactive,
+    className
+  );
+};
+
+export const getIconButtonLabelClassName = (variant: IconButtonVariant) => {
+  return ICONBUTTON_PRESET[variant].label;
+};
+
+export const getIconDefaultClassName = (iconClassName?: string) => {
+  return cn("shrink-0 w-6 h-6 fill-current stroke-current [&_*]:fill-current [&_*]:stroke-current", iconClassName);
+};
+
+// Btn_Static/Clear_XS/Icon (고정형)
+const ICONONLYBTN_STATIC_CLEAR_XS_ICON_STATE = {
   deactive:
     "disabled:bg-transparent disabled:text-system-deactive disabled:cursor-not-allowed " +
     "disabled:hover:bg-transparent disabled:active:bg-transparent",
@@ -110,130 +204,34 @@ const ICON_ONLY_STATE = {
   clicked: "focus:bg-transparent focus:text-grayscale-black",
 } as const;
 
+const ICONONLY_PRESET: Record<IconOnlyButtonVariant, { root: string }> = {
+  staticClearXsIcon: {
+    root: "inline-flex items-center justify-center outline-none p-1 rounded-lg gap-2",
+  },
+};
 
-// ----------------------------------------
+const ICONONLY_STATE: Record<
+  IconOnlyButtonVariant,
+  { default: string; hover: string; pressing: string; clicked: string; deactive: string }
+> = {
+  staticClearXsIcon: ICONONLYBTN_STATIC_CLEAR_XS_ICON_STATE,
+};
 
-// BUTTON
-  const pickSolidState = (variant: ButtonProps["variant"], size: Size) => {
-    if (variant === "solidStaticL" && size === "L") return SOLID_STATE_STATIC_L;
-    return SOLID_STATE_DEFAULT;
-  };
+export const getIconOnlyButtonRootClassName = (args: {
+  variant: IconOnlyButtonVariant;
+  className?: string;
+}) => {
+  const { variant, className } = args;
+  const preset = ICONONLY_PRESET[variant];
+  const st = ICONONLY_STATE[variant];
 
-  export const getButtonClassNames = (
-    props: Pick<
-      ButtonProps,
-      | "variant"
-      | "size"
-      | "className"
-      | "widthClassName"
-      | "paddingClassName"
-      | "labelClassName"
-    >
-  ) => {
-    const {
-      variant = "solid",
-      size = "L",
-      className,
-      widthClassName,
-      paddingClassName,
-      labelClassName,
-    } = props;
-  
-    const baseRoot =
-      "items-center justify-center font-sans transition-colors duration-200 ease-in-out";
-    const baseLabel = "text-center justify-center";
-  
-    if (variant === "text") {
-      return {
-        root: cn(
-          baseRoot,
-          TEXT_PRESET.root,
-          TEXT_STATE_ROOT.hover,
-          TEXT_STATE_ROOT.pressing,
-          TEXT_STATE_ROOT.deactive,
-          widthClassName,
-          paddingClassName,
-          className
-        ),
-        label: cn(baseLabel, TEXT_PRESET.label, labelClassName),
-      };
-    }
-  
-    const preset = SOLID_PRESET[size];
-    const state = pickSolidState(variant, size);
-  
-    return {
-      root: cn(
-        baseRoot,
-        preset.root,
-        state.default,
-        state.hover,
-        state.pressing,
-        state.clicked,
-        state.deactive,
-        widthClassName,
-        paddingClassName,
-        className
-      ),
-      label: cn(baseLabel, preset.label, labelClassName),
-    };
-  };
-
-// ICON BUTTON
-
-export const getIconButtonClassNames = (
-    props: Pick<
-      IconButtonProps,
-      "variant" | "className" | "widthClassName" | "paddingClassName" | "iconClassName" | "labelClassName"
-    >
-  ) => {
-    const {
-      variant = "download",
-      className,
-      widthClassName,
-      paddingClassName,
-      iconClassName,
-      labelClassName,
-    } = props;
-  
-    const state = ICON_STATE[variant];
-    const rootBase = ICON_BASE.root;
-    const iconBase = ICON_BASE.icon;
-    const labelBase = ICON_BASE.label;
-  
-    return {
-      root: cn(
-        rootBase,
-        state.default,
-        state.hover,
-        state.pressing,
-        state.clicked,
-        state.deactive,
-        widthClassName,
-        paddingClassName,
-        className
-      ),
-      icon: cn(iconBase, iconClassName),
-      label: cn(labelBase, labelClassName),
-    };
-  };
-
-  // ICON ONLY BUTTON
-  export const getIconOnlyButtonClassNames = (
-    props: Pick<IconOnlyButtonProps, "className" | "iconClassName">
-  ) => {
-    const { className, iconClassName } = props;
-  
-    return {
-      root: cn(
-        ICON_ONLY_BASE.root,
-        ICON_ONLY_STATE.default,
-        ICON_ONLY_STATE.hover,
-        ICON_ONLY_STATE.pressing,
-        ICON_ONLY_STATE.clicked,
-        ICON_ONLY_STATE.deactive,
-        className
-      ),
-      icon: cn(ICON_ONLY_BASE.icon, iconClassName ?? "w-6 h-6"), // 1.5rem
-    };
-  };
+  return cn(
+    preset.root,
+    st.default,
+    st.hover,
+    st.pressing,
+    st.clicked,
+    st.deactive,
+    className
+  );
+};

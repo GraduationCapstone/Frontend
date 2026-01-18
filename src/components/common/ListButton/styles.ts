@@ -16,29 +16,29 @@ const VARIANT_BASE: Record<
   ListButtonVariant,
   { size: "M" | "S"; width: string; radius: string }
 > = {
-  staticWhiteMIconText: { size: "M", width: "w-s", radius: "rounded-[0.75rem]" },
-
-  dynamicWhiteMImgTextIcon: { size: "M", width: "w-full", radius: "rounded-0" },
-  dynamicWhiteMIconText: { size: "M", width: "w-full", radius: "rounded-0" },
-  dynamicWhiteMSmoothIconText: { size: "M", width: "w-full", radius: "rounded-[0.75rem]" },
-
-  dynamicWhiteSIconsText: { size: "S", width: "w-full", radius: "rounded-0" },
-  dynamicWhiteSIconText: { size: "S", width: "w-full", radius: "rounded-0" },
+  staticWhiteMIconText: { size: "M", width: "w-s", radius: "rounded-xl" },
+// 반응형
+  dynamicWhiteMImgTextIcon: { size: "M", width: "w-full", radius: "rounded-none" },
+  dynamicWhiteMIconText: { size: "M", width: "w-full", radius: "rounded-none" },
+  dynamicWhiteMSmoothIconText: { size: "M", width: "w-full", radius: "rounded-xl" },
+  dynamicWhiteSIconsText: { size: "S", width: "w-full", radius: "rounded-none" },
+  dynamicWhiteSIconText: { size: "S", width: "w-full", radius: "rounded-none" },
 };
 
 const SIZE_STYLE = {
   M: {
-    padding: "px-[1.25rem] py-[0.75rem]",
-    gap: "gap-[0.75rem]",
-    label: "text-h4-eng",
-    icon: "w-[24px] h-[24px]",
+    padding: "px-5 py-3",
+    gap: "gap-3",
+    label: "text-h4-kr",
+    icon: "w-6 h-6",
     avatar: "w-[1.5rem] h-[1.5rem] text-[14px]",
+    // avatar는 추후 프로필 API 연동 후 변경
   },
   S: {
-    padding: "py-[0.5rem] px-[0.75rem]",
-    gap: "gap-[0.5rem]",
+    padding: "py-2 px-3",
+    gap: "gap-2",
     label: "text-regular-kr text-grayscale-black",
-    icon: "w-[1.25rem] h-[1.25rem]",
+    icon: "w-6 h-6",
     avatar: "w-[1.5rem] h-[1.5rem] text-[14px]",
   },
 } as const;
@@ -50,7 +50,7 @@ const LIST_BUTTON_STATE = {
     default: "bg-grayscale-white text-grayscale-black",
     hover: "hover:bg-grayscale-gy100",
     pressing: "active:bg-grayscale-gy200 text-grayscale-black",
-    clicked: "focus:bg-white focus:text-[#111111] focus:outline-none",
+    clicked: "focus:bg-grayscale-white focus:text-grayscale-black focus:outline-none",
 } as const;
 
 // M 사이즈 버튼용 (클릭 시 텍스트가 초록색으로 변경)
@@ -82,7 +82,7 @@ const SELECTED_STATE_BLACK_TEXT = {
     default: "bg-grayscale-white text-grayscale-black",
     hover: "hover:bg-grayscale-gy100 hover:text-grayscale-black",
     pressing: "active:bg-grayscale-gy200 active:text-grayscale-black",
-    clicked: "focus:bg-white focus:text-grayscale-black focus:outline-none",
+    clicked: "focus:bg-grayscale-white focus:text-grayscale-black focus:outline-none",
 } as const;
 
 export const getListButtonClassNames = (args: {
@@ -138,7 +138,7 @@ export const getListButtonClassNames = (args: {
     left: cn("flex items-center", leftGap),
     label: cn("leading-none", sz.label),
     right: cn("shrink-0 flex items-center justify-center"),
-    iconBox: cn("shrink-0 inline-block bg-current", sz.icon),
+    iconBox: cn("shrink-0 inline-block", sz.icon),
     avatar: cn(
       "shrink-0 rounded-full bg-primary-sg600 text-grayscale-white flex items-center justify-center",
       sz.avatar

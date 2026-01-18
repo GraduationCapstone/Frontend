@@ -1,5 +1,3 @@
-import { sys } from 'typescript';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -77,19 +75,29 @@ export default {
         'gap-xxs': 'var(--gap-xxs)',
       },
       width: {
-        'max': 'var(--width-max)',
+        // max랑 min은 기존 tailwind에 존재하는 키워드라 앞에 size- 붙임
+        'size-max': 'var(--width-max)',
         'xl': 'var(--width-xl)',
         'l': 'var(--width-l)',
         'm': 'var(--width-m)',
         's': 'var(--width-s)',
         'xs': 'var(--width-xs)',
-        'min': 'var(--width-min)',
+        'size-min': 'var(--width-min)',
 
         'overlay-modal': 'var(--overlay-modal)',
         'overlay-center-sheet': 'var(--overlay-center-sheet)',
         'overlay-side-sheet': 'var(--overlay-side-sheet)',
         'overlay-dropdown': 'var(--overlay-dropdown-menu)',
         'overlay-menu': 'var(--overlay-menu)',
+      },
+      maxWidth: {
+        "size-max": "var(--width-max)",
+        xl: "var(--width-xl)",
+        l: "var(--width-l)",
+        m: "var(--width-m)",
+        s: "var(--width-s)",
+        xs: "var(--width-xs)",
+        "size-min": "var(--width-min)",
       },
     },
   },

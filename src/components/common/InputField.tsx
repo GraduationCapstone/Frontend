@@ -91,7 +91,7 @@ const InputField = ({
         className,
       ].join(" ")}
       style={{
-        boxShadow: "inset 0 0 8px 0 rgba(31, 35, 40, 0.10)",
+        boxShadow: "shadow-is-100",
       }}
     >
       <input
@@ -108,10 +108,11 @@ const InputField = ({
           inputClassName,
         ].join(" ")}
       />
-      {/* showIcon이 true일 때만 아이콘 렌더링 */}
-      {showIcon && (
-        <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current`} />
-      )}
+      + <SearchIcon className={[
+        "shrink-0 w-6 h-6",
+        iconColorClass,
+        "[&_*]:fill-current [&_*]:stroke-current",
+        ].join(" ")} />
     </div>
   );
 };

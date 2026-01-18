@@ -50,10 +50,10 @@ export default function Tabs({
   };
 
   return (
-    <div className={["w-[40.375rem]", className].filter(Boolean).join(" ")}>
+    <div className={["w-full", className].filter(Boolean).join(" ")}>
       <div
         className={[
-          "flex items-end border-b border-grayscale-gy300 p-[0.125rem] gap-[0.75rem]",
+          "self-stretch inline-flex justify-start items-center border-b border-grayscale-gy300 gap-3",
           listClassName,
         ]
           .filter(Boolean)

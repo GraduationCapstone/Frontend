@@ -1,54 +1,49 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type * as React from "react";
 
-export type ButtonSize = "L" | "M" | "S";
-export type ButtonVariant = "solid" | "solidStaticL" | "text";
+export type ButtonVariant =
+  | "staticGy900LText"
+  | "staticGy900MText"
+  | "dynamicSg500SText"
+  | "dynamicClearSTextUnderlined";
 
-export interface ButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
-  label: ReactNode;
-  variant?: ButtonVariant;
-  /**
-   * solid: L/M 고정형, S 반응형
-   * text : (underline 버튼) 반응형
-   */
-  size?: ButtonSize;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  /**
-   * - widthClassName: w-full, w-s 같은 너비 관련 오버라이드
-   */
-  widthClassName?: string;
-   /**
-   * - paddingClassName: px/py 오버라이드
-   */
-  paddingClassName?: string;
-   /**
-   * - labelClassName: 텍스트 토큰 오버라이드
-   */
-  labelClassName?: string;
+export type IconButtonVariant =
+  | "dynamicGy900MIconText"
+  | "dynamicWhiteMDsIconText"
+  | "dynamicClearSIconText";
 
-  className?: string;
-}
+export type IconOnlyButtonVariant = "staticClearXsIcon";
 
-export type IconButtonVariant = "download" | "settings" | "profile";
+export type ButtonVariantAll = ButtonVariant | IconButtonVariant | IconOnlyButtonVariant;
 
-export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "aria-label"> {
-    variant?: IconButtonVariant;
-    label: ReactNode;
-    ariaLabel: string;
+export type SvgIconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
-    className?: string;
-    widthClassName?: string;
-    paddingClassName?: string;
-    iconClassName?: string;
-    labelClassName?: string;
-}
+type NativeButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children">;
 
-export interface IconOnlyButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "aria-label"> {
-  ariaLabel: string;
-  iconSrc: string;
+export type TextButtonProps = NativeButtonProps & {
+  variant: ButtonVariant;
+  children: React.ReactNode;
+  Icon?: never;
+  iconPosition?: never;
+  iconClassName?: never;
+  ariaLabel?: never;
+};
 
-  className?: string;
+export type IconTextButtonProps = NativeButtonProps & {
+  variant: IconButtonVariant;
+  Icon: SvgIconComponent;
+  children: React.ReactNode;
+  iconPosition?: "left" | "right";
   iconClassName?: string;
-}
+  ariaLabel?: never;
+};
+
+export type IconOnlyButtonProps = NativeButtonProps & {
+  variant: IconOnlyButtonVariant;
+  Icon: SvgIconComponent;
+  ariaLabel: string;
+  children?: never;
+  iconPosition?: never;
+  iconClassName?: string;
+};
+
+export type ButtonProps = TextButtonProps | IconTextButtonProps | IconOnlyButtonProps;

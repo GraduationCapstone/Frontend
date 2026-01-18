@@ -71,7 +71,7 @@
   @media (min-width: 120rem) { /* 1920px */
     :root {
       --layout-margin: 2.5rem; /* 40px */
-      --layout-margin-l: 6.875rem; /* 110px */
+      --layout-margin-l: 7.25rem; /* 116px */
       --width-min: 8.25rem; /* 132px */
     }
   }

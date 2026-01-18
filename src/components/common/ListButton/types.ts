@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { SvgIconComponent } from "../Button";
 
 export type ListButtonVariant =
   | "staticWhiteMIconText"
@@ -9,6 +10,7 @@ export type ListButtonVariant =
   | "dynamicWhiteSIconText";
 
 export type ListButtonIconVariant = "plus" | "switch" | "check";
+export type LisButtonIconOverrides = Partial<Record<ListButtonIconVariant, SvgIconComponent | null>>;
 
 export type ListButtonLeading =
   | { type: "none" }
@@ -37,4 +39,5 @@ export interface ListButtonProps
   labelClassName?: string;
   leadingClassName?: string;
   trailingClassName?: string;
+  icons?: LisButtonIconOverrides;
 }
