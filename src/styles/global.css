@@ -39,9 +39,13 @@
     --color-system-warning: #EFB058;
 
     /* 2. Spacing */
-    --layout-margin: 2rem;
-    --layout-margin-l: 6.25rem;
+    --layout-viewport: 120rem;
+    --layout-margin: 2.5rem;
+    --layout-margin-l: 7.25rem;
+    --layout-column-unit: 6.25rem;
+    --layout-columns: 16;
     --layout-gutter: 1rem;
+    --layout-split: 62.5rem;
 
     --gap-xxl: 2.75rem;
     --gap-xl: 2rem;
@@ -67,12 +71,12 @@
     --overlay-menu: 8.25rem;
   }
 
-  /* Wide screen styles */
-  @media (min-width: 120rem) { /* 1920px */
+  /* desktop screen styles */
+  @media (min-width: 90rem) and (max-width: 119.9375rem) {
     :root {
-      --layout-margin: 2.5rem; /* 40px */
-      --layout-margin-l: 7.25rem; /* 116px */
-      --width-min: 8.25rem; /* 132px */
+      --layout-margin: 2rem;
+      --layout-margin-l: 6.25rem;
+      --width-min: 7.25rem;
     }
   }
 
