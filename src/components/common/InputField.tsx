@@ -12,6 +12,13 @@ interface InputFieldProps {
   widthClass?: string;
   heightClass?: string;
   inputClassName?: string;
+  
+  /** (추가됨) 외부에서 값을 제어하기 위한 Prop */
+  value?: string;
+  /** (추가됨) 값이 변경될 때 실행될 함수 */
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  /** (추가됨) 검색 아이콘 표시 여부 (기본값: true) */
+  showIcon?: boolean;
 }
 
 const InputField = ({
@@ -21,8 +28,17 @@ const InputField = ({
   widthClass,
   heightClass,
   inputClassName = "",
+
+  value: externalValue, // 외부에서 주입된 값
+  onChange,             // 외부 변경 함수
+  showIcon = true,      // 아이콘 표시 여부
 }: InputFieldProps) => {
-  const [value, setValue] = useState("");
+  // 외부 값이 있으면 그것을 쓰고, 없으면 내부 상태 사용
+  const isControlled = externalValue !== undefined;
+  const [internalValue, setInternalValue] = useState("");
+  
+  const value = isControlled ? externalValue : internalValue;
+  
   const [state, setState] = useState<InputState>(
     disabled ? "deactive" : "default"
   );
@@ -44,7 +60,12 @@ const InputField = ({
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
-    setValue(e.target.value);
+    // 제어 컴포넌트가 아닐 때만 내부 상태 업데이트
+    if (!isControlled) {
+      setInternalValue(e.target.value);
+    }
+    // 부모에게 변경 알림
+    onChange?.(e);
     setState("typing");
   };
 
@@ -87,8 +108,10 @@ const InputField = ({
           inputClassName,
         ].join(" ")}
       />
-      <SearchIcon className={"shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current"} />
-
+      {/* showIcon이 true일 때만 아이콘 렌더링 */}
+      {showIcon && (
+        <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current`} />
+      )}
     </div>
   );
 };
