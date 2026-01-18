@@ -1,6 +1,7 @@
 // src/components/layout/Header.tsx
 import LogoTypo from '../../assets/logo/Logo_Typo.svg';
 import ProfileIcon from '../common/ProfileIcon';
+import PersonIcon from '../../assets/icons/person.svg?react';
 
 interface HeaderProps {
   isLoggedIn?: boolean;

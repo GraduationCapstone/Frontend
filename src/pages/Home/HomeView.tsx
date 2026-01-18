@@ -6,7 +6,10 @@ import Dropbox from '../../components/common/Dropbox';
 import InputField from '../../components/common/InputField';
 import { Button } from '../../components/common/Button';
 import SideSheet from '../../components/common/SideSheet';
+import ConfirmModal from '../../components/common/Modal/ConfirmModal';
 import bgVideo from '../../assets/bg/BG.mp4';
+
+type ModalType = 'none' | 'logout' | 'withdraw' | 'withdrawComplete';
 
 // Controller로부터 받을 Props 타입 정의
 interface HomeViewProps {
@@ -15,8 +18,15 @@ interface HomeViewProps {
   testName: string;
   canStart: boolean;
   isSideSheetOpen: boolean;
+  activeModal: ModalType;
   onProfileClick: () => void; 
   onCloseSideSheet: () => void; 
+  onLogoutClick: () => void;
+  onWithdrawClick: () => void;
+  onCloseModal: () => void;
+  onConfirmLogout: () => void;
+  onConfirmWithdraw: () => void;
+  onConfirmWithdrawComplete: () => void;
   onProjectChange: (value: string) => void;
   onTestNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onStartTest: () => void;
@@ -27,9 +37,16 @@ export default function HomeView({
   selectedProject,
   testName,
   canStart,
-  isSideSheetOpen,      
+  isSideSheetOpen,
+  activeModal,      
   onProfileClick,    
   onCloseSideSheet,
+  onLogoutClick,  
+  onWithdrawClick, 
+  onCloseModal, 
+  onConfirmLogout, 
+  onConfirmWithdraw, 
+  onConfirmWithdrawComplete,
   onProjectChange,
   onTestNameChange,
   onStartTest,
@@ -71,9 +88,53 @@ export default function HomeView({
 
       <SideSheet 
         isOpen={isSideSheetOpen} 
-        onClose={onCloseSideSheet}
+        onLogoutClick={onLogoutClick}
+        onWithdrawClick={onWithdrawClick}
+        activeModal={activeModal}
         className="absolute top-[5rem] right-[2.5rem] z-[60]"
       />
+
+      {/* ✅ 1. 로그아웃 모달 */}
+      <ConfirmModal
+        isOpen={activeModal === 'logout'}
+        onClose={onCloseModal}
+        onConfirm={onConfirmLogout}
+        confirmLabel="로그아웃"
+      >
+        <div className="text-h4-eng text-grayscale-black text-center">
+          로그아웃하시겠습니까?
+        </div>
+      </ConfirmModal>
+
+      {/* ✅ 2. 탈퇴 확인 모달 */}
+      <ConfirmModal
+        isOpen={activeModal === 'withdraw'}
+        onClose={onCloseModal}
+        onConfirm={onConfirmWithdraw}
+        confirmLabel="탈퇴"
+      >
+        <div className="text-h4-eng text-grayscale-black text-center">
+          탈퇴하시겠습니까?
+        </div>
+        <div className="text-h4-eng text-grayscale-black text-center">
+          계정 정보가 영구적으로 삭제됩니다.
+        </div>
+      </ConfirmModal>
+
+      {/* ✅ 3. 탈퇴 완료 모달 */}
+      <ConfirmModal
+        isOpen={activeModal === 'withdrawComplete'}
+        onClose={onCloseModal}
+        onConfirm={onConfirmWithdrawComplete}
+        confirmLabel="확인"
+      >
+        <div className="text-h4-eng text-grayscale-black text-center">
+          탈퇴 처리가 완료되었습니다.
+        </div>
+        <div className="text-h4-eng text-grayscale-black text-center">
+          더 발전하는 Probe가 되겠습니다.
+        </div>
+      </ConfirmModal>
 
       {/* 2. Main Content */}
       <main className="flex-1 w-full max-w-[120rem] px-[2rem] pt-[18rem] pb-[6rem] flex flex-col items-center gap-[11rem] z-0">
