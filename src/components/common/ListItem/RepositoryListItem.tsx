@@ -116,7 +116,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
           
           {/* Header */}
           <div className="flex items-center gap-s">
-            <span className={`text-h3-eng truncate ${titleColor}`}>
+            <span className={`text-h3-ko truncate ${titleColor}`}>
               {title}
             </span>
             {isPublic && (
@@ -128,14 +128,14 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                     : "outline-grayscale-gy300 text-grayscale-black"
                 }
                 paddingClassName="px-2 py-0.5"
-                labelClassName="text-regular-eng"
+                labelClassName="text-regular-ko"
               />
             )}
           </div>
 
           {/* Description */}
           {description && (
-            <p className={`text-medium-eng line-clamp-2 ${contentColor}`}>
+            <p className={`text-medium-ko line-clamp-2 ${contentColor}`}>
               {description}
             </p>
           )}
@@ -154,7 +154,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                     }}
                   />
                 </div>
-                <span className={`text-regular-eng ${contentColor}`}>
+                <span className={`text-regular-ko ${contentColor}`}>
                   {language.name}
                 </span>
               </div>
@@ -175,7 +175,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                    <div className="w-5 h-5 flex items-center justify-center">
                     <img src={forkIcon} alt="forks" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-eng ${contentColor}`}>{stats.forks}</span>
+                  <span className={`text-regular-ko ${contentColor}`}>{stats.forks}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <DotIcon 
@@ -191,7 +191,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <div className="w-5 h-5 flex items-center justify-center">
                     <img src={starIcon} alt="stars" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-eng ${contentColor}`}>{stats.stars}</span>
+                  <span className={`text-regular-ko ${contentColor}`}>{stats.stars}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <DotIcon 
@@ -208,7 +208,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <div className="w-5 h-5 flex items-center justify-center">
                     <img src={issueIcon} alt="issues" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-eng ${contentColor}`}>{stats.issues}</span>
+                  <span className={`text-regular-ko ${contentColor}`}>{stats.issues}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <DotIcon 
@@ -225,7 +225,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <div className="w-5 h-5 flex items-center justify-center">
                     <img src={prIcon} alt="PRs" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-eng ${contentColor}`}>{stats.pullRequests}</span>
+                  <span className={`text-regular-ko ${contentColor}`}>{stats.pullRequests}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <img src={dotIcon} alt="dot" className={`w-[0.1875rem] h-[0.1875rem] ${disabled ? "opacity-40" : "brightness-50"}`} />
@@ -234,7 +234,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
             )}*/}
 
             {updatedAt && (
-              <span className={`text-regular-eng ${contentColor}`}>{updatedAt}</span>
+              <span className={`text-regular-ko ${contentColor}`}>{updatedAt}</span>
             )}
           </div>
         </div>

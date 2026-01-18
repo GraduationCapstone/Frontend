@@ -53,7 +53,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
             <button className="px-5 py-2 flex justify-center items-center rounded-lg hover:bg-grayscale-gy100 transition-colors">
               <span className="
                 text-grayscale-black 
-                text-h4-eng
+                text-h4-ko
                 tracking-[-0.02em]
               ">
                 프로젝트 관리
@@ -64,7 +64,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
             <button className="px-5 py-2 flex justify-center items-center rounded-lg hover:bg-grayscale-gy100 transition-colors">
               <span className="
                 text-grayscale-black 
-                text-h4-eng
+                text-h4-ko
                 tracking-[-0.02em]
               ">
                 서비스 소개
@@ -88,8 +88,8 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
           <div className="w-6 h-6 flex items-center justify-center">
              <PersonIcon className="w-4 h-4 text-grayscale-white fill-current" />
           </div>
-          {/* text-sm ... -> text-h5-eng (타이포그래피 토큰 적용) */}
-          <span className="text-center text-grayscale-white text-h5-eng">
+          {/* text-sm ... -> text-h5-ko (타이포그래피 토큰 적용) */}
+          <span className="text-center text-grayscale-white text-h5-ko">
             로그인
           </span>
         </button>

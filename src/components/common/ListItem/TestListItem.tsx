@@ -112,28 +112,28 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
       >
         {/* 1. ID Column */}
         <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
-          <span className={`text-medium-eng ${mainTextColor}`}>
+          <span className={`text-medium-ko ${mainTextColor}`}>
             {testId}
           </span>
         </div>
 
         {/* 2. Title Column */}
         <div className="flex-1 px-gap-xxs flex justify-center items-center gap-2.5">
-          <span className={`flex-1 text-h3-eng line-clamp-1 ${mainTextColor}`}>
+          <span className={`flex-1 text-h3-ko line-clamp-1 ${mainTextColor}`}>
             {title}
           </span>
         </div>
 
         {/* 3. Coverage Column */}
         <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
-          <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
+          <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} text-center`}>
             {coverage || "-"}
           </span>
         </div>
 
         {/* 4. Duration Column */}
         <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
-          <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
+          <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} text-center`}>
             {duration || "-"}
           </span>
         </div>
@@ -143,18 +143,18 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
             <div className={`w-6 h-6 relative ${userIconBg} rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center`}>
                 <span className="text-[10px] font-bold text-grayscale-white leading-none mt-px">U</span>
             </div>
-            <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor}`}>
+            <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor}`}>
                 {user || "-"}
             </span>
         </div>
 
         {/* 6. Date Column */}
         <div className="w-xs px-gap-xxs flex justify-start items-center gap-2 overflow-hidden">
-           <span className={`text-medium-eng ${subTextColor}`}>
+           <span className={`text-medium-ko ${subTextColor}`}>
              {datePart}
            </span>
            {timePart && (
-             <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor}`}>
+             <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor}`}>
                {timePart}
              </span>
            )}

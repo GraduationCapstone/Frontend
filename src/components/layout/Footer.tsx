@@ -18,7 +18,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
         ${variant === 'gray' ? 'bg-grayscale-gy100' : 'bg-transparent'}
       `}
     >
-      <p className="text-small-eng text-grayscale-gy700 text-center">
+      <p className="text-small-ko text-grayscale-gy700 text-center">
         Copyright © 2025 Team Probe. All rights reserved.
       </p>
     </footer>

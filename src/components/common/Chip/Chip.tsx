@@ -70,7 +70,7 @@ export default function Chip({
         )}
   
         {/* 길면 짜름 */}
-        <span className={cn("min-w-0 truncate text-h3-eng", labelClassName)}>
+        <span className={cn("min-w-0 truncate text-h3-ko", labelClassName)}>
           {label}
         </span>
   

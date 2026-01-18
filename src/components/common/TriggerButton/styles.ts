@@ -17,12 +17,12 @@ const PRESET: Record<SelectTriggerVariant, { root: string; label: string }> = {
     root:
       "flex w-[6.25rem] px-[0.75rem] py-[0.5rem] items-center gap-[0.5rem] rounded-[0.5rem] " + 
       "focus:text-primary-sg600",
-    label: "text-medium-eng",
+    label: "text-medium-ko",
   },
   dynamic: {
     root:
       "inline-flex w-full px-[0.5rem] py-[0.75rem] items-center justify-between gap-[0.5rem] rounded-[0.5rem]",
-    label: "text-medium-eng",
+    label: "text-medium-ko",
   },
 };
 
