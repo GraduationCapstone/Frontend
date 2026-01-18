@@ -1,25 +1,7 @@
 import type { SelectTriggerProps } from "./types";
-import { SELECT_TRIGGER_ICONS } from "./icons";
 import { getSelectTriggerClassNames, cn } from "./styles";
-
-const MASK_ICON_BASE =
-  "bg-current [mask-repeat:no-repeat] [mask-position:center] [mask-size:contain] " +
-  "[webkit-mask-repeat:no-repeat] [webkit-mask-position:center] [webkit-mask-size:contain]";
-
-function MaskIcon({ src, className }: { src?: string; className: string }) {
-  if (!src) return null;
-
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(MASK_ICON_BASE, className)}
-      style={{
-        WebkitMaskImage: `url("${src}")`,
-        maskImage: `url("${src}")`,
-      }}
-    />
-  );
-}
+import DescIcon from "../../../assets/icons/desc.svg?react";
+import TriggerDownIcon from "../../../assets/icons/triangle_down.svg?react";
 
 export default function SelectTrigger({
   label,
@@ -41,6 +23,8 @@ export default function SelectTrigger({
     className,
   });
 
+  const svgColorClass = "[&_*]:fill-current [&_*]:stroke-current";
+
   return (
     <button
       type="button"
@@ -52,14 +36,20 @@ export default function SelectTrigger({
       <span className="inline-flex items-center gap-2 min-w-0">
         {/* 왼쪽 아이콘 고정 */}
         {variant === "dynamic" && (
-          <MaskIcon src={SELECT_TRIGGER_ICONS.desc} className={cx.icon} />
+          <DescIcon 
+          aria-hidden="true"
+          className={[cx.icon, svgColorClass].filter(Boolean).join(" ")}
+        />
         )}
 
         <span className={cx.label}>{label}</span>
       </span>
 
       {/* 오른쪽 아이콘 고정 */}
-      <MaskIcon src={SELECT_TRIGGER_ICONS.triggerDown} className={cx.icon} />
+      <TriggerDownIcon
+        aria-hidden="true"
+        className={[cx.icon, svgColorClass].filter(Boolean).join(" ")}
+      />
     </button>
   );
 }

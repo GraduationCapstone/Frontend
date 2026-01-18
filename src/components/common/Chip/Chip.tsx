@@ -34,7 +34,7 @@ export default function Chip({
   } as const;
 
   const baseRoot =
-    "inline-flex items-center min-w-0 rounded-[0.75rem] gap-[0.75rem] transition-colors duration-200 ease-in-out justify-center text-h4-eng text-grayscale-black";
+    "inline-flex items-center min-w-0 rounded-xl gap-4 transition-colors duration-200 ease-in-out justify-center text-h4-kr text-grayscale-black";
 
     return (
       <button
@@ -58,7 +58,7 @@ export default function Chip({
         ) : (
           <span
             className={cn(
-              "inline-flex w-5 h-5 aspect-square items-center justify-center rounded-full text-[0.75rem] font-semibold",
+              "inline-flex w-6 h-6 aspect-square items-center justify-center rounded-full text-[0.75rem] font-semibold",
               disabled
                 ? "bg-system-deactive text-grayscale-white"
                 : "bg-primary-sg500 text-grayscale-white"
