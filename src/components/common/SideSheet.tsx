@@ -51,10 +51,10 @@ export default function SideSheet({
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
           <ProfileIcon isActive={true} initial="U" />
-          <span className="text-grayscale-black text-h4-eng">User1234</span>
+          <span className="text-grayscale-black text-h4-ko">User1234</span>
         </div>
         {/* Email */}
-        <span className="self-stretch text-grayscale-black text-h5-eng">
+        <span className="self-stretch text-grayscale-black text-h5-ko">
           User1234@gmail.com
         </span>
       </div>
@@ -68,21 +68,21 @@ export default function SideSheet({
       <div className="self-stretch flex flex-col justify-start items-start">
         {/* Project A (Selected) */}
         <button className="self-stretch px-5 py-3 bg-grayscale-white inline-flex justify-start items-center gap-3 hover:bg-grayscale-gy100 transition-colors">
-          <span className="flex-1 text-left text-primary-sg600 text-h5-eng line-clamp-1">
+          <span className="flex-1 text-left text-primary-sg600 text-h5-ko line-clamp-1">
             Project A
           </span>
         </button>
 
         {/* Project B */}
         <button className="self-stretch px-5 py-3 bg-grayscale-white inline-flex justify-start items-center gap-3 hover:bg-grayscale-gy100 transition-colors">
-          <span className="flex-1 text-left text-grayscale-black text-h5-eng line-clamp-1">
+          <span className="flex-1 text-left text-grayscale-black text-h5-ko line-clamp-1">
             Project B
           </span>
         </button>
 
         {/* Project C */}
         <button className="self-stretch px-5 py-3 bg-grayscale-white inline-flex justify-start items-center gap-3 hover:bg-grayscale-gy100 transition-colors">
-          <span className="flex-1 text-left text-grayscale-black text-h5-eng line-clamp-1">
+          <span className="flex-1 text-left text-grayscale-black text-h5-ko line-clamp-1">
             Project C
           </span>
         </button>
@@ -92,7 +92,7 @@ export default function SideSheet({
           <div className="w-6 h-6 flex items-center justify-center">
             <PlusIcon className="w-6 h-6 text-grayscale-black fill-current" />
           </div>
-          <span className="flex-1 text-left text-grayscale-black text-h5-eng line-clamp-1">
+          <span className="flex-1 text-left text-grayscale-black text-h5-ko line-clamp-1">
             새 프로젝트
           </span>
         </button>
@@ -112,7 +112,7 @@ export default function SideSheet({
           <div className="w-6 h-6 flex items-center justify-center">
             <LogoutIcon className="w-4 h-4 text-current [&_path]:fill-current" />
           </div>
-          <span className="flex-1 text-left text-h5-eng line-clamp-1">
+          <span className="flex-1 text-left text-h5-ko line-clamp-1">
             로그아웃
           </span>
         </button>
@@ -124,7 +124,7 @@ export default function SideSheet({
            <div className="w-6 h-6 flex items-center justify-center">
             <DeleteIcon className="w-5 h-4 text-current [&_path]:fill-current" />
           </div>
-          <span className="flex-1 text-left text-h5-eng line-clamp-1">
+          <span className="flex-1 text-left text-h5-ko line-clamp-1">
             탈퇴
           </span>
         </button>

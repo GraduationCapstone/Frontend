@@ -45,7 +45,7 @@ export default function StatusBadge({ type, className = "" }: StatusBadgeProps) 
         "inline-flex items-center justify-center",
         "px-[0.75rem] py-[0.25rem] gap-[0.625rem]",
         "rounded-[1.5rem] whitespace-nowrap",
-        "text-medium-eng",
+        "text-medium-ko",
         BADGE_STYLE[type],
         className,
       ]

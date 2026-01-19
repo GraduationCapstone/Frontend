@@ -8,116 +8,108 @@
 }
 
 @layer components {
-    /* text header */
-    /* 1. 폰트 크기: 3rem (48px) */
-    /* 2. 줄 높이: 4.5rem (72px) */
-    /* 3. 글자 굵기: Bold (700) */
-    .text-extra-eng{
-        @apply text-[3rem] leading-[4.5rem] font-bold;
-    }
     .text-extra-ko{
-        @apply text-[3rem] leading-[4.5rem] font-bold;
+        @apply text-[2.5rem] leading-[3.5rem];
+        font-weight: 700;
         letter-spacing: -0.02rem;
-    }
-
-    /* 1. 폰트 크기: 1.75rem (28px) */
-    /* 2. 줄 높이: 2.625rem (42px) */
-    /* 3. 글자 굵기: Semibold (600) */
-    .text-h1-eng{
-        @apply text-[1.75rem] leading-[2.625rem] font-semibold;
     }
     .text-h1-ko{
-        @apply text-[1.75rem] leading-[2.625rem] font-semibold;
+        @apply text-[1.5rem] leading-[2.25rem];
+        font-weight: 600;
         letter-spacing: -0.02rem;
-    }
-
-    /* 1. 폰트 크기: 1.25rem (20px) */
-    /* 2. 줄 높이: 2rem (32px) */
-    /* 3. 글자 굵기: Semibold (600) */
-    .text-h2-eng{
-        @apply text-[1.25rem] leading-[2rem] font-semibold;
     }
     .text-h2-ko{
-        @apply text-[1.25rem] leading-[2rem] font-semibold;
+        @apply text-[1.125rem] leading-[1.75rem];
+        font-weight: 600;
         letter-spacing: -0.02rem;
-    }
-
-    /* 1. 폰트 크기: 1.125rem (18px) */
-    /* 2. 줄 높이: 1.75rem (28px) */
-    /* 3. 글자 굵기: Semibold (600) */
-    .text-h3-eng{
-        @apply text-[1.125rem] leading-[1.75rem] font-semibold;
     }
     .text-h3-ko{
-        @apply text-[1.125rem] leading-[1.75rem] font-semibold;
+        @apply text-[1rem] leading-[1.5rem];
+        font-weight: 600;
         letter-spacing: -0.02rem;
-    }
-
-    /* 1. 폰트 크기: 1rem (16px) */
-    /* 2. 줄 높이: 1.5rem (24px) */
-    /* 3. 글자 굵기: Semibold (600) */
-    .text-h4-eng{
-        @apply text-[1rem] leading-[1.5rem] font-semibold;
     }
     .text-h4-ko{
-        @apply text-[1rem] leading-[1.5rem] font-semibold;
+        @apply text-[0.875rem] leading-[1.25rem];
+        font-weight: 600;
         letter-spacing: -0.02rem;
-    }
-
-    /* 1. 폰트 크기: 0.875rem (14px) */
-    /* 2. 줄 높이: 1.25rem (20px) */
-    /* 3. 글자 굵기: Semibold (600) */
-    .text-h5-eng{
-        @apply text-[0.875rem] leading-[1.25rem] font-semibold;
     }
     .text-h5-ko{
-        @apply text-[0.875rem] leading-[1.25rem] font-semibold;
+        @apply text-[0.75rem] leading-[1.125rem];
+        font-weight: 400;
+        letter-spacing: -0.02rem;
+    }
+/* ---------------------------------------------------------------- */
+    .text-large500-ko{
+        @apply text-[1rem] leading-[1.5rem];
+        font-weight: 500;
+        letter-spacing: -0.02rem;
+    }
+    .text-large400-ko{
+        @apply text-[1rem] leading-[1.5rem];
+        font-weight: 400;
         letter-spacing: -0.02rem;
     }
 
-
-    /* text body */
-    /* 1. 폰트 크기: 1.125rem (18px) */
-    /* 2. 줄 높이: 1.75rem (28px) */
-    /* 3. 글자 굵기: Medium (500) */
-    .text-large-eng{
-        @apply text-[1.125rem] leading-[1.75rem] font-medium;
+    .text-medium500-ko{
+        @apply text-[0.875rem] leading-[1.25rem];
+        font-weight: 500;
+        letter-spacing: -0.02rem;
     }
-    .text-large-ko{
-        @apply text-[1.125rem] leading-[1.75rem] font-medium;
+    .text-medium400-ko{
+        @apply text-[0.875rem] leading-[1.25rem];
+        font-weight: 400;
         letter-spacing: -0.02rem;
     }
 
-    /* 1. 폰트 크기: 1rem (16px) */
-    /* 2. 줄 높이: 1.5rem (24px) */
-    /* 3. 글자 굵기: Medium (500) */
-    .text-medium-eng{
-        @apply text-[1rem] leading-[1.5rem] font-medium;
+    .text-regular500-ko{
+        @apply text-[0.75rem] leading-[1rem];
+        font-weight: 500;
+        letter-spacing: -0.02rem;
     }
-    .text-medium-ko{
-        @apply text-[1rem] leading-[1.5rem] font-medium;
+    .text-regular400-ko{
+        @apply text-[0.75rem] leading-[1rem];
+        font-weight: 400;
         letter-spacing: -0.02rem;
     }
 
-    /* 1. 폰트 크기: 0.875rem (14px) */
-    /* 2. 줄 높이: 1.25rem (20px) */
-    /* 3. 글자 굵기: Medium (500) */
-    .text-regular-eng{
-        @apply text-[0.875rem] leading-[1.25rem] font-medium;
-    }
-    .text-regular-ko{
-        @apply text-[0.875rem] leading-[1.25rem] font-medium;
+    .text-small500-ko{
+        @apply text-[0.625rem] leading-[1rem];
+        font-weight: 500;
         letter-spacing: -0.02rem;
     }
-
-    /* 1. 폰트 크기: 0.75rem (12px) */
-    /* 2. 줄 높이: 1.125rem (18px) */
-    /* 3. 글자 굵기: Medium (500) */
-    .text-small-eng{
-        @apply text-[0.75rem] leading-[1.125rem] font-medium;
-    }
-    .text-small-ko{
-        @apply text-[0.75rem] leading-[1.125rem] font-medium;
+    .text-small400-ko{
+        @apply text-[0.625rem] leading-[1rem];
+        font-weight: 400;
         letter-spacing: -0.02rem;
     }
 }
+    /* .text-extra-eng{
+        @apply text-[3rem] leading-[4.5rem] font-bold;
+    } */
+    /* .text-h1-eng{
+        @apply text-[1.75rem] leading-[2.625rem] font-semibold;
+    } */
+    /* .text-h2-eng{
+        @apply text-[1.25rem] leading-[2rem] font-semibold;
+    } */
+    /* .text-h3-eng{
+        @apply text-[1.125rem] leading-[1.75rem] font-semibold;
+    } */
+    /* .text-h4-eng{
+        @apply text-[1rem] leading-[1.5rem] font-semibold;
+    } */
+    /* .text-h5-eng{
+        @apply text-[0.875rem] leading-[1.25rem] font-semibold;
+    } */
+    /* .text-large-eng{
+        @apply text-[1.125rem] leading-[1.75rem] font-medium;
+    } */
+    /* .text-medium-eng{
+        @apply text-[1rem] leading-[1.5rem] font-medium;
+    } */
+    /* .text-regular-eng{
+        @apply text-[0.875rem] leading-[1.25rem] font-medium;
+    } */
+    /* .text-small-eng{
+        @apply text-[0.75rem] leading-[1.125rem] font-medium;
+    } */

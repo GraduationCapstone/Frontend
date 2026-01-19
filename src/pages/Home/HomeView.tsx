@@ -101,7 +101,7 @@ export default function HomeView({
         onConfirm={onConfirmLogout}
         confirmLabel="로그아웃"
       >
-        <div className="text-h4-eng text-grayscale-black text-center">
+        <div className="text-h4-ko text-grayscale-black text-center">
           로그아웃하시겠습니까?
         </div>
       </ConfirmModal>
@@ -113,10 +113,10 @@ export default function HomeView({
         onConfirm={onConfirmWithdraw}
         confirmLabel="탈퇴"
       >
-        <div className="text-h4-eng text-grayscale-black text-center">
+        <div className="text-h4-ko text-grayscale-black text-center">
           탈퇴하시겠습니까?
         </div>
-        <div className="text-h4-eng text-grayscale-black text-center">
+        <div className="text-h4-ko text-grayscale-black text-center">
           계정 정보가 영구적으로 삭제됩니다.
         </div>
       </ConfirmModal>
@@ -128,10 +128,10 @@ export default function HomeView({
         onConfirm={onConfirmWithdrawComplete}
         confirmLabel="확인"
       >
-        <div className="text-h4-eng text-grayscale-black text-center">
+        <div className="text-h4-ko text-grayscale-black text-center">
           탈퇴 처리가 완료되었습니다.
         </div>
-        <div className="text-h4-eng text-grayscale-black text-center">
+        <div className="text-h4-ko text-grayscale-black text-center">
           더 발전하는 Probe가 되겠습니다.
         </div>
       </ConfirmModal>

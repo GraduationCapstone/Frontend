@@ -25,7 +25,7 @@ interface TooltipProps {
           "px-[1rem] py-[0.5rem] gap-[0.5rem]",
           "rounded-[0.75rem]",
           "bg-grayscale-white",
-          "text-medium-eng text-grayscale-black",
+          "text-medium-ko text-grayscale-black",
           className,
         ]
           .filter(Boolean)

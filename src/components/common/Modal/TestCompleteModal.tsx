@@ -45,7 +45,7 @@ export default function SimpleModal({
       >
         {/* === 1. Header === */}
         <div className="self-stretch flex justify-between items-center">
-          <span className="text-h3-eng text-grayscale-black">
+          <span className="text-h3-ko text-grayscale-black">
             {title}
           </span>
           
@@ -62,10 +62,10 @@ export default function SimpleModal({
         <div className="w-m max-w-full flex flex-col gap-gap-s">
           {items.map((item, index) => (
             <div key={index} className="self-stretch flex justify-between items-center">
-              <span className="text-h4-eng text-grayscale-black">
+              <span className="text-h4-ko text-grayscale-black">
                 {item.label}
               </span>
-              <span className="text-h4-eng text-grayscale-gy400">
+              <span className="text-h4-ko text-grayscale-gy400">
                 {item.value}
               </span>
             </div>

@@ -73,13 +73,13 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
       >
         {/* 1. Top Row */}
         <div className="self-stretch flex justify-start items-center gap-m">
-          <span className={`text-large-eng ${textColorClass}`}>
+          <span className={`text-large-ko ${textColorClass}`}>
             {code}
           </span>
           <div className="self-stretch p-1 flex flex-col justify-start items-start">
              <div className="w-0 flex-1 outline-1 outline-offset-[-0.50px] outline-grayscale-gy400"></div>
           </div>
-          <span className={`text-h3-eng ${textColorClass}`}>
+          <span className={`text-h3-ko ${textColorClass}`}>
             {title}
           </span>
         </div>
@@ -104,7 +104,7 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
                     style={{ backgroundColor: disabled ? "var(--color-system-deactive)" : lang.color }}
                   />
                 </div>
-                <span className={`text-regular-eng ${subTextColorClass}`}>
+                <span className={`text-regular-ko ${subTextColorClass}`}>
                   {lang.name}
                 </span>
               </div>
@@ -122,7 +122,7 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
           )}
 
           {updatedAt && (
-            <span className={`text-regular-eng ${subTextColorClass}`}>
+            <span className={`text-regular-ko ${subTextColorClass}`}>
               {updatedAt}
             </span>
           )}

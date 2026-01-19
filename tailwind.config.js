@@ -98,6 +98,7 @@ export default {
         s: "var(--width-s)",
         xs: "var(--width-xs)",
         "size-min": "var(--width-min)",
+        split:"var(--layout-split)",
       },
     },
   },

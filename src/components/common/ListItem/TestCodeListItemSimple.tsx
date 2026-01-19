@@ -96,14 +96,14 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
       >
         {/* 1. ID Column */}
         <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
-          <span className={`text-medium-eng ${mainTextColor}`}>
+          <span className={`text-medium-ko ${mainTextColor}`}>
             {codeId}
           </span>
         </div>
 
         {/* 2. Title Column */}
         <div className="flex-1 px-gap-xxs flex justify-center items-center gap-2.5">
-          <span className={`flex-1 text-h3-eng line-clamp-1 ${mainTextColor}`}>
+          <span className={`flex-1 text-h3-ko line-clamp-1 ${mainTextColor}`}>
             {title}
           </span>
         </div>
@@ -115,7 +115,7 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
 
         {/* 4. Duration Column */}
         <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
-          <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
+          <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} text-center`}>
             {isUntest ? "-" : duration}
           </span>
         </div>

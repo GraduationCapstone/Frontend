@@ -85,12 +85,12 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
       >
         {/* 1. ID */}
         <div className="w-24 px-2 flex justify-start items-center gap-2.5">
-          <span className={`text-medium-eng ${mainTextColor}`}>{codeId}</span>
+          <span className={`text-medium-ko ${mainTextColor}`}>{codeId}</span>
         </div>
 
         {/* 2. Title */}
         <div className="flex-1 px-2 flex justify-center items-center gap-2.5">
-          <span className={`flex-1 text-h3-eng line-clamp-1 ${mainTextColor}`}>{title}</span>
+          <span className={`flex-1 text-h3-ko line-clamp-1 ${mainTextColor}`}>{title}</span>
         </div>
 
         {/* 3. Status */}
@@ -100,7 +100,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
 
         {/* 4. Duration */}
         <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
-          <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>
+          <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} text-center`}>
             {isUntest ? "-" : duration}
           </span>
         </div>
@@ -112,7 +112,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
                     <span className="text-[10px] font-bold text-grayscale-white leading-none mt-px">U</span>
                 </div>
             )}
-            <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} ${isUntest ? "text-center" : "text-left"}`}>
+            <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} ${isUntest ? "text-center" : "text-left"}`}>
                 {isUntest ? "-" : user}
             </span>
         </div>
@@ -121,16 +121,16 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
         <div className="w-xs px-2 flex justify-start items-center gap-2 overflow-hidden">
             {/* Untest일 경우 하이픈 하나만 중앙 정렬 */}
             {isUntest ? (
-               <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor} text-center`}>-</span>
+               <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} text-center`}>-</span>
             ) : (
                <>
                  {/* 날짜 */}
-                 <span className={`text-medium-eng ${subTextColor}`}>
+                 <span className={`text-medium-ko ${subTextColor}`}>
                    {datePart}
                  </span>
                  {/* 시간 (gap-2로 떨어져서 표시됨) */}
                  {timePart && (
-                   <span className={`flex-1 text-medium-eng line-clamp-1 ${subTextColor}`}>
+                   <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor}`}>
                      {timePart}
                    </span>
                  )}
