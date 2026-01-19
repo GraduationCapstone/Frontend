@@ -108,11 +108,9 @@ const InputField = ({
           inputClassName,
         ].join(" ")}
       />
-      + <SearchIcon className={[
-        "shrink-0 w-6 h-6",
-        iconColorClass,
-        "[&_*]:fill-current [&_*]:stroke-current",
-        ].join(" ")} />
+      {showIcon && (
+        <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current`} />
+      )}
     </div>
   );
 };
