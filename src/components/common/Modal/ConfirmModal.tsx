@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import dismissIcon from "../../../assets/icons/dismiss.svg";
+import dismissIcon from "../../../assets/icons/dismiss.svg?react";
 import { Button, IconOnlyButton } from "../Button";
 
 interface ConfirmModalProps {
@@ -43,8 +43,9 @@ export default function ConfirmModal({
         {/* 1. Header (Close Button Only - Right Aligned) */}
         <div className="self-stretch flex justify-end items-center">
           <IconOnlyButton
+            variant="staticClearXsIcon"
             ariaLabel="close"
-            iconSrc={dismissIcon}
+            Icon={dismissIcon}
             onClick={onClose}
           />
         </div>
@@ -57,11 +58,11 @@ export default function ConfirmModal({
         {/* 3. Footer (Single Button) */}
         <div className="w-60">
           <Button
-            label={confirmLabel}
-            variant="solid"
-            size="M"
-            widthClassName="w-full"
+            variant="staticGy900MText"
+            className="w-full"
             onClick={onConfirm}
+            label={confirmLabel}
+            children={undefined}
           />
         </div>
       </div>

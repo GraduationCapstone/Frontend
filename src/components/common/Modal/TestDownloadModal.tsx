@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import dismissIcon from "../../../assets/icons/dismiss.svg";
-import downloadIcon from "../../../assets/icons/download.svg";
+import dismissIcon from "../../../assets/icons/dismiss.svg?react";
+import downloadIcon from "../../../assets/icons/download.svg?react";
 import { Button, IconOnlyButton } from "../Button";
 
 interface TestDownloadModalProps {
@@ -60,8 +60,9 @@ export default function TestDownloadModal({
           {/* Close Button */}
         <IconOnlyButton
             ariaLabel="close"
-            iconSrc={dismissIcon}
+            Icon={dismissIcon}
             onClick={onClose}
+            variant="staticClearXsIcon"
           />
         </div>
 
@@ -86,33 +87,25 @@ export default function TestDownloadModal({
           {/* 1. Download Button (With Icon) */}
           <div className="flex-1">
             <Button
-              label={downloadLabel}
-              variant="solid"
-              size="M"
-              widthClassName="w-full"
+              Icon={downloadIcon}
+              variant="dynamicGy900MIconText"
+              className="w-full rounded-xl shadow-ds-200"
               onClick={onDownload}
-              className="rounded-xl shadow-ds-200"
               // 왼쪽 아이콘 추가 (흰색 필터를 위해 MaskIcon 방식 대신 이미지 사용)
               // Button 컴포넌트가 solid일 때 텍스트가 흰색이므로 아이콘도 흰색이나 밝은색 권장
-              leftIcon={
-                <img 
-                  src={downloadIcon} 
-                  alt="download" 
-                  className="w-6 h-6 brightness-0 invert" /* 흰색으로 변경 */
-                />
-              }
-            />
+              iconPosition="left"
+              iconClassName="w-6 h-6 brightness-0 invert"
+              label={downloadLabel}
+              />
           </div>
 
           {/* 2. Cancel Button (Text Only) */}
           <div className="flex-1">
              <Button
-              label={cancelLabel}
-              variant="solid" /* 디자인상 둘 다 검정 버튼(GY900)이므로 solid 유지 */
-              size="M"
-              widthClassName="w-full"
+              variant="dynamicGy900MIconText"
+              className="w-full rounded-xl shadow-ds-200"
               onClick={onCancel || onClose} /* 별도 동작 없으면 닫기 */
-              className="rounded-xl shadow-ds-200"
+              label={cancelLabel}
             />
           </div>
         </div>

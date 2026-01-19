@@ -31,8 +31,8 @@ export type TextButtonProps = NativeButtonProps & {
 
 export type IconTextButtonProps = NativeButtonProps & {
   variant: IconButtonVariant;
-  Icon: SvgIconComponent;
-  children: React.ReactNode;
+  Icon?: SvgIconComponent;
+  children?: React.ReactNode;
   label?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconClassName?: string;

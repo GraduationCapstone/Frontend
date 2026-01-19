@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import dismissIcon from "../../../assets/icons/dismiss.svg";
+import dismissIcon from "../../../assets/icons/dismiss.svg?react";
 import { Button, IconOnlyButton } from "../Button";
 
 interface SimpleModalProps {
@@ -51,8 +51,9 @@ export default function SimpleModal({
           
           {/* Close Button */}
           <IconOnlyButton
+            variant="staticClearXsIcon"
             ariaLabel="close"
-            iconSrc={dismissIcon}
+            Icon={dismissIcon}
             onClick={onClose}
           />
         </div>
@@ -76,11 +77,11 @@ export default function SimpleModal({
         <div className="w-60">
            {/* 기존 Button 컴포넌트 재사용 (Size M, Solid Variant) */}
           <Button
-            label="Btn"
-            variant="solid"
-            size="M"
-            widthClassName="w-full"
+            variant="staticGy900MText"
+            className="w-full"
             onClick={onConfirm}
+            children={undefined}
+            label=""
           />
         </div>
       </div>
