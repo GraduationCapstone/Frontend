@@ -174,12 +174,12 @@ export default function HomeView({
 
           {/* Start Button */}
           <Button 
+            variant="staticGy900LText"
             label="테스트 시작"
-            size="L"
-            variant="solid"
+            children={undefined}
             disabled={!canStart}
             onClick={onStartTest}
-            widthClassName="w-full"
+            className="w-full"
           />
         </section>
 

@@ -22,6 +22,7 @@ type NativeButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "ch
 export type TextButtonProps = NativeButtonProps & {
   variant: ButtonVariant;
   children: React.ReactNode;
+  label?: React.ReactNode;
   Icon?: never;
   iconPosition?: never;
   iconClassName?: never;
@@ -30,8 +31,9 @@ export type TextButtonProps = NativeButtonProps & {
 
 export type IconTextButtonProps = NativeButtonProps & {
   variant: IconButtonVariant;
-  Icon: SvgIconComponent;
-  children: React.ReactNode;
+  Icon?: SvgIconComponent;
+  children?: React.ReactNode;
+  label?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconClassName?: string;
   ariaLabel?: never;

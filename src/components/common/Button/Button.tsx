@@ -48,13 +48,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
     // 아이콘 + 텍스트
     if (isIconTextVariant(variant)) {
-      const {
-        Icon,
-        children,
-        iconPosition = "left",
-        iconClassName,
-        ...btnRest
-      } = rest as any;
+      const { Icon, iconPosition = "left", iconClassName, children, label, ...btnRest } = props as any;
+      const content = children ?? label;
 
       const rootClassName = getIconButtonRootClassName({ variant, className });
       const labelClassName = getIconButtonLabelClassName(variant);
@@ -63,21 +58,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return (
         <button ref={ref} type={type} className={rootClassName} {...btnRest}>
           {iconPosition === "left" ? <Icon className={iconCls} /> : null}
-          <span className={labelClassName}>{children}</span>
+          <span className={labelClassName}>{content}</span>
           {iconPosition === "right" ? <Icon className={iconCls} /> : null}
         </button>
       );
     }
 
     // 버튼
-    const { children, ...btnRest } = rest as any;
+    const { children, label, ...btnRest } = rest as any;
+    const content = children ?? label;
 
     const rootClassName = getButtonRootClassName({ variant, className });
     const labelClassName = getButtonLabelClassName(variant);
 
     return (
       <button ref={ref} type={type} className={rootClassName} {...btnRest}>
-        <span className={labelClassName}>{children}</span>
+        <span className={labelClassName}>{content}</span>
       </button>
     );
   }
