@@ -2,8 +2,13 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import VideoLayout from "../components/layout/VideoLayout";
 import { Button } from "../components/common/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const handleLogin = () => {
+    navigate("/home");
+  }
   return (
     <VideoLayout variant="dark">
       <div className="fixed left-0 top-0 z-50 w-full">
@@ -25,6 +30,7 @@ export default function Login() {
             variant="staticGy900LText"
             label="Github 계정으로 로그인"
             children={undefined}
+            onClick={handleLogin}
           />
           <div className="mt-5 w-full flex items-center justify-between">
             <span className="text-grayscale-black text-medium500-ko">처음 이용하신다면?</span>
