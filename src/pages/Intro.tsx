@@ -5,8 +5,8 @@ import BackgroundImg from "../assets/bg/BG.mp4";
 export default function Landing() {
   return (
     <div className="relative w-full bg-linear-to-b to-white/0
-     overflow-hidden overscroll-none">
-      <div className="absolute inset-0 -z-10">
+     ">
+      <div className="absolute inset-0">
         <video
           className="h-full w-full object-cover"
           src={BackgroundImg}
@@ -17,8 +17,11 @@ export default function Landing() {
         />
       </div>
       <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-grayscale-white" />
-      <div className="self-stretch w-full pt-16 relative flex min-h-screen flex-col items-center overflow-hidden justify-start">
-        <Header variant="default" />
+      <div className="self-stretch w-full pt-16 relative flex min-h-screen flex-col items-center justify-start">
+        <Header 
+              isLoggedIn={true}
+              variant="default"
+              />
         {/* Main */}
         <main className="self-stretch min-h-[63rem] flex-1 pt-72 inline-flex flex-col justify-start items-center gap-44">
           <section className="self-stretch flex flex-col justify-start items-center gap-8">
