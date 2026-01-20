@@ -34,7 +34,7 @@ export default function Chip({
   } as const;
 
   const baseRoot =
-    "inline-flex items-center min-w-0 rounded-xl gap-4 transition-colors duration-200 ease-in-out justify-center text-h4-kr text-grayscale-black";
+    "inline-flex items-center min-w-0 rounded-xl gap-4 transition-colors duration-200 ease-in-out justify-center text-h4-ko text-grayscale-black";
 
     return (
       <button

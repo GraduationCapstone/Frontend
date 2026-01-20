@@ -70,10 +70,10 @@ const InputField = ({
   };
 
   const textStyle = {
-    deactive: "text-system-deactive text-h4-kr",
-    default: "text-grayscale-gy600 text-h4-kr",
-    typing: "text-grayscale-black text-h4-kr",
-    typed: "text-grayscale-black text-h4-kr",
+    deactive: "text-system-deactive text-h4-ko",
+    default: "text-grayscale-gy600 text-h4-ko",
+    typing: "text-grayscale-black text-h4-ko",
+    typed: "text-grayscale-black text-h4-ko",
   }[state];
 
   const iconColorClass = state === "deactive" ? "text-system-deactive" : "text-grayscale-black";
