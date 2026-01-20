@@ -44,17 +44,17 @@ const BUTTON_PRESET: Record<ButtonVariant, { root: string; label: string }> = {
   staticGy900LText: {
     root:
       "inline-flex items-center justify-center gap-2.5 rounded-2xl py-3 outline-none shadow-ds-200 w-l",
-    label: "text-h2-kr text-center",
+    label: "text-h2-ko text-center",
   },
   staticGy900MText: {
     root:
       "inline-flex items-center justify-center gap-2.5 rounded-xl py-2 outline-none shadow-ds-200 w-s",
-    label: "text-h3-kr",
+    label: "text-h3-ko",
   },
   dynamicSg500SText: {
     root:
       "inline-flex items-center justify-center gap-2.5 rounded-lg px-4 py-2 outline-none",
-    label: "text-h4-kr",
+    label: "text-h4-ko",
   },
   dynamicClearSTextUnderlined: {
     root: "inline-flex px-5 py-2 rounded-lg gap-2.5 bg-transparent",
@@ -142,17 +142,17 @@ const ICONBUTTON_PRESET: Record<IconButtonVariant, { root: string; label: string
   dynamicGy900MIconText: {
     root:
       "inline-flex items-center justify-center gap-2 rounded-xl pl-3 pr-4 py-2 outline-none",
-    label: "text-h3-kr",
+    label: "text-h3-ko",
   },
   dynamicWhiteMDsIconText: {
     root:
       "inline-flex items-center justify-center gap-2 rounded-xl pl-3 pr-4 py-2 outline-none shadow-ds-200",
-    label: "text-h3-kr",
+    label: "text-h3-ko",
   },
   dynamicClearSIconText: {
     root:
       "inline-flex items-center justify-center gap-2 rounded-lg pl-3 pr-4 py-2 outline-none",
-    label: "text-h4-kr",
+    label: "text-h4-ko",
   },
 };
 

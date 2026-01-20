@@ -25,7 +25,7 @@ export default function Login() {
                 <h1 className="self-stretch text-center justify-center text-grayscale-white text-extra-ko">
                   Probe로 테스트를 자동화하세요.
                 </h1>
-                <p className="self-stretch text-center justify-center text-grayscale-white text-h1-kr">
+                <p className="self-stretch text-center justify-center text-grayscale-white text-h1-ko">
                   당신의 코드를 이해하는 AI, 테스트 워크플로를 하나로
                 </p>
               </section>
