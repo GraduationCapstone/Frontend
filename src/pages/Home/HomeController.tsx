@@ -9,16 +9,6 @@ export default function HomeController() {
     selectedProject,
     testName,
     canStart,
-    isSideSheetOpen, 
-    activeModal,     
-    handleProfileClick,   
-    handleCloseSideSheet,
-    handleLogoutClick, 
-    handleWithdrawClick, 
-    handleCloseModal, 
-    handleConfirmLogout, 
-    handleConfirmWithdraw, 
-    handleConfirmWithdrawComplete, 
     handleProjectChange,
     handleTestNameChange,
     handleStartTest,
@@ -31,16 +21,6 @@ export default function HomeController() {
       selectedProject={selectedProject}
       testName={testName}
       canStart={canStart}
-      isSideSheetOpen={isSideSheetOpen} 
-      activeModal={activeModal}     
-      onProfileClick={handleProfileClick}    
-      onCloseSideSheet={handleCloseSideSheet}
-      onLogoutClick={handleLogoutClick} 
-      onWithdrawClick={handleWithdrawClick} 
-      onCloseModal={handleCloseModal} 
-      onConfirmLogout={handleConfirmLogout} 
-      onConfirmWithdraw={handleConfirmWithdraw} 
-      onConfirmWithdrawComplete={handleConfirmWithdrawComplete}
       onProjectChange={handleProjectChange}
       onTestNameChange={handleTestNameChange}
       onStartTest={handleStartTest}

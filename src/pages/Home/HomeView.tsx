@@ -1,15 +1,9 @@
 // src/pages/Home/HomeView.tsx
 import { ChangeEvent } from 'react';
-import Header from '../../components/layout/Header';
-import Footer from '../../components/layout/Footer';
 import Dropbox from '../../components/common/Dropbox';
 import InputField from '../../components/common/InputField';
 import { Button } from '../../components/common/Button';
-import SideSheet from '../../components/common/SideSheet';
-import ConfirmModal from '../../components/common/Modal/ConfirmModal';
 import bgVideo from '../../assets/bg/BG.mp4';
-
-type ModalType = 'none' | 'logout' | 'withdraw' | 'withdrawComplete';
 
 // Controller로부터 받을 Props 타입 정의
 interface HomeViewProps {
@@ -17,16 +11,6 @@ interface HomeViewProps {
   selectedProject: string;
   testName: string;
   canStart: boolean;
-  isSideSheetOpen: boolean;
-  activeModal: ModalType;
-  onProfileClick: () => void; 
-  onCloseSideSheet: () => void; 
-  onLogoutClick: () => void;
-  onWithdrawClick: () => void;
-  onCloseModal: () => void;
-  onConfirmLogout: () => void;
-  onConfirmWithdraw: () => void;
-  onConfirmWithdrawComplete: () => void;
   onProjectChange: (value: string) => void;
   onTestNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onStartTest: () => void;
@@ -37,16 +21,6 @@ export default function HomeView({
   selectedProject,
   testName,
   canStart,
-  isSideSheetOpen,
-  activeModal,      
-  onProfileClick,    
-  onCloseSideSheet,
-  onLogoutClick,  
-  onWithdrawClick, 
-  onCloseModal, 
-  onConfirmLogout, 
-  onConfirmWithdraw, 
-  onConfirmWithdrawComplete,
   onProjectChange,
   onTestNameChange,
   onStartTest,
@@ -61,81 +35,18 @@ export default function HomeView({
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover -z-20"
+        className="fixed top-0 left-0 w-full h-full object-cover -z-20"
       >
         <source src={bgVideo} type="video/mp4" />
       </video>
 
       {/* --- 그라데이션 오버레이 (Gradient Overlay) --- */}
       {/* 피그마: bg-gradient-to-b from-Colors-Gray-Scale-White to-white/0 */}
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-grayscale-white to-transparent -z-10" />
+      <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-b from-grayscale-white to-transparent -z-10" />
 
 
       {/* --- 메인 콘텐츠 (z-index가 비디오보다 높아야 함) --- */}
-      {/* 1. Header */}
-      <Header 
-      isLoggedIn={true}
-      variant="default"
-      onProfileClick={onProfileClick}
-      />
-
-      {isSideSheetOpen && (
-        <div 
-          className="fixed inset-0 z-[55] bg-transparent cursor-default"
-          onClick={onCloseSideSheet}
-        />
-      )}
-
-      <SideSheet 
-        isOpen={isSideSheetOpen} 
-        onLogoutClick={onLogoutClick}
-        onWithdrawClick={onWithdrawClick}
-        activeModal={activeModal}
-        className="absolute top-[5rem] right-[2.5rem] z-[60]"
-      />
-
-      {/* ✅ 1. 로그아웃 모달 */}
-      <ConfirmModal
-        isOpen={activeModal === 'logout'}
-        onClose={onCloseModal}
-        onConfirm={onConfirmLogout}
-        confirmLabel="로그아웃"
-      >
-        <div className="text-h4-ko text-grayscale-black text-center">
-          로그아웃하시겠습니까?
-        </div>
-      </ConfirmModal>
-
-      {/* ✅ 2. 탈퇴 확인 모달 */}
-      <ConfirmModal
-        isOpen={activeModal === 'withdraw'}
-        onClose={onCloseModal}
-        onConfirm={onConfirmWithdraw}
-        confirmLabel="탈퇴"
-      >
-        <div className="text-h4-ko text-grayscale-black text-center">
-          탈퇴하시겠습니까?
-        </div>
-        <div className="text-h4-ko text-grayscale-black text-center">
-          계정 정보가 영구적으로 삭제됩니다.
-        </div>
-      </ConfirmModal>
-
-      {/* ✅ 3. 탈퇴 완료 모달 */}
-      <ConfirmModal
-        isOpen={activeModal === 'withdrawComplete'}
-        onClose={onCloseModal}
-        onConfirm={onConfirmWithdrawComplete}
-        confirmLabel="확인"
-      >
-        <div className="text-h4-ko text-grayscale-black text-center">
-          탈퇴 처리가 완료되었습니다.
-        </div>
-        <div className="text-h4-ko text-grayscale-black text-center">
-          더 발전하는 Probe가 되겠습니다.
-        </div>
-      </ConfirmModal>
-
+      {/* Header가 MainLayout에 있으므로 상단 패딩(pt)으로 간격을 맞춰줍니다. */}
       {/* 2. Main Content */}
       <main className="flex-1 w-full max-w-[120rem] px-[2rem] pt-[18rem] pb-[6rem] flex flex-col items-center gap-[11rem] z-0">
         
@@ -184,9 +95,6 @@ export default function HomeView({
         </section>
 
       </main>
-
-      {/* 3. Footer */}
-      <Footer variant="default" />
     </div>
   );
 }
