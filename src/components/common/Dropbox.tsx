@@ -25,7 +25,7 @@ interface DropboxProps {
 
 const NEW_PROJECT_VALUE = "new";
 // 나중에 경로 이름 맞춰서 변경 ‼️
-const NEW_PROJECT_PATH = "/newproject";
+const NEW_PROJECT_PATH = "/new-project";
 
 const STATE_STYLE: Record<
   DropboxState,
