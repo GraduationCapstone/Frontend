@@ -29,7 +29,7 @@ const SIZE_STYLE = {
   M: {
     padding: "px-5 py-3",
     gap: "gap-3",
-    label: "text-h4-kr",
+    label: "text-h4-ko",
     icon: "w-6 h-6",
     avatar: "w-[1.5rem] h-[1.5rem] text-[14px]",
     // avatar는 추후 프로필 API 연동 후 변경
@@ -37,7 +37,7 @@ const SIZE_STYLE = {
   S: {
     padding: "py-2 px-3",
     gap: "gap-2",
-    label: "text-regular-kr text-grayscale-black",
+    label: "text-regular-ko text-grayscale-black",
     icon: "w-6 h-6",
     avatar: "w-[1.5rem] h-[1.5rem] text-[14px]",
   },

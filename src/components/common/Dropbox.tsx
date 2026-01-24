@@ -137,7 +137,7 @@ export default function Dropbox({
   };
 
   const triggerLabel = selectedItem?.label ?? placeholder;
-  const labelBaseClass = "flex-1 justify-center text-base min-w-0 text-left text-h4-kr leading-6 line-clamp-1";
+  const labelBaseClass = "flex-1 justify-center text-base min-w-0 text-left text-h4-ko leading-6 line-clamp-1";
 
   return (
     <div

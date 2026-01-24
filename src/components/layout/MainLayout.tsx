@@ -8,7 +8,7 @@ import useSideSheet from '../../hooks/useSideSheet';
 
 export default function MainLayout() {
   const location = useLocation();
-  const isHome = location.pathname === '/';
+  const isHome = location.pathname === '/' || location.pathname === '/home';
   // 레이아웃 레벨에서 사이드 시트 상태 관리
   const {
     isSideSheetOpen,
