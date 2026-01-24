@@ -85,14 +85,12 @@ const InputField = ({
     <div
       className={[
         "flex items-center rounded-[1rem] pl-[1.25rem] pr-[1rem] gap-[1.25rem] bg-grayscale-white",
+        "shadow-is-100",
         sizeClass,
         hClass,
         textStyle,
         className,
       ].join(" ")}
-      style={{
-        boxShadow: "shadow-is-100",
-      }}
     >
       <input
         type="text"

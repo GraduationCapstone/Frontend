@@ -5,6 +5,7 @@ import NewProject from './pages/NewProject/NewProjectController';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Intro from './pages/Intro';
+import TestFileSelect from "./pages/TestFileSelect/TestFileSelectController";
 
 export default function App() {
   return (
@@ -20,6 +21,8 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/intro" element={<Intro />} />
           <Route path="/new-project" element={<NewProject />} />
+          {/* [추가] 테스트 파일 선택 페이지 라우트 */}
+          <Route path="/test-file-select" element={<TestFileSelect />} />
         </Route>
       </Routes>
     </BrowserRouter>

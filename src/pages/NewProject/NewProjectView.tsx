@@ -1,24 +1,38 @@
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import FloatingBtn from '../../components/common/FloatingBtn';
-import SearchIcon from '../../assets/icons/search.svg?react'; 
+import InputField from '../../components/common/InputField';
+import { ListButton } from '../../components/common/ListButton/ListButton';
+import Chip from '../../components/common/Chip/Chip';
+import type { User } from './NewProjectModel';
 
 interface NewProjectViewProps {
   projectName: string;
   memberSearchQuery: string;
+  searchResults: User[];
+  invitedMembers: User[];
   canProceed: boolean;
   onProjectNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onMemberSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSelectUser: (user: User) => void;
+  onRemoveInvitedUser: (user: User) => void;
   onNext: () => void;
 }
 
 export default function NewProjectView({
   projectName,
   memberSearchQuery,
+  searchResults,
+  invitedMembers,
   canProceed,
   onProjectNameChange,
   onMemberSearchChange,
+  onSelectUser,
+  onRemoveInvitedUser,
   onNext,
 }: NewProjectViewProps) {
+
+  const isSearching = memberSearchQuery.length > 0;
+
   return (
     // MainLayout의 Outlet 위치에 렌더링됩니다.
     // 기존의 Header, Footer, SideSheet 관련 코드는 제거되었습니다.
@@ -39,12 +53,14 @@ export default function NewProjectView({
           <label className="text-h3-ko text-grayscale-black">
             프로젝트명
           </label>
-          <div className="self-stretch h-12 px-5 bg-grayscale-white rounded-2xl shadow-is-100 flex items-center gap-5">
-            <input 
-              type="text"
+          <div className="self-stretch">
+            {/* [Refactor] 돋보기 아이콘 숨김 (showIcon={false}) */}
+            <InputField 
+              placeholder="프로젝트명을 입력하세요"
               value={projectName}
               onChange={onProjectNameChange}
-              className="flex-1 bg-transparent border-none outline-none text-h4-ko text-grayscale-black"
+              showIcon={false} 
+              widthClass="w-full"
             />
           </div>
         </section>
@@ -60,26 +76,68 @@ export default function NewProjectView({
             </div>
 
             {/* Search Input Field with Icon */}
-            <div className="self-stretch h-12 pl-5 pr-4 bg-grayscale-white rounded-2xl shadow-is-100 flex items-center gap-5">
-              <input
-                type="text"
+            <div className="self-stretch">
+              <InputField
                 placeholder="Github ID로 검색"
                 value={memberSearchQuery}
                 onChange={onMemberSearchChange}
-                className="flex-1 bg-transparent border-none outline-none text-h4-ko text-grayscale-black placeholder:text-grayscale-gy600 line-clamp-1"
+                // showIcon={true} // 기본값이 true라면 생략 가능
+                widthClass="w-full"
               />
-              <div className="p-1 rounded-lg flex items-center justify-center cursor-pointer hover:bg-grayscale-gy100 transition-colors">
-                <div className="w-6 h-6 flex items-center justify-center overflow-hidden">
-                  <SearchIcon className="w-5 h-5 text-grayscale-black fill-current" />
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Invited Members List Box */}
-          <div className="self-stretch h-48 p-3 bg-grayscale-gy100 rounded-2xl shadow-is-100 overflow-y-auto">
-            {/* TODO: 초대된 멤버 리스트 아이템 렌더링 */}
-          </div>
+          {/* 2-2. 리스트 영역 */}
+          {isSearching ? (
+            // [수정됨] 디자인 요구사항(그림자) 적용 + 짤림 방지 패딩 유지
+            <div className={`
+                self-stretch h-48 
+                bg-grayscale-white 
+                rounded-2xl 
+                overflow-hidden 
+                border border-grayscale-black/10
+            `}>
+              {/* 스크롤 영역 (스크롤바 숨김 유지) */}
+              <div className="w-full h-full flex flex-col items-start overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden">
+                {searchResults.length > 0 ? (
+                  searchResults.map((user) => (
+                    <ListButton
+                      key={user.id}
+                      variant="dynamicWhiteMImgTextIcon"
+                      label={user.name}
+                      leading={{
+                        type: "avatar",
+                        fallbackText: user.name.charAt(0).toUpperCase(),
+                      }}
+                      trailing={{ type: "none" }}
+                      onClick={() => onSelectUser(user)}
+                      className="self-stretch"
+                    />
+                  ))
+                ) : (
+                  <div className="self-stretch h-full flex items-center justify-center text-grayscale-gy600 text-small500-ko">
+                    검색 결과가 없습니다.
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            // --- [초대된 멤버 리스트 (기본)] ---
+            <div className="self-stretch h-48 p-3 bg-grayscale-gy100 rounded-2xl shadow-is-100 overflow-y-auto">
+               {/* 초대된 멤버 리스트 */}
+               <div className="flex flex-wrap content-start gap-4">
+                 {invitedMembers && invitedMembers.length > 0 && invitedMembers.map((user) => (
+                   <Chip
+                     key={user.id}
+                     label={user.name}
+                     avatarText={user.name.charAt(0).toUpperCase()}
+                     // Chip의 클릭 이벤트가 곧 삭제 버튼 역할 (Chip 컴포넌트 구조상 전체가 버튼)
+                     onClick={() => onRemoveInvitedUser(user)}
+                   />
+                 ))}
+               </div>
+            </div>
+          )}
 
         </section>
 

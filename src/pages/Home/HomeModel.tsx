@@ -1,10 +1,8 @@
 // src/pages/Home/HomeModel.tsx
 import { useState, ChangeEvent } from 'react';
-import useSideSheet from '../../hooks/useSideSheet';
 
 export const useHomeModel = () => {
   // 1. 상태 관리 (Data)
-  const sideSheet = useSideSheet();
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [testName, setTestName] = useState<string>('');
 
@@ -43,6 +41,5 @@ export const useHomeModel = () => {
     handleProjectChange,
     handleTestNameChange,
     handleStartTest,
-    sideSheet,
   };
 };
