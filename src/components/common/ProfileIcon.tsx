@@ -12,9 +12,14 @@ interface ProfileIconProps {
    * 내부에 들어갈 텍스트 (기본값: 'U')
    */
   initial?: string;
+
+  /**
+   * 추가 스타일 클래스 (크기, 마진 등)
+   */
+  className?: string;
 }
 
-export default function ProfileIcon({ isActive = true, initial = 'U' }: ProfileIconProps) {
+export default function ProfileIcon({ isActive = true, initial = 'U', className = ''}: ProfileIconProps) {
   return (
     <div
       className={`
@@ -29,6 +34,9 @@ export default function ProfileIcon({ isActive = true, initial = 'U' }: ProfileI
         
         /* 3. 배경색 분기 처리 */
         ${isActive ? 'bg-primary-sg600' : 'bg-grayscale-gy400'}
+
+        /* 4. 외부 스타일 오버라이드 (마지막에 위치) */
+        ${className}
       `}
     >
       {/* 내부 텍스트 */}

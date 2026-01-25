@@ -1,4 +1,5 @@
 // src/components/common/SideSheet.tsx
+import { useNavigate } from "react-router-dom";
 import ProfileIcon from "./ProfileIcon";
 import PlusIcon from "../../assets/icons/plus.svg?react";
 import LogoutIcon from "../../assets/icons/logout.svg?react";
@@ -12,13 +13,17 @@ interface SideSheetProps {
   activeModal?: string;
 }
 
+const NEW_PROJECT_PATH = "/new-project";
+
 export default function SideSheet({
   isOpen,
   className = "",
   onLogoutClick, 
   onWithdrawClick,
-  activeModal = "none"
+  activeModal = "none",
  }: SideSheetProps) {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const getButtonStyles = (isActive: boolean) => {
@@ -88,7 +93,10 @@ export default function SideSheet({
         </button>
 
         {/* New Project */}
-        <button className="self-stretch px-5 py-3 bg-grayscale-white inline-flex justify-start items-center gap-2 hover:bg-grayscale-gy100 transition-colors">
+        <button
+          onClick={() => navigate(NEW_PROJECT_PATH)}
+          className="self-stretch px-5 py-3 bg-grayscale-white inline-flex justify-start items-center gap-2 hover:bg-grayscale-gy100 transition-colors"
+        >
           <div className="w-6 h-6 flex items-center justify-center">
             <PlusIcon className="w-6 h-6 text-grayscale-black fill-current" />
           </div>

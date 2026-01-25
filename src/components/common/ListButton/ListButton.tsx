@@ -11,6 +11,7 @@ import { getListButtonClassNames } from "./styles";
 import PlusIcon from "../../../assets/icons/plus.svg?react";
 import SwitchIcon from "../../../assets/icons/switch.svg?react";
 import CheckIcon from "../../../assets/icons/check.svg?react";
+import ProfileIcon from "../ProfileIcon";
 
 const cn = (...args: Array<string | undefined | false>) => args.filter(Boolean).join(" ");
 
@@ -69,9 +70,10 @@ const renderLeading = (
       );
     }
     return (
-      <span className={cn(styles.avatar, leading.className, leadingClassName)}>
-        {leading.fallbackText ?? "U"}
-      </span>
+      <ProfileIcon 
+        initial={leading.fallbackText ?? "U"}
+        className={cn(styles.avatar, leading.className, leadingClassName)}
+      />
     );
   }
 
