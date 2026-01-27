@@ -1,6 +1,5 @@
 import { forwardRef, useState, ReactNode } from "react";
 import CheckboxButton from "../CheckButton/CheckButton";
-import Chip from "../Chip/Chip";
 
 // 아이콘 경로
 import starIcon from "../../../assets/icons/star.svg";
@@ -80,9 +79,9 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         }}
         className={`
           group relative 
-          w-full max-w-max
-          px-gap-m py-gap-s 
-          flex items-start gap-m
+          w-full
+          px-4 py-3
+          flex items-start gap-5
           
           bg-grayscale-white border-b border-grayscale-gy300
           transition-colors duration-200
@@ -112,24 +111,20 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         </div>
 
         {/* 2. Middle: Main Content */}
-        <div className="flex-1 flex flex-col items-start gap-xxs min-w-0">
+        <div className="flex-1 flex flex-col items-start gap-2 min-w-0">
           
           {/* Header */}
-          <div className="flex items-center gap-s">
+          <div className="flex items-center gap-4">
             <span className={`text-h3-ko truncate ${titleColor}`}>
               {title}
             </span>
             {isPublic && (
-              <Chip
-                label="Public"
-                disabled={disabled}
-                className={disabled 
-                    ? "outline-grayscale-gy300" 
-                    : "outline-grayscale-gy300 text-grayscale-black"
-                }
-                paddingClassName="px-2 py-0.5"
-                labelClassName="text-regular-ko"
-              />
+              <div className={`
+                px-2 py-0.5 rounded-xl border flex justify-center items-center gap-2.5
+                ${disabled ? "border-grayscale-gy300 text-grayscale-gy400" : "border-grayscale-gy300 text-grayscale-black"}
+              `}>
+                <span className="text-xs font-medium font-pretendard leading-4">Public</span>
+              </div>
             )}
           </div>
 
@@ -141,7 +136,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
           )}
 
           {/* Footer Meta Info */}
-          <div className="flex flex-wrap items-center gap-xxs overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2 overflow-hidden">
             {language && (
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 flex items-center justify-center">
