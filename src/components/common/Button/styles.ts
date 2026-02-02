@@ -59,7 +59,7 @@ const BUTTON_PRESET: Record<ButtonVariant, { root: string; label: string }> = {
   dynamicClearSTextUnderlined: {
     root: "inline-flex px-5 py-2 rounded-lg gap-2.5 bg-transparent",
     label:
-      "text-medium-ko underline decoration-current underline-offset-auto",
+      "text-medium500-ko underline decoration-current underline-offset-auto",
   },
 };
 
