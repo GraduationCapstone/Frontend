@@ -94,7 +94,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
         {...rest}
       >
         {/* 1. ID */}
-        <div className="w-24 px-2 flex justify-start items-center gap-2.5">
+        <div className="w-layout-column-unit px-2 flex justify-start items-center gap-2.5">
           <span className={`text-medium500-ko ${mainTextColor}`}>{codeId}</span>
         </div>
 
@@ -104,19 +104,19 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
         </div>
 
         {/* 3. Status */}
-        <div className="w-32 px-2 inline-flex flex-col justify-start items-start gap-2.5">
+        <div className="w-size-min px-2 inline-flex flex-col justify-start items-start gap-2.5">
           <StatusBadge type={badgeType} />
         </div>
 
         {/* 4. Duration */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-size-min px-2 flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium500-ko line-clamp-1 ${subTextColor} text-center`}>
             {isUntest ? "-" : duration}
           </span>
         </div>
 
         {/* 5. User */}
-        <div className="w-32 px-2 flex justify-start items-center gap-2 overflow-hidden">
+        <div className="w-size-min px-2 flex justify-start items-center gap-2 overflow-hidden">
             {!isUntest && (
                 <div className="w-6 h-6 relative bg-primary-sg600 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center">
                     <span className="text-[10px] font-bold text-grayscale-white leading-none mt-px">U</span>

@@ -3,15 +3,16 @@ import type { TestCodeItem, SortKey } from "../types";
 import type { MenuState } from "../../../hooks/useTEDashBoard";
 
 import TestCodeListItem from "../../../components/common/ListItem/TestCodeListItem";
+import TestCodeListItemSimple from "../../../components/common/ListItem/TestCodeListItemSimple";
 import type { StatusBadgeType } from "../../../components/common/StatusBadge";
-
-import TestCodeTableHeader from "./TestCodeTableHeader";
+import TestCodeTableHeader, { SimpleTableHeader } from "./TestCodeTableHeader";
 import PopoverMenu from "./PopoverMenu";
-
 import EditModal from "../../../components/common/Modal/EditTestCodeModal";
 import DeleteModal from "../../../components/common/Modal/DeleteTestCodeModal";
 
 type Props = {
+  variant?: "full" | "simple";
+
   totalCount: number;
 
   selectedId: string | null;
@@ -55,7 +56,9 @@ const toStatusBadgeType = (
   }
 };
 
+
 export default function TestCodeSection({
+  variant = "full",
   totalCount,
   selectedId,
   list,
@@ -73,6 +76,11 @@ export default function TestCodeSection({
   onOpenDeleteModal,
   onCloseModals,
 }: Props) {
+  const isSimple = variant === "simple";
+  const safeSelect = (id: string | null) => {
+    if (typeof onSelect === "function") onSelect(id);
+  };
+
   return (
     <section className="w-full max-w-size-max inline-flex flex-col justify-start items-start gap-5">
       <div className="self-stretch justify-center text-h4-ko text-grayscale-black">
@@ -80,23 +88,49 @@ export default function TestCodeSection({
       </div>
 
       <div className="w-full">
-        <div className=" self-stretch rounded-lg outline-1 outline-grayscale-gy300 flex flex-col justify-start items-start overflow-hidden">
-          <TestCodeTableHeader onOpenSortMenu={onOpenSortMenu} />
+        <div className="self-stretch rounded-lg outline-1 outline-grayscale-gy300 flex flex-col justify-start items-start overflow-hidden">
+
+          {isSimple ? (
+            <SimpleTableHeader onOpenSortMenu={onOpenSortMenu} />
+          ) : (
+            <TestCodeTableHeader onOpenSortMenu={onOpenSortMenu} />
+          )}
+
           <div className="self-stretch flex flex-col">
-            {list.map((it) => (
-              <TestCodeListItem
-                key={it.id}
-                codeId={it.codeId}
-                title={it.title}
-                status={toStatusBadgeType(it.status, "full")}
-                duration={it.duration}
-                user={it.user}
-                date={it.date}
-                selected={selectedId === it.id}
-                onSelectChange={(next) => onSelect(next ? it.id : null)}
-                onMenuClick={(e) => onOpenRowMenu(it.id, e)}
-              />
-            ))}
+            {list.map((it) => {
+              const isSelected = selectedId === it.id;
+              const statusType = toStatusBadgeType(it.status, isSimple ? "short" : "full");
+
+              const handleSelectChange = (next: boolean) => {
+                safeSelect(next ? it.id : null);
+              };
+
+              return isSimple ? (
+                <TestCodeListItemSimple
+                  key={it.id}
+                  codeId={it.codeId}
+                  title={it.title}
+                  status={statusType}
+                  duration={it.duration}
+                  selected={isSelected}
+                  onSelectChange={handleSelectChange}
+                  onMenuClick={(e) => onOpenRowMenu(it.id, e)}
+                />
+              ) : (
+                <TestCodeListItem
+                  key={it.id}
+                  codeId={it.codeId}
+                  title={it.title}
+                  status={statusType}
+                  duration={it.duration}
+                  user={it.user}
+                  date={it.date}
+                  selected={isSelected}
+                  onSelectChange={handleSelectChange}
+                  onMenuClick={(e) => onOpenRowMenu(it.id, e)}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
@@ -111,12 +145,8 @@ export default function TestCodeSection({
         onDelete={(id) => onOpenDeleteModal(id)}
       />
 
-      {editModalId && (
-        <EditModal open onClose={onCloseModals} id={editModalId} />
-      )}
-      {deleteModalId && (
-        <DeleteModal open onClose={onCloseModals} id={deleteModalId} />
-      )}
+      {editModalId && <EditModal open onClose={onCloseModals} id={editModalId} />}
+      {deleteModalId && <DeleteModal open onClose={onCloseModals} id={deleteModalId} />}
     </section>
   );
 }

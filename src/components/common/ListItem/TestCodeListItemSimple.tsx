@@ -53,7 +53,7 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
       untestShort: "untestShort",
     };
 
-    const badgeType = shortStatusMap[status];
+    const badgeType = status;
     const isUntest = badgeType === "untestShort";
 
 
@@ -99,7 +99,7 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
         {...rest}
       >
         {/* 1. ID Column */}
-        <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
+        <div className="w-layout-column-unit px-gap-xxs flex justify-start items-center gap-2.5">
           <span className={`text-medium500-ko ${mainTextColor}`}>
             {codeId}
           </span>
@@ -113,12 +113,12 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
         </div>
 
         {/* 3. Status Column */}
-        <div className="w-32 px-gap-xxs inline-flex flex-col justify-start items-start gap-2.5">
+        <div className="w-size-min px-gap-xxs inline-flex flex-col justify-start items-start gap-2.5">
           <StatusBadge type={badgeType} />
         </div>
 
         {/* 4. Duration Column */}
-        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
+        <div className="w-size-min px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
           <span className={`flex-1 text-medium500-ko line-clamp-1 ${subTextColor} text-center`}>
             {isUntest ? "-" : duration}
           </span>

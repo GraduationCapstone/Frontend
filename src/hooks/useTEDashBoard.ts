@@ -124,11 +124,11 @@ export default function useTEDashBoard(list: TestCodeItem[], initialTitle: strin
     cancelTitle,
 
     // {split/selection}
-    // isSplit,
-    // setIsSplit,
-    // selectedId,
-    // selectedItem,
-    // selectItem,
+    isSplit,
+    setIsSplit,
+    selectedId,
+    selectedItem,
+    selectItem,
 
     sortedList,
 
@@ -148,3 +148,5 @@ export default function useTEDashBoard(list: TestCodeItem[], initialTitle: strin
     closeModals,
   };
 }
+
+export type TEDashBoardState = ReturnType<typeof useTEDashBoard>;
