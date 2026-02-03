@@ -114,7 +114,7 @@ export default function DetailSection({ projectTitle, item, onClose }: Props) {
     isFail && (tab === "result" || tab === "failCode");
 
   return (
-    <aside className="w-layout-split self-stretch bg-grayscale-gy50 shadow-[inset_0px_0px_32px_0px_rgba(31,35,40,0.10)] inline-flex flex-col justify-start items-start px-layout-margin py-8 gap-10 bg-amber-400">
+    <aside className="w-layout-split self-stretch bg-grayscale-gy50 shadow-[inset_0px_0px_32px_0px_rgba(31,35,40,0.10)] inline-flex flex-col justify-start items-start px-layout-margin py-8 gap-10 ">
       {/* top: close */}
       <div className="p-1 rounded-lg inline-flex justify-start items-center gap-2">
         <Button
