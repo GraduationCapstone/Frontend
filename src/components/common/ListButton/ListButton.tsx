@@ -50,7 +50,6 @@ const renderLeading = (
   leadingClassName?: string,
   isEmptyPlaceholder?: boolean
 ) => {
-
   const iconBox = styles.iconBox.replace("bg-current", "").trim();
 
   if (isEmptyPlaceholder) {
@@ -70,7 +69,7 @@ const renderLeading = (
       );
     }
     return (
-      <ProfileIcon 
+      <ProfileIcon
         initial={leading.fallbackText ?? "U"}
         className={cn(styles.avatar, leading.className, leadingClassName)}
       />
@@ -162,7 +161,7 @@ export const ListButton = ({
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled) return;
 
-    if (isDynamicWhiteSIconsText || isDynamicWhiteMImgTextIcon) {
+    if (isDynamicWhiteMImgTextIcon) {
       setIsClicked((prev) => !prev);
     }
 
@@ -170,8 +169,9 @@ export const ListButton = ({
   };
 
   const iconBox = styles.iconBox.replace("bg-current", "").trim();
-  const CheckIcon = resolveIcon("check", iconOverrides);
-  const PlusIcon = resolveIcon("plus", iconOverrides);
+  const Check = resolveIcon("check", iconOverrides);
+  const Plus = resolveIcon("plus", iconOverrides);
+  const isChecked = isDynamicWhiteSIconsText ? selected : isClicked;
 
   return (
     <button
@@ -185,10 +185,10 @@ export const ListButton = ({
       <span className={styles.left}>
         {isDynamicWhiteSIconsText ? (
           <span className={cn("flex items-center gap-[0.5rem]", leadingClassName)}>
-            {CheckIcon ? (
-              <SvgIcon Icon={CheckIcon} className={cn(iconBox, !isClicked && "opacity-0")} />
+            {Check ? (
+              <SvgIcon Icon={Check} className={cn(iconBox, !isChecked && "opacity-0")} />
             ) : null}
-            {PlusIcon ? <SvgIcon Icon={PlusIcon} className={iconBox} /> : null}
+            {Plus ? <SvgIcon Icon={Plus} className={iconBox} /> : null}
           </span>
         ) : (
           renderLeading(leading, styles, iconOverrides, leadingClassName, isEmptyPlaceholder)
@@ -197,7 +197,15 @@ export const ListButton = ({
         <span className={cn(styles.label, labelClassName)}>{label}</span>
       </span>
 
-      {renderTrailing(trailing, styles, iconOverrides, trailingClassName, shouldHideTrailing, variant, disabled)}
+      {renderTrailing(
+        trailing,
+        styles,
+        iconOverrides,
+        trailingClassName,
+        shouldHideTrailing,
+        variant,
+        disabled
+      )}
     </button>
   );
 };

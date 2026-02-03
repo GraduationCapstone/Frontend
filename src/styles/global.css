@@ -76,6 +76,7 @@
     :root {
       --layout-margin: 2rem;
       --layout-margin-l: 6.25rem;
+      --layout-split: 51.25rem;
       --width-min: 7.25rem;
     }
   }

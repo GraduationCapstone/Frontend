@@ -1,13 +1,11 @@
 import { forwardRef, useState } from "react";
 import moreIcon from "../../../assets/icons/kebab.svg"; 
-import StatusBadge, { StatusBadgeType } from "../StatusBadge";
-
-export type TestCodeStatus = 'Untest' | 'Pass' | 'Fail';
+import StatusBadge, { type StatusBadgeType } from "../StatusBadge";
 
 export interface TestCodeListItemSimpleProps extends React.HTMLAttributes<HTMLDivElement> {
   codeId: string;
   title: string;
-  status: TestCodeStatus;
+  status: StatusBadgeType;
   duration?: string;
   disabled?: boolean;
   selected?: boolean;
@@ -44,13 +42,19 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
       onSelectChange?.(nextValue);
     };
 
-    const isUntest = status === 'Untest';
-
-    const badgeTypeMap: Record<TestCodeStatus, StatusBadgeType> = {
-      Untest: 'untestShort',
-      Pass: 'passShort',
-      Fail: 'failShort',
+    const shortStatusMap: Record<StatusBadgeType, StatusBadgeType> = {
+      pass: "passShort",
+      passShort: "passShort",
+      block: "blockShort",
+      blockShort: "blockShort",
+      fail: "failShort",
+      failShort: "failShort",
+      untest: "untestShort",
+      untestShort: "untestShort",
     };
+
+    const badgeType = status;
+    const isUntest = badgeType === "untestShort";
 
 
     // 3. 텍스트 색상 로직 (Selected 상태 반영)
@@ -95,8 +99,8 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
         {...rest}
       >
         {/* 1. ID Column */}
-        <div className="w-24 px-gap-xxs flex justify-start items-center gap-2.5">
-          <span className={`text-medium-ko ${mainTextColor}`}>
+        <div className="w-layout-column-unit px-gap-xxs flex justify-start items-center gap-2.5">
+          <span className={`text-medium500-ko ${mainTextColor}`}>
             {codeId}
           </span>
         </div>
@@ -109,13 +113,13 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
         </div>
 
         {/* 3. Status Column */}
-        <div className="w-32 px-gap-xxs inline-flex flex-col justify-start items-start gap-2.5">
-          <StatusBadge type={badgeTypeMap[status]} />
+        <div className="w-size-min px-gap-xxs inline-flex flex-col justify-start items-start gap-2.5">
+          <StatusBadge type={badgeType} />
         </div>
 
         {/* 4. Duration Column */}
-        <div className="w-32 px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
-          <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor} text-center`}>
+        <div className="w-size-min px-gap-xxs flex justify-start items-center gap-2.5 overflow-hidden">
+          <span className={`flex-1 text-medium500-ko line-clamp-1 ${subTextColor} text-center`}>
             {isUntest ? "-" : duration}
           </span>
         </div>

@@ -33,7 +33,7 @@ export default function SelectTrigger({
       className={cx.root}
       {...rest}
     >
-      <span className="inline-flex items-center gap-2 min-w-0">
+      <span className="inline-flex items-center gap-2 min-w-0 flex-1">
         {/* 왼쪽 아이콘 고정 */}
         {variant === "dynamic" && (
           <DescIcon 

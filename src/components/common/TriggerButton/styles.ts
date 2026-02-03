@@ -15,14 +15,14 @@ const STATE_ROOT_COMMON = {
 const PRESET: Record<SelectTriggerVariant, { root: string; label: string }> = {
   static: {
     root:
-      "flex w-[6.25rem] px-[0.75rem] py-[0.5rem] items-center gap-[0.5rem] rounded-[0.5rem] " + 
+      "flex w-24 px-3 py-2 items-center gap-2 rounded-lg " + 
       "focus:text-primary-sg600",
-    label: "text-medium-ko",
+    label: "text-medium500-ko",
   },
   dynamic: {
     root:
       "inline-flex w-full px-[0.5rem] py-[0.75rem] items-center justify-between gap-[0.5rem] rounded-[0.5rem]",
-    label: "text-medium-ko",
+    label: "text-medium500-ko",
   },
 };
 
