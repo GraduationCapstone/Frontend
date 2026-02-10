@@ -1,6 +1,6 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export interface ScenarioItem {
   id: string;
@@ -82,8 +82,10 @@ export type TestProcessStage = "idle" | "generating" | "testing" | "complete" | 
 
 export const useUserRqInputModel = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { testName?: string }; // 이전 페이지에서 전달받은 state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [testName] = useState('Test A'); // 실제로는 state나 context에서 가져옴
+  const [testName] = useState(state?.testName || 'Test A');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [planStatus, setPlanStatus] = useState<"generating" | "complete">("generating");
@@ -149,8 +151,50 @@ export const useUserRqInputModel = () => {
     setTestProcessStage("generating");
     setCodeGenTime(0);
     setTestRunTime(0);
+    setReportGenTime(0);
     setIsTestPaused(false);
   };
+
+  // --- 2. 테스트 진행 타이머 로직 (Model로 이동됨) ---
+  useEffect(() => {
+    let timer: number;
+
+    if (isTestProcessModalOpen && !isTestPaused) {
+      timer = window.setInterval(() => {
+        // 1단계: 코드 생성 (5초)
+        if (testProcessStage === "generating") {
+          setCodeGenTime((prev) => {
+            if (prev >= 4) {
+              setTestProcessStage("testing");
+              return 5;
+            }
+            return prev + 1;
+          });
+        }
+        // 2단계: 테스트 진행 (5초)
+        else if (testProcessStage === "testing") {
+          setTestRunTime((prev) => {
+            if (prev >= 4) {
+              setTestProcessStage("complete");
+              return 5;
+            }
+            return prev + 1;
+          });
+        }
+        // 3단계: 보고서 생성 (5초)
+        else if (testProcessStage === "report_generating") {
+          setReportGenTime((prev) => {
+            if (prev >= 4) {
+              setTestProcessStage("report_complete");
+              return 5;
+            }
+            return prev + 1;
+          });
+        }
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isTestProcessModalOpen, isTestPaused, testProcessStage]);
 
   // 언마운트 시 타이머 정리
   useEffect(() => {

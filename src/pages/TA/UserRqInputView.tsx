@@ -1,6 +1,5 @@
 // src/pages/Home/TA/UserRqInputView.tsx
 import type { ScenarioCategory } from "./UserRqInputModel";
-import { Button } from "../../components/common/Button";
 import FloatingBtn from "../../components/common/FloatingBtn";
 import TestDownloadModal from "../../components/common/Modal/TestDownloadModal";
 import TestCompleteModal from "../../components/common/Modal/TestCompleteModal";
