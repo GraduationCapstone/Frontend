@@ -102,9 +102,6 @@ export default {
         "size-min": "var(--width-min)",
         split:"var(--layout-split)",
       },
-      gridTemplateColumns: {
-        layout: "repeat(var(--layout-columns), minmax(0, 1fr))",
-      },
     },
   },
   plugins: [],
