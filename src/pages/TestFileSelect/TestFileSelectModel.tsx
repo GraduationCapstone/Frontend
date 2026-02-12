@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export type CategoryType = 'All' | 'Public' | 'Sources' | 'Forks' | 'Archived' | 'Templates';
 // 정렬 옵션 타입 정의
@@ -50,12 +50,17 @@ const DUMMY_REPOSITORIES: Repository[] = Array.from({ length: 15 }).map((_, i) =
 
 export const useTestFileSelectModel = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 1. 전달받은 State 확인 (Home에서 보낸 데이터 받기)
+  const state = location.state as { mode?: 'test'; testName?: string; targetProject?: string } | null;
+  const isTestMode = state?.mode === 'test'; // 테스트 모드 여부 확인
 
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRepoIds, setSelectedRepoIds] = useState<Set<number>>(new Set());
 
-  const [projectName, setProjectName] = useState('Project C');
+  const [projectName, setProjectName] = useState(isTestMode ? (state?.testName ?? '') : 'Project C');
   const [isEditingProjectName, setIsEditingProjectName] = useState(false);
 
   // [추가] 정렬 관련 상태
@@ -80,7 +85,19 @@ export const useTestFileSelectModel = () => {
 
   // 필터링 및 정렬 로직
   const filteredRepositories = useMemo(() => {
-    let result = DUMMY_REPOSITORIES.filter((repo) => {
+    let targetList = DUMMY_REPOSITORIES;
+
+    // [New] 테스트 모드일 경우: 선택된 프로젝트에 해당하는 리포지토리만 남김
+    if (isTestMode && state?.targetProject) {
+      // 실제로는 프로젝트 ID로 API를 호출하거나 매핑된 정보를 찾아야 합니다.
+      // 지금은 더미 데이터이므로, 'targetProject' 이름이 포함된 리포지토리만 보여주거나
+      // 임시로 첫 번째 리포지토리만 보여주는 식으로 시뮬레이션 합니다.
+      
+      // 예시: 더미 데이터 중 ID가 0인 것 하나만 보여줌 (실제 로직에 맞게 수정 필요)
+      targetList = DUMMY_REPOSITORIES.slice(0, 1); 
+    }
+
+    let result = targetList.filter((repo) => {
       // 1. 카테고리 필터
       if (selectedCategory === 'Public' && !repo.isPublic) return false;
 
@@ -110,7 +127,7 @@ export const useTestFileSelectModel = () => {
     });
 
     return result;
-  }, [selectedCategory, searchQuery, sortOption, sortOrder]);
+  }, [selectedCategory, searchQuery, sortOption, sortOrder, isTestMode, state?.targetProject]);
 
   const toggleRepositorySelection = (id: number) => {
     const newSet = new Set(selectedRepoIds);
@@ -129,7 +146,16 @@ export const useTestFileSelectModel = () => {
   const handleNextClick = () => {
     // 선택된 리포지토리가 있을 때만 모달 오픈
     if (selectedRepoIds.size > 0) {
-      setIsCompleteModalOpen(true);
+      if (isTestMode) {
+        navigate('/test-scenario', { 
+          state: { 
+            testName: projectName 
+          } 
+        });
+      } else {
+        // [새 프로젝트 모드] -> 완료 모달 띄우기 (기존 로직 유지)
+        setIsCompleteModalOpen(true);
+      }
     }
   };
 

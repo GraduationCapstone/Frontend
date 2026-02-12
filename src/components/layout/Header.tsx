@@ -1,4 +1,5 @@
 // src/components/layout/Header.tsx
+import { useNavigate } from 'react-router-dom';
 import LogoTypo from '../../assets/logo/Logo_Typo.svg';
 import ProfileIcon from '../common/ProfileIcon';
 import PersonIcon from '../../assets/icons/person.svg?react';
@@ -15,6 +16,17 @@ interface HeaderProps {
 }
 
 export default function Header({ isLoggedIn = false, variant = 'default', onProfileClick }: HeaderProps) {
+  const navigate = useNavigate(); // navigate 함수 생성
+
+  // 로고 클릭 핸들러: 로그인 여부에 따라 경로 분기
+  const handleLogoClick = () => {
+    if (isLoggedIn) {
+      navigate('/home'); // 로그인 된 상태라면 home으로 이동
+    } else {
+      navigate('/'); 
+    }
+  };
+  
   // 1. 배경색 설정 (테두리 없음)
   const bgClass = variant === 'default' 
     ? 'bg-grayscale-white'  // 흰색 배경
@@ -37,7 +49,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
       `}
     >
       {/* 1. Logo */}
-      <button onClick={() => window.location.href = '/'} className="flex-shrink-0">
+      <button onClick={handleLogoClick} className="flex-shrink-0">
         <img 
           src={LogoTypo} 
           alt="Team Probe Logo" 

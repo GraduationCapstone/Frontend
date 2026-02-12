@@ -48,14 +48,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
     // 아이콘 + 텍스트
     if (isIconTextVariant(variant)) {
-      const {
-        Icon,
-        iconPosition = "left",
-        iconClassName,
-        children,
-        label,
-        ...btnRest
-      } = rest as any;
+      const { Icon, iconPosition = "left", iconClassName, children, label, ...btnRest } = rest as any;
       const content = children ?? label;
 
       const rootClassName = getIconButtonRootClassName({ variant, className });
