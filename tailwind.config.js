@@ -64,7 +64,9 @@ export default {
       spacing: {
         'layout-margin': 'var(--layout-margin)',
         'layout-margin-l': 'var(--layout-margin-l)',
+        'layout-column-unit': 'var(--layout-column-unit)',
         'layout-gutter': 'var(--layout-gutter)',
+        'layout-split': 'var(--layout-split)',
 
         'gap-xxl': 'var(--gap-xxl)',
         'gap-xl': 'var(--gap-xl)',
