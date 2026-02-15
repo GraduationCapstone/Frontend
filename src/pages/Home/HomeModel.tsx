@@ -1,7 +1,9 @@
 // src/pages/Home/HomeModel.tsx
 import { useState, ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 
 export const useHomeModel = () => {
+  const navigate = useNavigate();
   // 1. 상태 관리 (Data)
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [testName, setTestName] = useState<string>('');
@@ -28,8 +30,14 @@ export const useHomeModel = () => {
 
   const handleStartTest = () => {
     if (!canStart) return;
-    alert(`테스트 시작!\n프로젝트: ${selectedProject}\n테스트명: ${testName}`);
-    // 여기에 페이지 이동이나 API 호출 로직 추가
+    // state 객체에 모드(mode)와 필요한 데이터를 담아서 보냅니다.
+    navigate('/test-file-select', { 
+      state: { 
+        mode: 'test',             // 'test' 모드임을 명시
+        testName: testName,       // 입력한 테스트명 전달
+        targetProject: selectedProject // 선택한 프로젝트명 전달 (이걸로 리포지토리 필터링)
+      } 
+    });
   };
 
   // Controller에서 사용할 값과 함수들을 반환
