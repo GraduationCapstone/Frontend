@@ -11,6 +11,8 @@ type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   paddingClassName?: string;
   labelClassName?: string;
   iconClassName?: string;
+
+  onRemove?: () => void;
 };
 
 export default function Chip({
@@ -22,6 +24,7 @@ export default function Chip({
   iconClassName,
   className,
   disabled,
+  onRemove,
   ...rest
 }: ChipProps) {
   const STATE_ROOT = {
@@ -75,6 +78,17 @@ export default function Chip({
         </span>
   
         {/* 닫기 아이콘 */}
+        <button
+        type="button"
+        disabled={disabled || !onRemove}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove?.();
+        }}
+        className={cn(
+          "shrink-0 w-6 h-6 rounded-lg inline-flex items-center justify-center",
+        )}
+      >
         <CloseIcon
           aria-hidden="true"
           className={cn(
@@ -83,6 +97,7 @@ export default function Chip({
             iconClassName
           )}
         />
+        </button>
       </button>
     );
   }

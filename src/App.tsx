@@ -8,6 +8,7 @@ import Intro from './pages/Intro';
 import TestFileSelect from "./pages/TestFileSelect/TestFileSelectController";
 import UserRqInput from "./pages/TA/UserRqInputController";
 import TEDashboard from './pages/TEDashBoard/TEDashBoardController';
+import ProjectManagement from './pages/ProjectManagement/ProjectManagementController.tsx';
 
 export default function App() {
   return (
@@ -27,7 +28,8 @@ export default function App() {
           <Route path="/test-file-select" element={<TestFileSelect />} />
           <Route path="/test-scenario" element={<UserRqInput />} />
           <Route path="/test-dashboard" element={<TEDashboard />} />
-        </Route>
+          <Route path="/project-management/*" element={<ProjectManagement />} />
+          </Route>
       </Routes>
     </BrowserRouter>
   );
