@@ -1,8 +1,10 @@
 import { useUserRqInputModel } from "./UserRqInputModel";
 import UserRqInputView from "./UserRqInputView";
+import { useNavigate } from "react-router-dom";
 
 export default function UserRqInputController() {
   const model = useUserRqInputModel();
+  const navigate = useNavigate();
 
   // 핸들러 추가
   const handleTogglePause = () => {
@@ -24,6 +26,7 @@ export default function UserRqInputController() {
   const handleGoToDashboard = () => {
     console.log("대시보드로 이동");
     model.setIsTestProcessModalOpen(false);
+    navigate("/test-dashboard");
   };
 
   return (
