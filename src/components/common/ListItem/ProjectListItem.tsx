@@ -72,7 +72,7 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         {...rest}
       >
         {/* 1. Top Row */}
-        <div className="self-stretch flex justify-start items-center gap-m">
+        <div className="self-stretch flex justify-start items-center gap-gap-m">
           <span className={`text-large-ko ${textColorClass}`}>
             {code}
           </span>
@@ -85,23 +85,21 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         </div>
 
         {/* 2. Bottom Row */}
-        <div className="w-full flex justify-start items-center gap-xxs overflow-hidden">
+        <div className="w-full flex justify-start items-center gap-gap-xxs overflow-hidden">
           {languages?.map((lang, index) => (
             <div key={index} className="flex items-center gap-xxs">
               {index > 0 && (
-                <div className="w-1.5 h-1.5 flex items-center justify-center">
-                    <DotIcon 
-                      className={`w-0.75 h-0.75 ${dotOpacityClass}`} 
-                      aria-label="dot"
-                    />
+                <div className={`w-2 h-2 flex items-center justify-center ${dotOpacityClass}`} aria-label="dot">
+                  <DotIcon className="w-[6px] h-[6px]" />
                 </div>
               )}
               
-              <div className="flex items-center gap-xxs">
+              <div className="flex items-center gap-gap-xxs">
                 <div className="w-5 h-5 flex items-center justify-center">
                   <div
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: disabled ? "var(--color-system-deactive)" : lang.color }}
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      disabled ? "bg-system-deactive" : "bg-blue-600"
+                    }`}
                   />
                 </div>
                 <span className={`text-regular-ko ${subTextColorClass}`}>
@@ -113,11 +111,8 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
 
           {/* ✨ 수정됨: 날짜 앞 구분점도 dotIcon 사용 */}
           {languages && languages.length > 0 && updatedAt && (
-            <div className="w-1.5 h-1.5 flex items-center justify-center">
-                 <DotIcon 
-                      className={`w-0.75 h-0.75 ${dotOpacityClass}`} 
-                      aria-label="dot"
-                    />
+            <div className={`w-2 h-2 flex items-center justify-center ${dotOpacityClass}`} aria-label="dot">
+              <DotIcon className="w-[6px] h-[6px]" />
             </div>
           )}
 

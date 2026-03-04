@@ -1,8 +1,9 @@
 // src/components/layout/Header.tsx
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import LogoTypo from '../../assets/logo/Logo_Typo.svg';
 import ProfileIcon from '../common/ProfileIcon';
 import PersonIcon from '../../assets/icons/person.svg?react';
+import Tab from "../common/Tab";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -17,6 +18,7 @@ interface HeaderProps {
 
 export default function Header({ isLoggedIn = false, variant = 'default', onProfileClick }: HeaderProps) {
   const navigate = useNavigate(); // navigate 함수 생성
+  const location = useLocation();
 
   // 로고 클릭 핸들러: 로그인 여부에 따라 경로 분기
   const handleLogoClick = () => {
@@ -26,6 +28,10 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
       navigate('/'); 
     }
   };
+  
+  const handleProjectManagementClick = () => {
+    navigate('/project-management');
+  }
   
   // 1. 배경색 설정 (테두리 없음)
   const bgClass = variant === 'default' 
@@ -38,6 +44,10 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
   const layoutClass = isLoggedIn
     ? 'justify-start gap-14'
     : 'justify-between';
+
+    const isProjectManagementActive = location.pathname.startsWith("/project-management");
+
+    // const isServiceIntroActive = location.pathname.startsWith("/service-intro"); 나중에 서비스 소개 페이지 생기면 추가하기
 
   return (
     <header
@@ -62,26 +72,18 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
         <>
           <nav className="flex-1 flex justify-start items-center gap-gap-m">
             {/* Menu 1 */}
-            <button className="px-5 py-2 flex justify-center items-center rounded-lg hover:bg-grayscale-gy100 transition-colors">
-              <span className="
-                text-grayscale-black 
-                text-h4-ko
-                tracking-[-0.02em]
-              ">
-                프로젝트 관리
-              </span>
-            </button>
+            <Tab 
+              label="프로젝트 관리" 
+              isSelected={isProjectManagementActive} 
+              onClick={handleProjectManagementClick} 
+            />
 
             {/* Menu 2 */}
-            <button className="px-5 py-2 flex justify-center items-center rounded-lg hover:bg-grayscale-gy100 transition-colors">
-              <span className="
-                text-grayscale-black 
-                text-h4-ko
-                tracking-[-0.02em]
-              ">
-                서비스 소개
-              </span>
-            </button>
+            <Tab 
+              label="서비스 소개" 
+              isSelected={false} 
+              onClick={() => navigate('/service-intro')} // 서비스 소개 페이지로 이동
+            />
           </nav>
 
           <button 

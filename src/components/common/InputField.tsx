@@ -78,7 +78,7 @@ const InputField = ({
 
   const iconColorClass = state === "deactive" ? "text-system-deactive" : "text-grayscale-black";
 
-  const sizeClass = widthClass ?? "w-full min-w-0 max-w-[35.25rem]";
+  const sizeClass = widthClass ?? "w-full";
   const hClass = heightClass ?? "h-[3rem]";
 
   return (
