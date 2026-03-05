@@ -2,12 +2,11 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import VideoLayout from "../components/layout/VideoLayout";
 import { Button } from "../components/common/Button";
-import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const navigate = useNavigate();
   const handleLogin = () => {
-    navigate("/home");
+    const base = import.meta.env.VITE_SERVER_API_URL;
+    window.location.href = `${base}/oauth2/authorization/github`;
   }
   return (
     <VideoLayout variant="dark">
