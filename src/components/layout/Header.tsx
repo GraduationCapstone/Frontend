@@ -82,7 +82,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
             <Tab 
               label="서비스 소개" 
               isSelected={false} 
-              onClick={() => navigate('/service-intro')} // 서비스 소개 페이지로 이동
+              onClick={() => navigate('/Intro')} // 서비스 소개 페이지로 이동
             />
           </nav>
 

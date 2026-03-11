@@ -52,7 +52,7 @@ const SCENARIO_DATA: ScenarioCategory[] = [
     items: [
       { id: 'responsive', label: '반응형 레이아웃' },
       { id: 'browser_compat', label: '브라우저 호환성' },
-      { id: 'error_page', label: '404/500 에러 페이지 동작' },
+      { id: 'error_page', label: '에러 페이지 동작' },
     ],
   },
   {
