@@ -9,6 +9,7 @@ import TestFileSelect from "./pages/TestFileSelect/TestFileSelectController";
 import UserRqInput from "./pages/TA/UserRqInputController";
 import TEDashboard from './pages/TEDashBoard/TEDashBoardController';
 import ProjectManagement from './pages/ProjectManagement/ProjectManagementController.tsx';
+import OAuthRedirect from "../src/pages/OAuthRedirect.tsx";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       {/* 1. Public Routes (레이아웃 미적용: 렌딩, 로그인) */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/oauth2/redirect" element={<OAuthRedirect />} />
 
         {/* 2. Protected Routes (MainLayout 적용: 홈, 인트로, 새 프로젝트) */}
         <Route element={<MainLayout />}>

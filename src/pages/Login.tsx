@@ -4,10 +4,18 @@ import VideoLayout from "../components/layout/VideoLayout";
 import { Button } from "../components/common/Button";
 
 export default function Login() {
+  const apiBaseUrl = import.meta.env.VITE_SERVER_API_URL;
+
   const handleLogin = () => {
-    const base = import.meta.env.VITE_SERVER_API_URL;
-    window.location.href = `${base}/oauth2/authorization/github`;
-  }
+    const loginUrl = `${apiBaseUrl}/oauth2/authorization/github`;
+
+    console.log("[Login] VITE_SERVER_API_URL:", apiBaseUrl);
+    console.log("[Login] 이동할 로그인 URL:", loginUrl);
+    console.log("[Login] 현재 origin:", window.location.origin);
+    console.log("[Login] 현재 href:", window.location.href);
+
+    window.location.href = loginUrl;
+  };
   return (
     <VideoLayout variant="dark">
       <div className="fixed left-0 top-0 z-50 w-full">
