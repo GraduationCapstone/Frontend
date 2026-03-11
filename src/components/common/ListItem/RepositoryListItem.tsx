@@ -1,4 +1,5 @@
-import { forwardRef, useState, ReactNode } from "react";
+import { forwardRef, useState} from "react";
+import type {ReactNode} from "react";
 import CheckboxButton from "../CheckButton/CheckButton";
 
 // 아이콘 경로
