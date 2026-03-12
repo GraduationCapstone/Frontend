@@ -3,7 +3,7 @@ import FloatingBtn from '../../components/common/FloatingBtn';
 import InputField from '../../components/common/InputField';
 import { ListButton } from '../../components/common/ListButton/ListButton';
 import Chip from '../../components/common/Chip/Chip';
-import type { User } from './NewProjectModel';
+import type { User } from './types';
 
 interface NewProjectViewProps {
   projectName: string;
@@ -132,7 +132,7 @@ export default function NewProjectView({
                      label={user.name}
                      avatarText={user.name.charAt(0).toUpperCase()}
                      // Chip의 클릭 이벤트가 곧 삭제 버튼 역할 (Chip 컴포넌트 구조상 전체가 버튼)
-                     onClick={() => onRemoveInvitedUser(user)}
+                     onRemove={() => onRemoveInvitedUser(user)}
                    />
                  ))}
                </div>

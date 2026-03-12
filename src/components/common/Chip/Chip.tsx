@@ -78,10 +78,9 @@ export default function Chip({
         </span>
   
         {/* 닫기 아이콘 */}
-        <button
-        type="button"
-        disabled={disabled || !onRemove}
+        <span
         onClick={(e) => {
+          if (disabled || !onRemove) return;
           e.stopPropagation();
           onRemove?.();
         }}
@@ -97,7 +96,7 @@ export default function Chip({
             iconClassName
           )}
         />
-        </button>
+        </span>
       </button>
     );
   }
