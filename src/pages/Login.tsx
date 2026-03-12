@@ -2,13 +2,20 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import VideoLayout from "../components/layout/VideoLayout";
 import { Button } from "../components/common/Button";
-import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const navigate = useNavigate();
+  const apiBaseUrl = import.meta.env.VITE_SERVER_API_URL;
+
   const handleLogin = () => {
-    navigate("/home");
-  }
+    const loginUrl = `${apiBaseUrl}/oauth2/authorization/github`;
+
+    console.log("[Login] VITE_SERVER_API_URL:", apiBaseUrl);
+    console.log("[Login] 이동할 로그인 URL:", loginUrl);
+    console.log("[Login] 현재 origin:", window.location.origin);
+    console.log("[Login] 현재 href:", window.location.href);
+
+    window.location.href = loginUrl;
+  };
   return (
     <VideoLayout variant="dark">
       <div className="fixed left-0 top-0 z-50 w-full">

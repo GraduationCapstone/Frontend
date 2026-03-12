@@ -13,23 +13,30 @@ export const axiosInstance = axios.create({
   timeout: 15000,
 });
 
-// 요청 인터셉터
 axiosInstance.interceptors.request.use((config) => {
   const token = window.localStorage.getItem(LOCAL_STORAGE_KEY.accessToken);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log("[axios request] Authorization 헤더 추가됨");
+  } else {
+    console.log("[axios request] accessToken 없어서 Authorization 헤더 없음");
   }
 
   return config;
 });
 
-// 응답 인터셉터: 초기설정 단계에서는 공통 에러만 통과
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log("[axios response] 성공");
+    console.log("[axios response] status:", response.status);
+    console.log("[axios response] data:", response.data);
+    return response;
+  },
   (error) => {
-    const status = error?.response?.status;
-    if (!status) return Promise.reject(error);
+    console.log("[axios response] 실패");
+    console.log("[axios response] status:", error?.response?.status);
+    console.log("[axios response] data:", error?.response?.data);
     return Promise.reject(error);
   }
 );

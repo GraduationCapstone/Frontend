@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+// import { axiosInstance } from '../api/axios';
+// import { LOCAL_STORAGE_KEY } from '../constants/key';
 
 export type ModalType = 'none' | 'logout' | 'withdraw' | 'withdrawComplete';
 
@@ -25,12 +27,32 @@ export default function useSideSheet() {
   const handleWithdrawClick = () => setActiveModal('withdraw');
   const handleCloseModal = () => setActiveModal('none');
 
-  // 로그아웃 확인
-  const handleConfirmLogout = () => {
-    alert("로그아웃 되었습니다.");
-    setActiveModal('none');
-    navigate('/login'); // 페이지 이동
-  };
+  // const handleConfirmLogout = async () => {
+  //   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEY.accessToken);
+  
+  //   console.log('[useSideSheet] accessToken 존재 여부:', Boolean(accessToken));
+  
+  //   try {
+  //     if (accessToken) {
+  //       console.log('[useSideSheet] logout 요청 시작');
+  //       const res = await axiosInstance.post('/api/auth/logout');
+  //       console.log('[useSideSheet] logout success:', res.data);
+  //     } else {
+  //       console.log('[useSideSheet] accessToken 없어서 서버 호출 없이 프론트 로그아웃 진행');
+  //     }
+  //   } catch (error) {
+  //     console.log('[useSideSheet] logout failed:', error);
+  //   } finally {
+  //     localStorage.removeItem(LOCAL_STORAGE_KEY.accessToken);
+  //     localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
+  //     console.log('[useSideSheet] localStorage accessToken 삭제 완료');
+  //     console.log('[useSideSheet] localStorage refreshToken 삭제 완료');
+  
+  //     setActiveModal('none');
+  //     setIsSideSheetOpen(false);
+  //     navigate('/login', { replace: true });
+  //   }
+  // };
 
   // 탈퇴 확인 (중간 단계)
   const handleConfirmWithdraw = () => {
@@ -52,7 +74,7 @@ export default function useSideSheet() {
     handleLogoutClick,
     handleWithdrawClick,
     handleCloseModal,
-    handleConfirmLogout,
+    // handleConfirmLogout,
     handleConfirmWithdraw,
     handleConfirmWithdrawComplete,
   };
