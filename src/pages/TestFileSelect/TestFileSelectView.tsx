@@ -38,6 +38,9 @@ const CATEGORIES: { label: CategoryType; icon: React.FunctionComponent<React.SVG
 ];
 
 export default function TestFileSelectView({
+  isLoading,
+  isSubmitting,
+  error,
   selectedCategory,
   handleCategoryChange,
   searchQuery,
@@ -263,7 +266,23 @@ export default function TestFileSelectView({
 
           {/* Scrollable List Items Area */}
           <div className="w-full flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-            {repositories.map((repo) => (
+            {/* 1. 로딩 중일 때 */}
+            {isLoading && (
+              <div className="w-full h-full flex items-center justify-center text-grayscale-gy500 text-h3-ko">
+                레포지토리 목록을 불러오는 중입니다...
+              </div>
+            )}
+
+            {/* 2. 에러가 발생했을 때 */}
+            {!isLoading && error && (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-system-error text-h3-ko">
+                <p>{error}</p>
+                <Button variant="staticGy900MText" onClick={() => window.location.reload()}>다시 시도</Button>
+              </div>
+            )}
+
+            {/* 3. 정상적으로 데이터를 불러왔을 때 */}
+            {!isLoading && !error && repositories.map((repo) => (
               <RepositoryListItem
                 key={repo.id}
                 title={repo.title}
@@ -280,10 +299,10 @@ export default function TestFileSelectView({
               />
             ))}
             
-            {/* Empty State */}
-            {repositories.length === 0 && (
+            {/* 4. 데이터가 텅 비었을 때 */}
+            {!isLoading && !error && repositories.length === 0 && (
               <div className="w-full h-full flex items-center justify-center text-grayscale-gy500 text-h3-ko">
-                No repositories found.
+                일치하는 레포지토리가 없습니다.
               </div>
             )}
           </div>
@@ -294,7 +313,7 @@ export default function TestFileSelectView({
       <div className="absolute right-10 bottom-5 z-50">
         <FloatingBtn 
             onClick={handleNextClick}
-            disabled={!isNextButtonEnabled}
+            disabled={!isNextButtonEnabled || isSubmitting}
         >
           다음
         </FloatingBtn>

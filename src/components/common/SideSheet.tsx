@@ -1,10 +1,11 @@
 // src/components/common/SideSheet.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ListButton } from '../../components/common/ListButton/ListButton';
 import ProfileIcon from "./ProfileIcon";
 import LogoutIcon from "../../assets/icons/logout.svg?react";
 import LeaveIcon from '../../assets/icons/leave.svg?react';
+import { fetchUserMe } from "../../api/user";
 
 interface SideSheetProps {
   isOpen: boolean;
@@ -26,12 +27,43 @@ export default function SideSheet({
   const navigate = useNavigate();
 
   // 💡 프로젝트 목록
-  const [projects] = useState([
-    { id: "A", name: "Project A" },
-    { id: "B", name: "Project B" },
-    { id: "C", name: "Project C" },
-  ]);
-  const [selectedProjectId, setSelectedProjectId] = useState("A");
+  const [username, setUsername] = useState<string>("Loading...");
+  const [email, setEmail] = useState<string>("");
+  const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
+
+  // 백엔드의 id가 숫자(number)이므로 타입을 number | null 로 변경
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+
+  // ✨ [추가] 사이드시트가 열릴 때 내 정보 불러오기
+  useEffect(() => {
+    if (isOpen) {
+      const loadUserData = async () => {
+        try {
+          const userData = await fetchUserMe();
+          
+          // 1. 기본 유저 정보 세팅
+          setUsername(userData.username);
+          setEmail(userData.email);
+
+          // 2. 프로젝트 목록 추출 및 세팅 (projectMembers 배열에서 빼오기)
+          const mappedProjects = userData.projectMembers.map((pm) => ({
+            id: pm.project.id,
+            name: pm.project.projectName,
+          }));
+          setProjects(mappedProjects);
+
+          // 3. 만약 선택된 프로젝트가 없고, 받아온 프로젝트가 있다면 첫 번째를 자동 선택
+          if (mappedProjects.length > 0 && selectedProjectId === null) {
+            setSelectedProjectId(mappedProjects[0].id);
+          }
+        } catch (error) {
+          console.error("유저 정보를 불러오는 데 실패했습니다:", error);
+        }
+      };
+
+      loadUserData();
+    }
+  }, [isOpen]); // isOpen이 변할 때마다(열릴 때마다) 실행됨
 
   if (!isOpen) return null;
 
@@ -42,6 +74,8 @@ export default function SideSheet({
     return a.name.localeCompare(b.name);       // 나머지는 알파벳 순서대로 정렬
   });
 
+  // ✨ [추가] 프로필 아이콘에 들어갈 첫 글자 추출 (없으면 'U')
+  const profileInitial = username ? username.charAt(0).toUpperCase() : 'U';
 
   return (
     <div
@@ -63,12 +97,12 @@ export default function SideSheet({
       <div className="self-stretch px-5 py-3 flex flex-col justify-center items-start gap-5">
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
-          <ProfileIcon isActive={true} initial="U" />
-          <span className="text-grayscale-black text-h4-ko">User1234</span>
+          <ProfileIcon isActive={true} initial={profileInitial} />
+          <span className="text-grayscale-black text-h4-ko">{username}</span>
         </div>
         {/* Email */}
         <span className="self-stretch text-grayscale-black text-h5-ko">
-          User1234@gmail.com
+          {email}
         </span>
       </div>
 

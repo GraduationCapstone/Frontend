@@ -9,6 +9,7 @@ export default function HomeController() {
     selectedProject,
     testName,
     canStart,
+    isLoading,
     handleProjectChange,
     handleTestNameChange,
     handleStartTest,
@@ -21,6 +22,7 @@ export default function HomeController() {
       selectedProject={selectedProject}
       testName={testName}
       canStart={canStart}
+      isLoading={isLoading}
       onProjectChange={handleProjectChange}
       onTestNameChange={handleTestNameChange}
       onStartTest={handleStartTest}
