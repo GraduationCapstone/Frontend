@@ -8,11 +8,13 @@ import useSideSheet from '../../hooks/useSideSheet';
 
 export default function MainLayout() {
   const location = useLocation();
-  const isHome = location.pathname === '/' || location.pathname === '/home';
+  const isHome = location.pathname === "/" || location.pathname === "/home";
   // 레이아웃 레벨에서 사이드 시트 상태 관리
   const {
     isSideSheetOpen,
     activeModal,
+    userInfo,
+    isUserInfoLoading,
     handleProfileClick,
     handleCloseSideSheet,
     handleLogoutClick,
@@ -31,10 +33,10 @@ export default function MainLayout() {
       }`}
     >
       {/* 1. Header (공통) */}
-      <Header 
-        isLoggedIn={true} 
-        variant="default" 
-        onProfileClick={handleProfileClick} 
+      <Header
+        isLoggedIn={true}
+        variant="default"
+        onProfileClick={handleProfileClick}
       />
 
       {/* 2. SideSheet & Modals (공통) */}
@@ -45,11 +47,13 @@ export default function MainLayout() {
         />
       )}
 
-      <SideSheet 
-        isOpen={isSideSheetOpen} 
+      <SideSheet
+        isOpen={isSideSheetOpen}
         onLogoutClick={handleLogoutClick}
         onWithdrawClick={handleWithdrawClick}
         activeModal={activeModal}
+        userInfo={userInfo}
+        isUserInfoLoading={isUserInfoLoading}
         className="fixed top-[5rem] right-[2.5rem] z-[60]"
       />
 

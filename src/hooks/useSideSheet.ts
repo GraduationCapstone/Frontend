@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../api/axios';
 import { LOCAL_STORAGE_KEY } from '../constants/key';
+import { getMyInfo } from '../api/auth';
+import type { UserMeResponse } from '../types/user';
 
 export type ModalType = 'none' | 'logout' | 'withdraw' | 'withdrawComplete';
 
@@ -13,10 +15,34 @@ export default function useSideSheet() {
 
   const location = useLocation();
 
+  const [userInfo, setUserInfo] = useState<UserMeResponse | null>(null);
+  const [isUserInfoLoading, setIsUserInfoLoading] = useState(false);
+
   // [추가] 핵심 로직: URL 경로(pathname)가 바뀔 때마다 사이드 시트 닫기
   useEffect(() => {
     setIsSideSheetOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem(LOCAL_STORAGE_KEY.accessToken);
+
+    if (!accessToken || !isSideSheetOpen) return;
+
+    const fetchMyInfo = async () => {
+      try {
+        setIsUserInfoLoading(true);
+        const data = await getMyInfo();
+        console.log('[useSideSheet] getMyInfo success:', data);
+        setUserInfo(data);
+      } catch (error) {
+        console.log('[useSideSheet] getMyInfo failed:', error);
+        setUserInfo(null);
+      } finally {
+        setIsUserInfoLoading(false);
+      }
+    };
+      fetchMyInfo();
+  }, [isSideSheetOpen]);
 
   // 사이드 시트 핸들러
   const handleProfileClick = () => setIsSideSheetOpen((prev) => !prev);
@@ -69,6 +95,8 @@ export default function useSideSheet() {
   return {
     isSideSheetOpen,
     activeModal,
+    userInfo,
+    isUserInfoLoading,
     handleProfileClick,
     handleCloseSideSheet,
     handleLogoutClick,

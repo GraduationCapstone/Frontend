@@ -1,7 +1,8 @@
 // src/components/common/SideSheet.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ListButton } from '../../components/common/ListButton/ListButton';
+import type { UserMeResponse } from "../../types/user";
+import { ListButton } from "../../components/common/ListButton/ListButton";
 import ProfileIcon from "./ProfileIcon";
 import LogoutIcon from "../../assets/icons/logout.svg?react";
 import LeaveIcon from '../../assets/icons/leave.svg?react';
@@ -12,6 +13,8 @@ interface SideSheetProps {
   onLogoutClick?: () => void;
   onWithdrawClick?: () => void;
   activeModal?: string;
+  userInfo?: UserMeResponse | null;
+  isUserInfoLoading?: boolean;
 }
 
 const NEW_PROJECT_PATH = "/new-project";
@@ -19,10 +22,12 @@ const NEW_PROJECT_PATH = "/new-project";
 export default function SideSheet({
   isOpen,
   className = "",
-  onLogoutClick, 
+  onLogoutClick,
   onWithdrawClick,
   activeModal = "none",
- }: SideSheetProps) {
+  userInfo,
+  isUserInfoLoading = false,
+}: SideSheetProps) {
   const navigate = useNavigate();
 
   // 💡 프로젝트 목록
@@ -63,12 +68,19 @@ export default function SideSheet({
       <div className="self-stretch px-5 py-3 flex flex-col justify-center items-start gap-5">
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
-          <ProfileIcon isActive={true} initial="U" />
-          <span className="text-grayscale-black text-h4-ko">User1234</span>
+          <ProfileIcon
+            isActive={true}
+            initial={(userInfo?.username ?? userInfo?.githubId ?? "U")
+              .charAt(0)
+              .toUpperCase()}
+          />
+          <span className="text-grayscale-black text-h4-ko">
+            {isUserInfoLoading ? "불러오는 중..." : userInfo?.username ?? "게스트"}
+          </span>
         </div>
         {/* Email */}
         <span className="self-stretch text-grayscale-black text-h5-ko">
-          User1234@gmail.com
+          {userInfo?.email ?? "이메일 없음"}
         </span>
       </div>
 
