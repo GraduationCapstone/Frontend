@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance } from '../api/axios';
 import { LOCAL_STORAGE_KEY } from '../constants/key';
-import { getMyInfo } from '../api/auth';
+import { getMyInfo, deleteMyAccount } from '../api/auth';
 import type { UserMeResponse } from '../types/user';
 
 export type ModalType = 'none' | 'logout' | 'withdraw' | 'withdrawComplete';
@@ -81,13 +81,31 @@ export default function useSideSheet() {
   };
 
   // 탈퇴 확인 (중간 단계)
-  const handleConfirmWithdraw = () => {
+  const handleConfirmWithdraw = async () => {
+    const accessToken = localStorage.getItem(LOCAL_STORAGE_KEY.accessToken);
+
+    console.log('[useSideSheet] accessToken 존재 여부:', Boolean(accessToken));
+
+    try {
+      if (accessToken) {
+        console.log('[useSideSheet] 탈퇴 요청 시작');
+        const res = await deleteMyAccount();
+        console.log('[useSideSheet] 탈퇴 success:', res.data);
+      } else {
+        console.log('[useSideSheet] accessToken 없어서 탈퇴 요청 불가');
+    }
     setActiveModal('withdrawComplete');
+  } catch (error) {
+    console.log('[useSideSheet] 탈퇴 failed:', error);
+    alert('탈퇴에 실패했습니다. 다시 시도해주세요.');
+  }
   };
 
   // 탈퇴 완료
   const handleConfirmWithdrawComplete = () => {
-    alert("탈퇴가 완료되었습니다.");
+    localStorage.removeItem(LOCAL_STORAGE_KEY.accessToken);
+    localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
+    setUserInfo(null);
     setActiveModal('none');
     navigate('/login');
   };

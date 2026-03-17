@@ -31,7 +31,15 @@ export async function reissueAccessToken() {
   return accessToken;
 }
 
+// 회원 정보 조회
 export async function getMyInfo() {
   const response = await axiosInstance.get<UserMeResponse>("/api/user/me");
   return response.data;
+}
+
+// 회원 탈퇴
+export async function deleteMyAccount() {
+  const response = await axiosInstance.delete("/api/user/me");
+  return response.data;
+
 }
