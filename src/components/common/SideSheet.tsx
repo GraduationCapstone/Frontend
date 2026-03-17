@@ -6,6 +6,7 @@ import ProfileIcon from "./ProfileIcon";
 import LogoutIcon from "../../assets/icons/logout.svg?react";
 import LeaveIcon from '../../assets/icons/leave.svg?react';
 import { fetchUserMe } from "../../api/user";
+import { fetchProjects } from "../../api/project";
 
 interface SideSheetProps {
   isOpen: boolean;
@@ -39,16 +40,19 @@ export default function SideSheet({
     if (isOpen) {
       const loadUserData = async () => {
         try {
-          const userData = await fetchUserMe();
+          const [userData, projectsData] = await Promise.all([
+            fetchUserMe(),   // 1. 내 정보 가져오기 (이름, 이메일, 프사)
+            fetchProjects()  // 2. 내 프로젝트 목록 가져오기 (배열)
+          ]);
           
           // 1. 기본 유저 정보 세팅
           setUsername(userData.username);
           setEmail(userData.email);
 
           // 2. 프로젝트 목록 추출 및 세팅 (projectMembers 배열에서 빼오기)
-          const mappedProjects = userData.projectMembers.map((pm) => ({
-            id: pm.project.id,
-            name: pm.project.projectName,
+          const mappedProjects = projectsData.map((project) => ({
+            id: project.id,
+            name: project.projectName,
           }));
           setProjects(mappedProjects);
 
@@ -102,7 +106,7 @@ export default function SideSheet({
         </div>
         {/* Email */}
         <span className="self-stretch text-grayscale-black text-h5-ko">
-          {email}
+          {email.includes('@no-email.com') ? '이메일 비공개' : email}
         </span>
       </div>
 
@@ -128,7 +132,8 @@ export default function SideSheet({
               // ✨ hidden 클래스로 아이콘 빈 공간을 없애 글자를 맨 앞으로 당겨옵니다
               leadingClassName="!hidden" 
               // ✨ 선택된 상태면 아이콘 숨김, 아니면 switch 아이콘 표시
-              trailing={isSelected ? { type: "none" } : { type: "icon", icon: "switch" }} 
+              trailing={{ type: "icon", icon: "switch" }} 
+              trailingClassName={isSelected ? "opacity-0 pointer-events-none" : ""}
               onClick={() => setSelectedProjectId(project.id)}
               className="w-full"
             />

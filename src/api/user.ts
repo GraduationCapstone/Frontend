@@ -22,8 +22,8 @@ export interface UserMeResponse {
   username: string;
   email: string;
   deleted: boolean;
-  githubAccessToken: string;
-  projectMembers: ProjectMember[];
+  profileImageUrl?: string;
+  projectMembers?: ProjectMember[];
 }
 
 // 본인 정보 조회 API
