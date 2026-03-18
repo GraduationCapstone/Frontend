@@ -1,9 +1,11 @@
 // src/components/layout/Header.tsx
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
 import LogoTypo from '../../assets/logo/Logo_Typo.svg';
 import ProfileIcon from '../common/ProfileIcon';
 import PersonIcon from '../../assets/icons/person.svg?react';
 import Tab from "../common/Tab";
+import { fetchUserMe } from "../../api/user";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -19,6 +21,27 @@ interface HeaderProps {
 export default function Header({ isLoggedIn = false, variant = 'default', onProfileClick }: HeaderProps) {
   const navigate = useNavigate(); // navigate 함수 생성
   const location = useLocation();
+
+  // ✨ [추가] 헤더에 띄울 프사 URL과 이름 State
+  const [headerProfileImageUrl, setHeaderProfileImageUrl] = useState<string | undefined>(undefined);
+  const [headerUsername, setHeaderUsername] = useState<string>("");
+
+  // ✨ [추가] 로그인 상태일 때만 내 정보(프사, 이름) 불러오기
+  useEffect(() => {
+    if (isLoggedIn) {
+      const loadHeaderUserData = async () => {
+        try {
+          const userData = await fetchUserMe();
+          setHeaderProfileImageUrl(userData.profileImageUrl);
+          setHeaderUsername(userData.username);
+        } catch (error) {
+          console.error("헤더 유저 정보 불러오기 실패:", error);
+        }
+      };
+      
+      loadHeaderUserData();
+    }
+  }, [isLoggedIn]); // 로그인 상태가 바뀔 때마다 실행
 
   // 로고 클릭 핸들러: 로그인 여부에 따라 경로 분기
   const handleLogoClick = () => {
@@ -90,7 +113,11 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
             className="flex-shrink-0 outline-none" 
             onClick={onProfileClick}
           >
-            <ProfileIcon isActive={true} initial="U" />
+            <ProfileIcon 
+              isActive={true} 
+              initial={headerUsername ? headerUsername.charAt(0).toUpperCase() : 'U'} 
+              src={headerProfileImageUrl} 
+            />
           </button>
         </>
         ) : (

@@ -66,3 +66,21 @@ export const fetchProjectRepos = async (projectId: number): Promise<ProjectRepoR
   const response = await axiosInstance.get<ProjectRepoResponse[]>(`/api/projects/${projectId}/repos`);
   return response.data;
 };
+
+// ==========================================
+// 5. 유저 검색 (GET) - 초대 대상 탐색용
+// ==========================================
+export interface SearchUserResponse {
+  userId: number;
+  username: string;
+  email: string;
+  profileImageUrl: string;
+}
+
+export const searchUsers = async (keyword: string): Promise<SearchUserResponse[]> => {
+  // 파라미터 이름이 keyword가 아니라면 아래 { keyword } 부분을 수정해 주세요!
+  const response = await axiosInstance.get<SearchUserResponse[]>('/api/projects/users/search', {
+    params: { keyword: keyword } 
+  });
+  return response.data;
+};

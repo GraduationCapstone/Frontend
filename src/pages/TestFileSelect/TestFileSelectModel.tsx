@@ -52,7 +52,7 @@ export const useTestFileSelectModel = () => {
     targetProject?: string;
     targetProjectId?: string;
     projectName?: string; // NewProject에서 넘긴 플젝 이름
-    invitedMembers?: { id: string, name: string }[]; // NewProject에서 넘긴 멤버
+    invitedMembers?: { userId: number; username: string; email: string; profileImageUrl: string }[];
   } | null;
 
   const isTestMode = state?.mode === 'test'; // 테스트 모드 여부 확인
@@ -236,7 +236,12 @@ export const useTestFileSelectModel = () => {
 
           // [Step 3] 넘겨받은 초대 멤버가 있다면 멤버 초대 API 호출
           if (state?.invitedMembers && state.invitedMembers.length > 0) {
-            const emailList = state.invitedMembers.map(member => member.name);
+            const emailList = state.invitedMembers.map(member => member.email);
+
+            const invitePayload = { emails: emailList };
+            console.log("🚀 [POST 요청 전송] 멤버 초대 API Payload:", invitePayload);
+            console.log(`🚀 전송 주소: /api/projects/${newProjectId}/invite`);
+            
             await inviteMembers(newProjectId, { emails: emailList });
           }
 

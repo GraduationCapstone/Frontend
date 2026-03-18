@@ -35,6 +35,8 @@ export default function SideSheet({
   // 백엔드의 id가 숫자(number)이므로 타입을 number | null 로 변경
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
 
+  const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(undefined);
+
   // ✨ [추가] 사이드시트가 열릴 때 내 정보 불러오기
   useEffect(() => {
     if (isOpen) {
@@ -48,6 +50,7 @@ export default function SideSheet({
           // 1. 기본 유저 정보 세팅
           setUsername(userData.username);
           setEmail(userData.email);
+          setProfileImageUrl(userData.profileImageUrl); // 프사 URL 세팅
 
           // 2. 프로젝트 목록 추출 및 세팅 (projectMembers 배열에서 빼오기)
           const mappedProjects = projectsData.map((project) => ({
@@ -101,7 +104,11 @@ export default function SideSheet({
       <div className="self-stretch px-5 py-3 flex flex-col justify-center items-start gap-5">
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
-          <ProfileIcon isActive={true} initial={profileInitial} />
+          <ProfileIcon 
+            isActive={true} 
+            initial={username ? username.charAt(0).toUpperCase() : 'U'} 
+            src={profileImageUrl}
+          />
           <span className="text-grayscale-black text-h4-ko">{username}</span>
         </div>
         {/* Email */}
