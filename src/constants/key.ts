@@ -1,4 +1,4 @@
 export const LOCAL_STORAGE_KEY = {
-    accessToken: "access_token",
-    refreshToken: "refresh_token",
+    accessToken: "accesstoken",
+    refreshToken: "refreshtoken",
   } as const;

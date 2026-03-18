@@ -1,5 +1,6 @@
 import { axiosInstance, publicAxiosInstance } from "./axios";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
+import type { UserMeResponse } from "../types/user";
 
 export function extractAccessTokenFromUrl(search: string) {
   const params = new URLSearchParams(search);
@@ -48,4 +49,11 @@ export async function deleteMyAccount() {
     clearAuthStorage();
   }
   return response;
+}
+
+
+// 회원정보...
+export async function getMyInfo() {
+  const response = await axiosInstance.get<UserMeResponse>("/api/user/me");
+  return response.data;
 }
