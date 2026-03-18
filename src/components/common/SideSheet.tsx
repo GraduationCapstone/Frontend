@@ -1,8 +1,7 @@
 // src/components/common/SideSheet.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { UserMeResponse } from "../../types/user";
-import { ListButton } from "../../components/common/ListButton/ListButton";
+import { ListButton } from '../../components/common/ListButton/ListButton';
 import ProfileIcon from "./ProfileIcon";
 import LogoutIcon from "../../assets/icons/logout.svg?react";
 import LeaveIcon from '../../assets/icons/leave.svg?react';
