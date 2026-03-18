@@ -43,7 +43,7 @@ export async function logout() {
 
 // 회원 탈퇴
 export async function deleteMyAccount() {
-  const response = await axiosInstance.delete("/api/auth/delete", {});
+  const response = await axiosInstance.delete("/api/user/me");
   if (response.status === 204 || response.status === 200) {
     clearAuthStorage();
   }
