@@ -234,6 +234,9 @@ export const useTestFileSelectModel = () => {
           
           const newProjectId = projectResponse.id;
 
+          // 방금 생성된 새 프로젝트의 ID를 로컬 스토리지에 '가장 최근에 선택한 프로젝트'로 강제 덮어쓰기 합니다.
+          localStorage.setItem("lastSelectedProjectId", newProjectId.toString());
+
           // [Step 3] 넘겨받은 초대 멤버가 있다면 멤버 초대 API 호출
           if (state?.invitedMembers && state.invitedMembers.length > 0) {
             const emailList = state.invitedMembers.map(member => member.email);

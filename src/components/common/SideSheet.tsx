@@ -37,6 +37,11 @@ export default function SideSheet({
 
   const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(undefined);
 
+  const handleProjectSelect = (projectId: number) => {
+    setSelectedProjectId(projectId);
+    localStorage.setItem("lastSelectedProjectId", projectId.toString());
+  };
+
   // ✨ [추가] 사이드시트가 열릴 때 내 정보 불러오기
   useEffect(() => {
     if (isOpen) {
@@ -59,9 +64,15 @@ export default function SideSheet({
           }));
           setProjects(mappedProjects);
 
-          // 3. 만약 선택된 프로젝트가 없고, 받아온 프로젝트가 있다면 첫 번째를 자동 선택
-          if (mappedProjects.length > 0 && selectedProjectId === null) {
+          const savedProjectId = localStorage.getItem("lastSelectedProjectId");
+
+          if (savedProjectId && mappedProjects.some(p => p.id === Number(savedProjectId))) {
+            // 저장된 ID가 있고, 그게 내 프로젝트 목록에 존재하면 선택
+            setSelectedProjectId(Number(savedProjectId));
+          } else if (mappedProjects.length > 0) {
+            // 없으면 무조건 첫 번째 프로젝트 선택 후 로컬 스토리지에 저장
             setSelectedProjectId(mappedProjects[0].id);
+            localStorage.setItem("lastSelectedProjectId", mappedProjects[0].id.toString());
           }
         } catch (error) {
           console.error("유저 정보를 불러오는 데 실패했습니다:", error);
@@ -141,8 +152,8 @@ export default function SideSheet({
               // ✨ 선택된 상태면 아이콘 숨김, 아니면 switch 아이콘 표시
               trailing={{ type: "icon", icon: "switch" }} 
               trailingClassName={isSelected ? "opacity-0 pointer-events-none" : ""}
-              onClick={() => setSelectedProjectId(project.id)}
-              className="w-full"
+              onClick={() => handleProjectSelect(project.id)}
+              className={`w-full ${isSelected ? "text-primary-sg600" : ""}`}
             />
           );
         })}
