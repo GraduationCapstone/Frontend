@@ -13,8 +13,6 @@ export default function MainLayout() {
   const {
     isSideSheetOpen,
     activeModal,
-    userInfo,
-    isUserInfoLoading,
     handleProfileClick,
     handleCloseSideSheet,
     handleLogoutClick,
@@ -52,8 +50,6 @@ export default function MainLayout() {
         onLogoutClick={handleLogoutClick}
         onWithdrawClick={handleWithdrawClick}
         activeModal={activeModal}
-        userInfo={userInfo}
-        isUserInfoLoading={isUserInfoLoading}
         className="fixed top-[5rem] right-[2.5rem] z-[60]"
       />
 

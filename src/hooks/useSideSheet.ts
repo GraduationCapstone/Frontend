@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_KEY } from '../constants/key';
 import { deleteMyAccount, logout, clearAuthStorage } from '../api/auth';
-import { getMyInfo } from '../api/auth';
 
 export type ModalType = 'none' | 'logout' | 'withdraw' | 'withdrawComplete';
 
@@ -10,35 +9,6 @@ export default function useSideSheet() {
   const navigate = useNavigate();
   const [isSideSheetOpen, setIsSideSheetOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>('none');
-  const [userInfo, setUserInfo] = useState<UserMeResponse | null>(null);
-  const [isUserInfoLoading, setIsUserInfoLoading] = useState(false);
-
-
-  // [추가] 핵심 로직: URL 경로(pathname)가 바뀔 때마다 사이드 시트 닫기
-  useEffect(() => {
-    setIsSideSheetOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem(LOCAL_STORAGE_KEY.accessToken);
-
-    if (!accessToken || !isSideSheetOpen) return;
-
-    const fetchMyInfo = async () => {
-      try {
-        setIsUserInfoLoading(true);
-        const data = await getMyInfo();
-        console.log('[useSideSheet] getMyInfo success:', data);
-        setUserInfo(data);
-      } catch (error) {
-        console.log('[useSideSheet] getMyInfo failed:', error);
-        setUserInfo(null);
-      } finally {
-        setIsUserInfoLoading(false);
-      }
-    };
-      fetchMyInfo();
-  }, [isSideSheetOpen]);
 
   // 사이드 시트 핸들러
   const handleProfileClick = () => setIsSideSheetOpen((prev) => !prev);
@@ -103,8 +73,6 @@ export default function useSideSheet() {
   return {
     isSideSheetOpen,
     activeModal,
-    userInfo,
-    isUserInfoLoading,
     handleProfileClick,
     handleCloseSideSheet,
     handleLogoutClick,

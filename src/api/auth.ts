@@ -50,10 +50,3 @@ export async function deleteMyAccount() {
   }
   return response;
 }
-
-
-// 회원정보...
-export async function getMyInfo() {
-  const response = await axiosInstance.get<UserMeResponse>("/api/user/me");
-  return response.data;
-}

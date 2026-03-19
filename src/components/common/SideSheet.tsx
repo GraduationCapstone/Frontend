@@ -12,8 +12,6 @@ interface SideSheetProps {
   onLogoutClick?: () => void;
   onWithdrawClick?: () => void;
   activeModal?: string;
-  userInfo?: UserMeResponse | null;
-  isUserInfoLoading?: boolean;
 }
 
 const NEW_PROJECT_PATH = "/new-project";
@@ -24,8 +22,6 @@ export default function SideSheet({
   onLogoutClick,
   onWithdrawClick,
   activeModal = "none",
-  userInfo,
-  isUserInfoLoading = false,
 }: SideSheetProps) {
   const navigate = useNavigate();
 
@@ -67,19 +63,11 @@ export default function SideSheet({
       <div className="self-stretch px-5 py-3 flex flex-col justify-center items-start gap-5">
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
-          <ProfileIcon
-            isActive={true}
-            initial={(userInfo?.username ?? userInfo?.githubId ?? "U")
-              .charAt(0)
-              .toUpperCase()}
-          />
           <span className="text-grayscale-black text-h4-ko">
-            {isUserInfoLoading ? "불러오는 중..." : userInfo?.username ?? "게스트"}
           </span>
         </div>
         {/* Email */}
         <span className="self-stretch text-grayscale-black text-h5-ko">
-          {userInfo?.email ?? "이메일 없음"}
         </span>
       </div>
 
