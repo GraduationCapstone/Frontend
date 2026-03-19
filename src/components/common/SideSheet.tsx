@@ -107,7 +107,8 @@ export default function SideSheet({
         "bg-grayscale-white",
         "rounded-2xl", // rounded-2xl (16px)
         "shadow-ds-300", // shadow-[0px_4px_20px_0px_rgba(31,35,40,0.20)]
-        "overflow-hidden",
+        "max-h-128",    // 최대 높이 고정
+        "overflow-y-auto",  // 넘치면 세로 스크롤 생성
         className,
       ].join(" ")}
     >
