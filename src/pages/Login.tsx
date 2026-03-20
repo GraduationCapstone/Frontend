@@ -9,6 +9,7 @@ export default function Login() {
   const handleLogin = () => {
     const loginUrl = `${apiBaseUrl}/oauth2/authorization/github`;
 
+    // 추후에 삭제 예정: 로그인 URL과 현재 페이지 URL이 올바르게 구성되었는지 디버깅 로그 추가
     console.log("[Login] VITE_SERVER_API_URL:", apiBaseUrl);
     console.log("[Login] 이동할 로그인 URL:", loginUrl);
     console.log("[Login] 현재 origin:", window.location.origin);

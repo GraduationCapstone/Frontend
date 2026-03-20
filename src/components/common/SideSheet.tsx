@@ -19,10 +19,10 @@ const NEW_PROJECT_PATH = "/new-project";
 export default function SideSheet({
   isOpen,
   className = "",
-  onLogoutClick, 
+  onLogoutClick,
   onWithdrawClick,
   activeModal = "none",
- }: SideSheetProps) {
+}: SideSheetProps) {
   const navigate = useNavigate();
 
   // 💡 프로젝트 목록
@@ -63,12 +63,11 @@ export default function SideSheet({
       <div className="self-stretch px-5 py-3 flex flex-col justify-center items-start gap-5">
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
-          <ProfileIcon isActive={true} initial="U" />
-          <span className="text-grayscale-black text-h4-ko">User1234</span>
+          <span className="text-grayscale-black text-h4-ko">
+          </span>
         </div>
         {/* Email */}
         <span className="self-stretch text-grayscale-black text-h5-ko">
-          User1234@gmail.com
         </span>
       </div>
 
