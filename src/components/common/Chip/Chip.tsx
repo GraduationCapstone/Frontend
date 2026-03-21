@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import CloseIcon from "../../../assets/icons/dismiss.svg?react";
+import ProfileIcon from "../ProfileIcon";
 
 const cn = (...classes: Array<string | undefined | false>) =>
   classes.filter(Boolean).join(" ");
@@ -8,6 +9,7 @@ type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   label: ReactNode;
   leftSlot?: ReactNode;
   avatarText?: string; // 프로필 이미지 없어서 대체 U 글자
+  src?: string;
   paddingClassName?: string;
   labelClassName?: string;
   iconClassName?: string;
@@ -19,6 +21,7 @@ export default function Chip({
   label,
   leftSlot,
   avatarText = "U",
+  src,
   paddingClassName = "py-1 pl-2.5 pr-2",
   labelClassName,
   iconClassName,
@@ -58,6 +61,21 @@ export default function Chip({
         {/* 프로필 */}
         {leftSlot ? (
           <span className="inline-flex items-center justify-center">{leftSlot}</span>
+          ) : src ? (
+          // 1. 이미지가 있을 경우 (기존 칩 사이즈 w-6 h-6 그대로 유지)
+          <img
+            src={src}
+            alt="profile"
+            className={cn(
+              "inline-flex w-6 h-6 aspect-square items-center justify-center rounded-full object-cover shrink-0",
+              disabled && "opacity-50" // disabled 일 땐 이미지도 살짝 투명하게
+            )}
+            onError={(e) => {
+              // 이미지 로드 실패 시 안 보이게 처리
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          // 2. 이미지가 없을 경우 (기존 글자 렌더링)
         ) : (
           <span
             className={cn(
@@ -78,10 +96,9 @@ export default function Chip({
         </span>
   
         {/* 닫기 아이콘 */}
-        <button
-        type="button"
-        disabled={disabled || !onRemove}
+        <span
         onClick={(e) => {
+          if (disabled || !onRemove) return;
           e.stopPropagation();
           onRemove?.();
         }}
@@ -97,7 +114,7 @@ export default function Chip({
             iconClassName
           )}
         />
-        </button>
+        </span>
       </button>
     );
   }

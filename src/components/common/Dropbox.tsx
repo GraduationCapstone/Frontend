@@ -212,6 +212,7 @@ export default function Dropbox({
             "bg-grayscale-white",
             "rounded-2xl",
             "shadow-ds-200",
+            "max-h-[12rem] overflow-y-auto"
           ].join(" ")}
         >
           {dropdownItems.map((it) => {

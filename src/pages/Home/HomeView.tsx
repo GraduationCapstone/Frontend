@@ -1,5 +1,5 @@
 // src/pages/Home/HomeView.tsx
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import Dropbox from '../../components/common/Dropbox';
 import InputField from '../../components/common/InputField';
 import { Button } from '../../components/common/Button';
@@ -11,6 +11,7 @@ interface HomeViewProps {
   selectedProject: string;
   testName: string;
   canStart: boolean;
+  isLoading: boolean;
   onProjectChange: (value: string) => void;
   onTestNameChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onStartTest: () => void;
@@ -21,6 +22,7 @@ export default function HomeView({
   selectedProject,
   testName,
   canStart,
+  isLoading,
   onProjectChange,
   onTestNameChange,
   onStartTest,
@@ -69,7 +71,7 @@ export default function HomeView({
               items={projectItems}
               value={selectedProject}
               onValueChange={onProjectChange}
-              placeholder="Project A"
+              placeholder={isLoading ? "프로젝트를 불러오는 중..." : "프로젝트 선택"}
               className="w-full"
             />
           </div>

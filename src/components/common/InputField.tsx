@@ -19,6 +19,10 @@ interface InputFieldProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   /** (추가됨) 검색 아이콘 표시 여부 (기본값: true) */
   showIcon?: boolean;
+  /** (추가됨) 에러 상태 여부 */
+  isError?: boolean;
+  /** (추가됨) 에러 발생 시 하단에 표시될 메시지 */
+  errorMessage?: string;
 }
 
 const InputField = ({
@@ -32,6 +36,8 @@ const InputField = ({
   value: externalValue, // 외부에서 주입된 값
   onChange,             // 외부 변경 함수
   showIcon = true,      // 아이콘 표시 여부
+  isError = false,      // 에러 상태
+  errorMessage,         // 에러 메시지
 }: InputFieldProps) => {
   // 외부 값이 있으면 그것을 쓰고, 없으면 내부 상태 사용
   const isControlled = externalValue !== undefined;
@@ -82,32 +88,46 @@ const InputField = ({
   const hClass = heightClass ?? "h-[3rem]";
 
   return (
-    <div
-      className={[
-        "flex items-center rounded-[1rem] pl-[1.25rem] pr-[1rem] gap-[1.25rem] bg-grayscale-white",
-        "shadow-is-100",
-        sizeClass,
-        hClass,
-        textStyle,
-        className,
-      ].join(" ")}
-    >
-      <input
-        type="text"
-        value={value}
-        placeholder={placeholder}
-        disabled={disabled}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onChange={handleChange}
+    // ✨ 에러 메시지를 아래에 띄우기 위해 전체를 감싸는 래퍼 추가
+    // 외부에서 들어오는 sizeClass와 className은 부모 래퍼에 적용합니다.
+    <div className={["flex flex-col gap-[0.5rem]", sizeClass, className].filter(Boolean).join(" ")}>
+      
+      {/* 1. 기존 Input 영역 (기존 코드 그대로 유지) */}
+      <div
         className={[
-          "flex-1 min-w-0 bg-transparent outline-none",
-          disabled ? "cursor-not-allowed" : "",
-          inputClassName,
+          "flex items-center rounded-[1rem] pl-[1.25rem] pr-[1rem] gap-[1.25rem] bg-grayscale-white",
+          "shadow-is-100",
+          "w-full", // 기존 sizeClass 대신 부모 너비를 채우도록 w-full 적용
+          hClass,
+          textStyle,
         ].join(" ")}
-      />
-      {showIcon && (
-        <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current`} />
+      >
+        <input
+          type="text"
+          value={value}
+          placeholder={placeholder}
+          disabled={disabled}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
+          className={[
+            "flex-1 min-w-0 bg-transparent outline-none",
+            disabled ? "cursor-not-allowed" : "",
+            inputClassName,
+          ].join(" ")}
+        />
+        {showIcon && (
+          <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current`} />
+        )}
+      </div>
+
+      {/* 2. 에러 메시지 영역 */}
+      {isError && errorMessage && (
+        <div className="px-[0.5rem] inline-flex items-center gap-[0.625rem]">
+          <div className="flex-1 text-system-errors text-regular500-ko line-clamp-3">
+            {errorMessage}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,10 +1,12 @@
 // src/components/common/SideSheet.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ListButton } from '../../components/common/ListButton/ListButton';
 import ProfileIcon from "./ProfileIcon";
 import LogoutIcon from "../../assets/icons/logout.svg?react";
 import LeaveIcon from '../../assets/icons/leave.svg?react';
+import { fetchUserMe } from "../../api/user";
+import { fetchProjects } from "../../api/project";
 
 interface SideSheetProps {
   isOpen: boolean;
@@ -26,12 +28,60 @@ export default function SideSheet({
   const navigate = useNavigate();
 
   // 💡 프로젝트 목록
-  const [projects] = useState([
-    { id: "A", name: "Project A" },
-    { id: "B", name: "Project B" },
-    { id: "C", name: "Project C" },
-  ]);
-  const [selectedProjectId, setSelectedProjectId] = useState("A");
+  const [username, setUsername] = useState<string>("Loading...");
+  const [email, setEmail] = useState<string>("");
+  const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
+
+  // 백엔드의 id가 숫자(number)이므로 타입을 number | null 로 변경
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+
+  const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(undefined);
+
+  const handleProjectSelect = (projectId: number) => {
+    setSelectedProjectId(projectId);
+    localStorage.setItem("lastSelectedProjectId", projectId.toString());
+  };
+
+  // ✨ [추가] 사이드시트가 열릴 때 내 정보 불러오기
+  useEffect(() => {
+    if (isOpen) {
+      const loadUserData = async () => {
+        try {
+          const [userData, projectsData] = await Promise.all([
+            fetchUserMe(),   // 1. 내 정보 가져오기 (이름, 이메일, 프사)
+            fetchProjects()  // 2. 내 프로젝트 목록 가져오기 (배열)
+          ]);
+          
+          // 1. 기본 유저 정보 세팅
+          setUsername(userData.username);
+          setEmail(userData.email);
+          setProfileImageUrl(userData.profileImageUrl); // 프사 URL 세팅
+
+          // 2. 프로젝트 목록 추출 및 세팅 (projectMembers 배열에서 빼오기)
+          const mappedProjects = projectsData.map((project) => ({
+            id: project.id,
+            name: project.projectName,
+          }));
+          setProjects(mappedProjects);
+
+          const savedProjectId = localStorage.getItem("lastSelectedProjectId");
+
+          if (savedProjectId && mappedProjects.some(p => p.id === Number(savedProjectId))) {
+            // 저장된 ID가 있고, 그게 내 프로젝트 목록에 존재하면 선택
+            setSelectedProjectId(Number(savedProjectId));
+          } else if (mappedProjects.length > 0) {
+            // 없으면 무조건 첫 번째 프로젝트 선택 후 로컬 스토리지에 저장
+            setSelectedProjectId(mappedProjects[0].id);
+            localStorage.setItem("lastSelectedProjectId", mappedProjects[0].id.toString());
+          }
+        } catch (error) {
+          console.error("유저 정보를 불러오는 데 실패했습니다:", error);
+        }
+      };
+
+      loadUserData();
+    }
+  }, [isOpen]); // isOpen이 변할 때마다(열릴 때마다) 실행됨
 
   if (!isOpen) return null;
 
@@ -42,6 +92,8 @@ export default function SideSheet({
     return a.name.localeCompare(b.name);       // 나머지는 알파벳 순서대로 정렬
   });
 
+  // ✨ [추가] 프로필 아이콘에 들어갈 첫 글자 추출 (없으면 'U')
+  const profileInitial = username ? username.charAt(0).toUpperCase() : 'U';
 
   return (
     <div
@@ -55,7 +107,8 @@ export default function SideSheet({
         "bg-grayscale-white",
         "rounded-2xl", // rounded-2xl (16px)
         "shadow-ds-300", // shadow-[0px_4px_20px_0px_rgba(31,35,40,0.20)]
-        "overflow-hidden",
+        "max-h-128",    // 최대 높이 고정
+        "overflow-y-auto",  // 넘치면 세로 스크롤 생성
         className,
       ].join(" ")}
     >
@@ -63,11 +116,16 @@ export default function SideSheet({
       <div className="self-stretch px-5 py-3 flex flex-col justify-center items-start gap-5">
         {/* Profile & Name */}
         <div className="inline-flex justify-start items-center gap-3">
-          <span className="text-grayscale-black text-h4-ko">
-          </span>
+          <ProfileIcon 
+            isActive={true} 
+            initial={username ? username.charAt(0).toUpperCase() : 'U'} 
+            src={profileImageUrl}
+          />
+          <span className="text-grayscale-black text-h4-ko">{username}</span>
         </div>
         {/* Email */}
         <span className="self-stretch text-grayscale-black text-h5-ko">
+          {email.includes('@no-email.com') ? '이메일 비공개' : email}
         </span>
       </div>
 
@@ -93,9 +151,10 @@ export default function SideSheet({
               // ✨ hidden 클래스로 아이콘 빈 공간을 없애 글자를 맨 앞으로 당겨옵니다
               leadingClassName="!hidden" 
               // ✨ 선택된 상태면 아이콘 숨김, 아니면 switch 아이콘 표시
-              trailing={isSelected ? { type: "none" } : { type: "icon", icon: "switch" }} 
-              onClick={() => setSelectedProjectId(project.id)}
-              className="w-full"
+              trailing={{ type: "icon", icon: "switch" }} 
+              trailingClassName={isSelected ? "opacity-0 pointer-events-none" : ""}
+              onClick={() => handleProjectSelect(project.id)}
+              className={`w-full ${isSelected ? "text-primary-sg600" : ""}`}
             />
           );
         })}

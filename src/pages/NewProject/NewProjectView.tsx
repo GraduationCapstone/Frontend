@@ -3,7 +3,7 @@ import FloatingBtn from '../../components/common/FloatingBtn';
 import InputField from '../../components/common/InputField';
 import { ListButton } from '../../components/common/ListButton/ListButton';
 import Chip from '../../components/common/Chip/Chip';
-import type { User } from './NewProjectModel';
+import type { User } from './types';
 
 interface NewProjectViewProps {
   projectName: string;
@@ -102,12 +102,13 @@ export default function NewProjectView({
                 {searchResults.length > 0 ? (
                   searchResults.map((user) => (
                     <ListButton
-                      key={user.id}
+                      key={user.userId}
                       variant="dynamicWhiteMImgTextIcon"
-                      label={user.name}
+                      label={user.username}
                       leading={{
                         type: "avatar",
-                        fallbackText: user.name.charAt(0).toUpperCase(),
+                        src: user.profileImageUrl,
+                        fallbackText: user.username.charAt(0).toUpperCase(),
                       }}
                       trailing={{ type: "none" }}
                       onClick={() => onSelectUser(user)}
@@ -128,11 +129,12 @@ export default function NewProjectView({
                <div className="flex flex-wrap content-start gap-4">
                  {invitedMembers && invitedMembers.length > 0 && invitedMembers.map((user) => (
                    <Chip
-                     key={user.id}
-                     label={user.name}
-                     avatarText={user.name.charAt(0).toUpperCase()}
+                     key={user.userId}
+                     label={user.username}
+                     src={user.profileImageUrl}
+                     avatarText={user.username.charAt(0).toUpperCase()}
                      // Chip의 클릭 이벤트가 곧 삭제 버튼 역할 (Chip 컴포넌트 구조상 전체가 버튼)
-                     onClick={() => onRemoveInvitedUser(user)}
+                     onRemove={() => onRemoveInvitedUser(user)}
                    />
                  ))}
                </div>
