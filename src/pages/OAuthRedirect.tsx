@@ -19,6 +19,8 @@ export default function OAuthRedirect() {
     handledRef.current = true;
 
     const run = async () => {
+      console.log("전체 URL:", window.location.href);
+      console.log("Search 쿼리:", window.location.search);
       const accessToken = extractAccessTokenFromUrl(window.location.search);
 
       console.log("[OAuthRedirect] hasAccessToken:", Boolean(accessToken));

@@ -21,10 +21,10 @@ const NEW_PROJECT_PATH = "/new-project";
 export default function SideSheet({
   isOpen,
   className = "",
-  onLogoutClick, 
+  onLogoutClick,
   onWithdrawClick,
   activeModal = "none",
- }: SideSheetProps) {
+}: SideSheetProps) {
   const navigate = useNavigate();
 
   // 💡 프로젝트 목록
