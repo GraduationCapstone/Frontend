@@ -52,7 +52,6 @@ export default function ProjectManagementController() {
 
     const handleSave = (nextName: string, nextMembers: Member[]) => {
       model.saveSettings(id, nextName, nextMembers);
-      goDetail(id);
     };
 
     return (

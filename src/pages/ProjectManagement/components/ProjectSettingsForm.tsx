@@ -28,12 +28,33 @@ export default function ProjectSettingsForm({
 }: Props) {
   // ❌(temp-role-switch): 오너/멤버 API 연동 후 이 임시 프리뷰 스위치 로직 전체 삭제
   const [rolePreview, setRolePreview] = useState<"owner" | "member">("owner");
-  const [name, setName] = useState(initialName);
-  const [members, setMembers] = useState<Member[]>(initialMembers);
   const hostMember = initialMembers[0] ?? null;
-  const visibleMembers = hostMember
-    ? members.filter((member) => member.id !== hostMember.id)
-    : members;
+  const initialProjectMembers = useMemo(
+    () => (hostMember ? initialMembers.filter((m) => m.id !== hostMember.id) : initialMembers),
+    [initialMembers, hostMember]
+  );
+  const [name, setName] = useState(initialName);
+  const [draftMembers, setDraftMembers] = useState<Member[]>(initialProjectMembers);
+  const [committedMembers, setCommittedMembers] = useState<Member[]>(initialProjectMembers);
+  const pendingAddedMembers = useMemo(
+    () =>
+      draftMembers.filter(
+        (draftMember) => !committedMembers.some((committed) => committed.id === draftMember.id)
+      ),
+    [draftMembers, committedMembers]
+  );
+  const visibleMembers = committedMembers;
+  const memberCandidateIds = useMemo(
+    () => new Set(committedMembers.map((member) => member.id)),
+    [committedMembers]
+  );
+  const memberModeCandidates = useMemo(
+    () =>
+      allCandidates.filter(
+        (candidate) => !memberCandidateIds.has(candidate.id) && candidate.id !== hostMember?.id
+      ),
+    [allCandidates, memberCandidateIds, hostMember]
+  );
 
   // 나가기 모달
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -45,12 +66,12 @@ export default function ProjectSettingsForm({
     if (nextName.length === 0) return false;
 
     if (nextName !== initialName.trim()) return true;
-    if (members.length !== initialMembers.length) return true;
+    if (draftMembers.length !== committedMembers.length) return true;
 
-    const a = [...members].map((m) => m.id).sort().join(",");
-    const b = [...initialMembers].map((m) => m.id).sort().join(",");
+    const a = [...draftMembers].map((m) => m.id).sort().join(",");
+    const b = [...committedMembers].map((m) => m.id).sort().join(",");
     return a !== b;
-  }, [rolePreview, name, members, initialName, initialMembers]);
+  }, [rolePreview, name, draftMembers, committedMembers, initialName]);
 
   const openLeaveModal = () => {
     setLeaveModalStep("confirm");
@@ -133,9 +154,19 @@ export default function ProjectSettingsForm({
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
           <div className="text-h3-ko text-grayscale-black">멤버 초대</div>
           <MemberSearch
-            allCandidates={allCandidates}
-            selected={members}
-            onChangeSelected={setMembers}
+            allCandidates={rolePreview === "owner" ? allCandidates : memberModeCandidates}
+            selected={rolePreview === "owner" ? draftMembers : pendingAddedMembers}
+            nonRemovableIds={
+              rolePreview === "owner" ? [] : committedMembers.map((member) => member.id)
+            }
+            collapsedUntilSearch={rolePreview === "member"}
+            onChangeSelected={(next) => {
+              if (rolePreview === "owner") {
+                setDraftMembers(next);
+                return;
+              }
+              setDraftMembers([...committedMembers, ...next]);
+            }}
           />
         </div>
 
@@ -164,22 +195,18 @@ export default function ProjectSettingsForm({
             멤버
           </div>
 
-          {visibleMembers.length === 0 ? (
-            <div className="text-small500-ko text-grayscale-gy500">초대된 멤버가 없습니다.</div>
-          ) : (
-            <ul className="w-full grid grid-cols-4 gap-x-10 gap-y-4">
-              {visibleMembers.map((m) => (
-                <li key={m.id} className="inline-flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px]">
-                    {m.username[0]?.toUpperCase() ?? "U"}
-                  </div>
-                  <span className="text-h4-ko text-grayscale-black">
-                    {m.username}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul className="w-full grid grid-cols-4 gap-x-10 gap-y-4">
+            {visibleMembers.map((m) => (
+              <li key={m.id} className="inline-flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px]">
+                  {m.username[0]?.toUpperCase() ?? "U"}
+                </div>
+                <span className="text-h4-ko text-grayscale-black">
+                  {m.username}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="w-full inline-flex justify-end items-center gap-2.5">
@@ -200,7 +227,9 @@ export default function ProjectSettingsForm({
           disabled={!canSave}
           onClick={() => {
             const nextName = rolePreview === "owner" ? name.trim() : initialName.trim();
-            onSave(nextName, members);
+            setCommittedMembers(draftMembers);
+            const nextMembers = hostMember ? [hostMember, ...draftMembers] : draftMembers;
+            onSave(nextName, nextMembers);
           }}
         />
       </div>
