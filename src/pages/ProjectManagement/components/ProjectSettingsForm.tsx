@@ -30,6 +30,10 @@ export default function ProjectSettingsForm({
   const [rolePreview, setRolePreview] = useState<"owner" | "member">("owner");
   const [name, setName] = useState(initialName);
   const [members, setMembers] = useState<Member[]>(initialMembers);
+  const hostMember = initialMembers[0] ?? null;
+  const visibleMembers = hostMember
+    ? members.filter((member) => member.id !== hostMember.id)
+    : members;
 
   // 나가기 모달
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
@@ -137,14 +141,34 @@ export default function ProjectSettingsForm({
 
         <div className="self-stretch inline-flex flex-col justify-center items-end gap-3">
           <div className="self-stretch justify-center text-h3-ko text-grayscale-black">
+            호스트
+          </div>
+
+          {hostMember ? (
+            <ul className="w-full grid grid-cols-4 gap-x-10 gap-y-4">
+              <li className="inline-flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px]">
+                  {hostMember.username[0]?.toUpperCase() ?? "H"}
+                </div>
+                <span className="text-h4-ko text-grayscale-black">
+                  {hostMember.username}
+                </span>
+              </li>
+            </ul>
+          ) : null}
+
+        </div>
+
+        <div className="self-stretch inline-flex flex-col justify-center items-end gap-3">
+          <div className="self-stretch justify-center text-h3-ko text-grayscale-black">
             멤버
           </div>
 
-          {members.length === 0 ? (
-            <div className="text-sm text-grayscale-gy500">초대된 멤버가 없습니다.</div>
+          {visibleMembers.length === 0 ? (
+            <div className="text-small500-ko text-grayscale-gy500">초대된 멤버가 없습니다.</div>
           ) : (
             <ul className="w-full grid grid-cols-4 gap-x-10 gap-y-4">
-              {members.map((m) => (
+              {visibleMembers.map((m) => (
                 <li key={m.id} className="inline-flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px]">
                     {m.username[0]?.toUpperCase() ?? "U"}
