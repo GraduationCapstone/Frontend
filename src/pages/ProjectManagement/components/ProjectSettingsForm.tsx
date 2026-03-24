@@ -5,6 +5,7 @@ import MemberSearch from "./MemberSearch";
 import { Button } from "../../../components/common";
 import InputField from "../../../components/common/InputField";
 import LeaveProjectModal from "../../../components/common/Modal/LeaveProjectModal";
+import Tabs from "../../../components/common/Tabs";
 
 type Props = {
   initialName: string;
@@ -25,6 +26,8 @@ export default function ProjectSettingsForm({
   onLeaveProject,
   onLeaveDone,
 }: Props) {
+  // ❌(temp-role-switch): 오너/멤버 API 연동 후 이 임시 프리뷰 스위치 로직 전체 삭제
+  const [rolePreview, setRolePreview] = useState<"owner" | "member">("owner");
   const [name, setName] = useState(initialName);
   const [members, setMembers] = useState<Member[]>(initialMembers);
 
@@ -34,7 +37,7 @@ export default function ProjectSettingsForm({
   const [isLeaving, setIsLeaving] = useState(false);
 
   const canSave = useMemo(() => {
-    const nextName = name.trim();
+    const nextName = rolePreview === "owner" ? name.trim() : initialName.trim();
     if (nextName.length === 0) return false;
 
     if (nextName !== initialName.trim()) return true;
@@ -43,7 +46,7 @@ export default function ProjectSettingsForm({
     const a = [...members].map((m) => m.id).sort().join(",");
     const b = [...initialMembers].map((m) => m.id).sort().join(",");
     return a !== b;
-  }, [name, members, initialName, initialMembers]);
+  }, [rolePreview, name, members, initialName, initialMembers]);
 
   const openLeaveModal = () => {
     setLeaveModalStep("confirm");
@@ -92,14 +95,35 @@ export default function ProjectSettingsForm({
       </div>
 
       <section className="w-xl px-3 inline-flex flex-col justify-start items-start gap-6">
+        {/* ❌: 오너/멤버 API 연동 후 제거. ui 확인을 위해 구현 */}
+        <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
+          <div className="text-h3-ko text-grayscale-black">역할 프리뷰 (임시)</div>
+          <Tabs
+            items={[
+              { value: "owner", label: "오너" },
+              { value: "member", label: "멤버" },
+            ]}
+            value={rolePreview}
+            onValueChange={(value) => setRolePreview(value as "owner" | "member")}
+          />
+        </div>
+
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
           <div className="text-h3-ko text-grayscale-black">프로젝트명</div>
-          <InputField
-            value={name}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            placeholder="Project name"
-            showIcon={false}
-          />
+          {rolePreview === "owner" ? (
+            <InputField
+              value={name}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              placeholder="Project name"
+              showIcon={false}
+            />
+          ) : (
+            <div className="self-stretch p-2.5 inline-flex justify-start items-center gap-2.5">
+              <div className="justify-center text-h3-ko text-grayscale-black">
+                {initialName}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
@@ -138,7 +162,7 @@ export default function ProjectSettingsForm({
           <Button
             variant="dynamicClearSTextUnderlined"
             children={undefined}
-            label="프로젝트 나가기"
+            label={rolePreview === "owner" ? "프로젝트 삭제" : "프로젝트 나가기"}
             onClick={openLeaveModal}
           />
         </div>
@@ -150,13 +174,18 @@ export default function ProjectSettingsForm({
           children={undefined}
           label="저장"
           disabled={!canSave}
-          onClick={() => onSave(name.trim(), members)}
+          onClick={() => {
+            const nextName = rolePreview === "owner" ? name.trim() : initialName.trim();
+            onSave(nextName, members);
+          }}
         />
       </div>
 
       <LeaveProjectModal
         open={isLeaveModalOpen}
         step={leaveModalStep}
+        // ❌: 오너/멤버 API 연동 후 mode 전달 삭제
+        mode={rolePreview}
         loading={isLeaving}
         onClose={closeLeaveModal}
         onLeave={handleLeaveProject}
