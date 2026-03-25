@@ -3,7 +3,7 @@ import { Btn_Dynamic_GY100_XS_IMG_Text_Icon } from "../../../components/common/C
 
 type Props = {
   member: Member;
-  onRemove: () => void;
+  onRemove?: () => void;
 };
 
 export default function MemberChip({ member, onRemove }: Props) {

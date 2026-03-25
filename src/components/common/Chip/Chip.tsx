@@ -1,7 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import CloseIcon from "../../../assets/icons/dismiss.svg?react";
-import ProfileIcon from "../ProfileIcon";
-
 const cn = (...classes: Array<string | undefined | false>) =>
   classes.filter(Boolean).join(" ");
 
@@ -96,25 +94,27 @@ export default function Chip({
         </span>
   
         {/* 닫기 아이콘 */}
-        <span
-        onClick={(e) => {
-          if (disabled || !onRemove) return;
-          e.stopPropagation();
-          onRemove?.();
-        }}
-        className={cn(
-          "shrink-0 w-6 h-6 rounded-lg inline-flex items-center justify-center",
-        )}
-      >
-        <CloseIcon
-          aria-hidden="true"
-          className={cn(
-            "shrink-0 w-6 h-6",
-            "[&_*]:fill-current [&_*]:stroke-current",
-            iconClassName
-          )}
-        />
-        </span>
+        {onRemove ? (
+          <span
+            onClick={(e) => {
+              if (disabled) return;
+              e.stopPropagation();
+              onRemove();
+            }}
+            className={cn(
+              "shrink-0 w-6 h-6 rounded-lg inline-flex items-center justify-center",
+            )}
+          >
+            <CloseIcon
+              aria-hidden="true"
+              className={cn(
+                "shrink-0 w-6 h-6",
+                "[&_*]:fill-current [&_*]:stroke-current",
+                iconClassName
+              )}
+            />
+          </span>
+        ) : null}
       </button>
     );
   }

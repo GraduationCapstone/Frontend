@@ -9,10 +9,18 @@ import { ListButton } from "../../../components/common/ListButton";
 type Props = {
   allCandidates: Member[];
   selected: Member[];
+  nonRemovableIds?: string[];
+  collapsedUntilSearch?: boolean;
   onChangeSelected: (next: Member[]) => void;
 };
 
-export default function MemberSearch({ allCandidates, selected, onChangeSelected }: Props) {
+export default function MemberSearch({
+  allCandidates,
+  selected,
+  nonRemovableIds = [],
+  collapsedUntilSearch = false,
+  onChangeSelected,
+}: Props) {
   const [q, setQ] = useState("");
 
   const query = q.trim().toLowerCase();
@@ -72,17 +80,19 @@ export default function MemberSearch({ allCandidates, selected, onChangeSelected
           </div>
         </div>
       ) : (
-        <div className="self-stretch h-48 p-3 bg-grayscale-gy100 rounded-2xl shadow-is-100 overflow-y-auto">
+        <div className={collapsedUntilSearch && selected.length === 0 ? "hidden" : "self-stretch h-48 p-3 bg-grayscale-gy100 rounded-2xl shadow-is-100 overflow-y-auto"}>
           <div className="flex flex-wrap content-start gap-4">
-            {selected.length > 0 ? (
-              selected.map((m) => (
-                <MemberChip key={m.id} member={m} onRemove={() => remove(m.id)} />
-              ))
-            ) : (
-              <div className="w-full h-full min-h-[168px] flex items-center justify-center text-grayscale-gy600 text-small500-ko">
-                초대된 멤버가 없습니다.
-              </div>
-            )}
+            {selected.map((m) => (
+              <MemberChip
+                key={m.id}
+                member={m}
+                onRemove={
+                  nonRemovableIds.includes(m.id)
+                    ? undefined
+                    : () => remove(m.id)
+                }
+              />
+            ))}
           </div>
         </div>
       )}

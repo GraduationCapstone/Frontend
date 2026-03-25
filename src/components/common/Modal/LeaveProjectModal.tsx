@@ -6,6 +6,7 @@ import CloseIcon from "../../../assets/icons/dismiss.svg?react";
 type Props = {
   open: boolean;
   step: "confirm" | "done";
+  mode?: "owner" | "member";
   loading?: boolean;
   onClose: () => void;
   onLeave: () => void;
@@ -15,6 +16,7 @@ type Props = {
 export default function LeaveProjectModal({
   open,
   step,
+  mode = "member",
   loading = false,
   onClose,
   onLeave,
@@ -34,6 +36,7 @@ export default function LeaveProjectModal({
   if (!open) return null;
 
   const isConfirm = step === "confirm";
+  const isOwnerMode = mode === "owner";
 
   return (
     <div
@@ -60,20 +63,24 @@ export default function LeaveProjectModal({
         <div className="inline-flex flex-col justify-start items-center gap-4">
           {isConfirm ? (
             <>
-              <p className="justify-cente text-h3-ko text-grayscale-black text-center">
-                이 프로젝트를 나가시겠습니까?
+              <p className="justify-center text-h3-ko text-grayscale-black text-center">
+                {isOwnerMode
+                  ? "이 프로젝트를 삭제하시겠습니까?"
+                  : "이 프로젝트를 나가시겠습니까?"}
               </p>
-              <p className="justify-cente text-h3-ko text-grayscale-black text-center">
-                작업하신 테스트 데이터는 프로젝트에서 삭제되지 않습니다.
+              <p className="justify-center text-h3-ko text-grayscale-black text-center">
+                {isOwnerMode
+                  ? "이 작업은 복구할 수 없습니다."
+                  : "작업하신 테스트 데이터는 프로젝트에서 삭제되지 않습니다."}
               </p>
             </>
           ) : (
             <>
               <p className="justify-center text-h3-ko text-grayscale-black text-center">
-                프로젝트를 나갔습니다.
+                {isOwnerMode ? "프로젝트 삭제가 완료되었습니다." : "프로젝트를 나갔습니다."}
               </p>
               <p className="justify-center text-h3-ko text-grayscale-black text-center">
-                ‘확인’을 누르시면 프로젝트 관리 페이지로 이동합니다.
+                ‘확인'을 누르시면 프로젝트 관리 페이지로 이동합니다.
               </p>
             </>
           )}
@@ -83,7 +90,15 @@ export default function LeaveProjectModal({
             <Button
               variant="staticGy900MText"
               children={undefined}
-              label={loading ? "처리 중..." : "프로젝트 나가기"}
+              label={
+                loading
+                  ? isOwnerMode
+                    ? "삭제 중..."
+                    : "처리 중..."
+                  : isOwnerMode
+                    ? "프로젝트 삭제"
+                    : "프로젝트 나가기"
+              }
               disabled={loading}
               onClick={onLeave}
             />
