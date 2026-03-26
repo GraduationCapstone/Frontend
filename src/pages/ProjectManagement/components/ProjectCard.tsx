@@ -1,9 +1,10 @@
 import ProjectListItem from "../../../components/common/ListItem/ProjectListItem";
 
+type ProjectLanguage = { name: string; color?: string };
 type Props = {
   code: string;
   name: string;
-  languages?: Language;
+  languages?: ProjectLanguage[];
   tags?: string[];
 
   updatedText: string;
@@ -24,8 +25,9 @@ export default function ProjectCard({
   selected,
   onSelectChange,
 }: Props) {
-  const resolvedLanguages: Language | undefined =
-    languages ?? (tags?.length ? tags.map((t) => ({ name: t })) : undefined);
+  const resolvedLanguages: ProjectLanguage[] | undefined =
+    languages ?? (tags?.length ? tags.map((tag) => ({ name: tag })) : undefined);
+
   return (
     <ProjectListItem
       className="w-xl self-stretch inline-flex justify-start items-center gap-5"
@@ -36,9 +38,7 @@ export default function ProjectCard({
       disabled={disabled}
       selected={selected}
       onSelectChange={onSelectChange}
-      onClick={() => onClick()}
-      
+      onClick={onClick}
     />
   );
 }
-

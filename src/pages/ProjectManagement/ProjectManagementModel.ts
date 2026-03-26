@@ -1,70 +1,122 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ProjectDetail, ProjectListItem, Member, AvgTestTimePoint } from "./types";
-import type { TestCodeItem } from "../TEDashBoard/types";
+import type { ProjectRepoResponse, ProjectResponse } from "../../api/project";
+import { fetchProjectRepos, fetchProjects } from "../../api/project";
 
-const makeTests = (projectId: string): TestCodeItem[] => {
-  const base: Array<Pick<TestCodeItem, "codeId" | "title" | "status" | "duration" | "user" | "date">> = [
-    { codeId: "T1234", title: "test", status: "70.7%", duration: "48s", user: "User1234", date: "2025-09-09 15:34" },
-    { codeId: "T1235", title: "login spec", status: "88.2%", duration: "35s", user: "User7788", date: "2025-09-09 15:10" },
-    { codeId: "T1236", title: "routing spec", status: "63.0%", duration: "52s", user: "User1234", date: "2025-09-09 14:58" },
-    { codeId: "T1237", title: "table spec", status: "91.4%", duration: "29s", user: "User0001", date: "2025-09-09 14:31" },
-    { codeId: "T1238", title: "settings spec", status: "77.7%", duration: "41s", user: "User2222", date: "2025-09-09 14:02" },
-  ];
+type ProjectApiItem = ProjectResponse;
 
-  return base.map((b, idx) => ({
-    id: `${projectId}-${b.codeId}-${idx}`,
-    ...b,
-  }));
+const toProjectListItem = (
+  project: ProjectApiItem,
+  languages: string[]
+): ProjectListItem => ({
+  id: String(project.id),
+  code: `P${project.id}`,
+  name: project.projectName,
+  tags: languages,
+  updatedText: "",
+});
+
+const extractLanguagesFromRepos = (repos: ProjectRepoResponse[]): string[] => {
+  const unique = new Set<string>();
+  repos.forEach((repo) => {
+    const lang = repo.language?.trim();
+    if (!lang) return;
+    unique.add(lang);
+  });
+  return Array.from(unique);
 };
 
-const makeAvgSeries = (): AvgTestTimePoint[] => [
-  { date: "2025-09-04", seconds: 160 },
-  { date: "2025-09-05", seconds: 330 },
-  { date: "2025-09-06", seconds: 250 },
-  { date: "2025-09-07", seconds: 280 },
-  { date: "2025-09-08", seconds: 210 },
-  { date: "2025-09-09", seconds: 185 },
-];
+const sanitizeLanguageTags = (languages: string[]): string[] =>
+  languages
+    .map((language) => language.trim())
+    .filter((language) => language.length > 0);
 
-const SEED_PROJECTS: ProjectListItem[] = [
-  { id: "P1234", code: "P1234", name: "Project A", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-  { id: "P2345", code: "P2345", name: "Project B", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-  { id: "P3456", code: "P3456", name: "Project C", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-  { id: "P4567", code: "P4567", name: "Project D", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-];
+const extractProjectLanguages = (project: ProjectApiItem): string[] => {
+  const candidates: string[] = [];
+  if (project.language) candidates.push(project.language);
+  if (project.languages?.length) candidates.push(...project.languages);
+  return sanitizeLanguageTags(Array.from(new Set(candidates)));
+};
 
-const SEED_MEMBERS: Member[] = [
-  { id: "u1", username: "User1234" },
-  { id: "u2", username: "User7788" },
-  { id: "u3", username: "User0001" },
-  { id: "u4", username: "User2222" },
-];
+const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
+  id,
+  name,
+  summary: {
+    passRateText: "0% Pass",
+    testedText: "0 / 0 Tested",
+    counts: { pass: 0, block: 0, fail: 0, untest: 0 },
+  },
+  avgTestTime: [] as AvgTestTimePoint[],
+  tests: [],
+  members: [],
+});
 
-const buildSeedDetails = (): Record<string, ProjectDetail> => {
-  const makeDetail = (id: string, name: string): ProjectDetail => ({
-    id,
-    name,
-    summary: {
-      passRateText: "77.1% Pass",
-      testedText: "47 / 50 Tested",
-      counts: { pass: 44, block: 1, fail: 2, untest: 3 },
-    },
-    avgTestTime: makeAvgSeries(),
-    tests: makeTests(id),
-    members: SEED_MEMBERS,
-  });
+const resolveProjectLanguages = async (project: ProjectApiItem): Promise<string[]> => {
+  const fromProject = extractProjectLanguages(project);
+  if (fromProject.length > 0) return fromProject;
 
-  return {
-    P1234: makeDetail("P1234", "Project A"),
-    P2345: makeDetail("P2345", "Project B"),
-    P3456: makeDetail("P3456", "Project C"),
-    P4567: makeDetail("P4567", "Project D"),
-  };
+  try {
+    const repos = await fetchProjectRepos(project.id);
+    return sanitizeLanguageTags(extractLanguagesFromRepos(repos));
+  } catch (error) {
+    console.error(
+      `[ProjectManagement] 프로젝트(${project.id}) 레포 조회 실패:`,
+      error
+    );
+    return [];
+  }
 };
 
 export default function useProjectManagementModel() {
-  const [projects, setProjects] = useState<ProjectListItem[]>(SEED_PROJECTS);
-  const [detailsById, setDetailsById] = useState<Record<string, ProjectDetail>>(buildSeedDetails);
+  const [projects, setProjects] = useState<ProjectListItem[]>([]);
+  const [detailsById, setDetailsById] = useState<Record<string, ProjectDetail>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProjects = async () => {
+      try {
+        const projectResponses = await fetchProjects();
+        if (cancelled) return;
+
+        const languageEntries = await Promise.all(
+          projectResponses.map(async (project) => {
+            const languages = await resolveProjectLanguages(project);
+            return [project.id, languages] as const;
+          })
+        );
+        if (cancelled) return;
+
+        const languagesByProjectId = new Map<number, string[]>(languageEntries);
+
+        const mappedProjects = projectResponses.map((project) =>
+          toProjectListItem(
+            project,
+            languagesByProjectId.get(project.id) ?? []
+          )
+        );
+        setProjects(mappedProjects);
+
+        setDetailsById((prev) => {
+          const next: Record<string, ProjectDetail> = {};
+          mappedProjects.forEach((project) => {
+            next[project.id] = prev[project.id]
+              ? { ...prev[project.id], name: project.name }
+              : buildDefaultDetail(project.id, project.name);
+          });
+          return next;
+        });
+      } catch (error) {
+        console.error("[ProjectManagement] 프로젝트 목록 조회 실패:", error);
+      }
+    };
+
+    loadProjects();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const getProject = (projectId: string) => projects.find((p) => p.id === projectId) ?? null;
 
@@ -82,15 +134,7 @@ export default function useProjectManagementModel() {
     });
   };
 
-  const allGithubCandidates = useMemo<Member[]>(() => {
-    // 실제론 API로 받아오겠지만 지금은 가라 후보
-    return [
-      ...SEED_MEMBERS,
-      { id: "u5", username: "User9999" },
-      { id: "u6", username: "User3141" },
-      { id: "u7", username: "User2718" },
-    ];
-  }, []);
+  const allGithubCandidates: Member[] = [];
 
   return {
     projects,
