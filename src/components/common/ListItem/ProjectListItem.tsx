@@ -4,6 +4,8 @@ import DotIcon from "../../../assets/icons/dot.svg?react";
 export interface ProjectListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   code: string;
   title: string;
+  hostLabel?: string;
+  hostName?: string;
   languages?: Array<{ name: string; color: string; }>;
   updatedAt?: string;
   disabled?: boolean;
@@ -16,6 +18,8 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
     {
       code,
       title,
+      hostLabel = "호스트",
+      hostName = "User1234",
       languages,
       updatedAt,
       disabled = false,
@@ -72,16 +76,32 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         {...rest}
       >
         {/* 1. Top Row */}
-        <div className="self-stretch flex justify-start items-center gap-gap-m ">
-          <span className={`text-large-ko ${textColorClass}`}>
-            {code}
-          </span>
-          <div className="self-stretch p-1 flex flex-col justify-start items-start">
-             <div className="w-0 flex-1 outline-1 outline-offset-[-0.50px] outline-grayscale-gy400"></div>
+        <div className="self-stretch flex items-center justify-between gap-5">
+          <div className="min-w-0 flex flex-1 items-center gap-gap-m">
+            <span className={`shrink-0 text-large400-ko ${textColorClass}`}>
+              {code}
+            </span>
+            <div className="self-stretch p-1 flex flex-col justify-start items-start">
+              <div className="w-0 flex-1 outline-1 outline-offset-[-0.50px] outline-grayscale-gy400"></div>
+            </div>
+            <span className={`min-w-0 truncate text-h3-ko ${textColorClass}`}>
+              {title}
+            </span>
           </div>
-          <span className={`text-h3-ko ${textColorClass}`}>
-            {title}
-          </span>
+
+          {/* {호스트 닉네임/프로필 표시} */}
+          <div className=" px-2 py-1 rounded-lg inline-flex justify-center items-center gap-2.5 bg-secondary-sg100">
+            <div className="text-center justify-center text-medium500-ko">{hostLabel}</div>
+
+            <div className="inline-flex justify-start items-center gap-3">
+              <div className="w-5 h-5 rounded-[20px] overflow-hidden flex items-center justify-center">
+                {/* // 추후 프로필 이미지 삽입 */}
+                <span className="text-center justify-center text-h4-ko text-grayscale-black">✓</span>
+              </div>
+
+              <div className="text-center justify-center text-h4-ko">{hostName}</div>
+            </div>
+          </div>
         </div>
 
         {/* 2. Bottom Row */}
