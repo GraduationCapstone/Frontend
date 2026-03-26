@@ -9,8 +9,6 @@ export interface ProjectResponse {
   projectName: string;
   memberCount: number;
   repoCount: number;
-  language?: string | null;
-  languages?: string[] | null;
 }
 
 export const fetchProjects = async (): Promise<ProjectResponse[]> => {

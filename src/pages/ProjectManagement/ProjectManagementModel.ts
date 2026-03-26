@@ -31,13 +31,6 @@ const sanitizeLanguageTags = (languages: string[]): string[] =>
     .map((language) => language.trim())
     .filter((language) => language.length > 0);
 
-const extractProjectLanguages = (project: ProjectApiItem): string[] => {
-  const candidates: string[] = [];
-  if (project.language) candidates.push(project.language);
-  if (project.languages?.length) candidates.push(...project.languages);
-  return sanitizeLanguageTags(Array.from(new Set(candidates)));
-};
-
 const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
   id,
   name,
@@ -52,9 +45,6 @@ const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
 });
 
 const resolveProjectLanguages = async (project: ProjectApiItem): Promise<string[]> => {
-  const fromProject = extractProjectLanguages(project);
-  if (fromProject.length > 0) return fromProject;
-
   try {
     const repos = await fetchProjectRepos(project.id);
     return sanitizeLanguageTags(extractLanguagesFromRepos(repos));

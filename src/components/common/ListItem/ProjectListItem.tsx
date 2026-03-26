@@ -72,7 +72,7 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
         {...rest}
       >
         {/* 1. Top Row */}
-        <div className="self-stretch flex justify-start items-center gap-gap-m">
+        <div className="self-stretch flex justify-start items-center gap-gap-m ">
           <span className={`text-large-ko ${textColorClass}`}>
             {code}
           </span>
