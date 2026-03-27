@@ -1,18 +1,29 @@
 import { useEffect, useState } from "react";
 import type { ProjectDetail, ProjectListItem, Member, AvgTestTimePoint } from "./types";
-import type { ProjectRepoResponse, ProjectResponse } from "../../api/project";
-import { fetchProjectRepos, fetchProjects } from "../../api/project";
+import type {
+  ProjectMemberResponse,
+  ProjectRepoResponse,
+  ProjectResponse,
+} from "../../api/project";
+import { fetchProjectMembers, fetchProjectRepos, fetchProjects } from "../../api/project";
 
 type ProjectApiItem = ProjectResponse;
+type ProjectListMetadata = {
+  languages: string[];
+  hostUsername: string;
+  hostProfileImageUrl: string;
+};
 
 const toProjectListItem = (
   project: ProjectApiItem,
-  languages: string[]
+  metadata: ProjectListMetadata
 ): ProjectListItem => ({
   id: String(project.id),
   code: `P${project.id}`,
   name: project.projectName,
-  tags: languages,
+  tags: metadata.languages,
+  hostUsername: metadata.hostUsername,
+  hostProfileImageUrl: metadata.hostProfileImageUrl,
   updatedText: "",
 });
 
@@ -31,6 +42,17 @@ const sanitizeLanguageTags = (languages: string[]): string[] =>
     .map((language) => language.trim())
     .filter((language) => language.length > 0);
 
+const extractOwner = (
+  projectId: number,
+  members: ProjectMemberResponse[]
+): ProjectMemberResponse => {
+  const owner = members.find((member) => member.role === "OWNER");
+  if (!owner) {
+    throw new Error(`[ProjectManagement] 프로젝트(${projectId}) OWNER가 없습니다.`);
+  }
+  return owner;
+};
+
 const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
   id,
   name,
@@ -44,16 +66,31 @@ const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
   members: [],
 });
 
-const resolveProjectLanguages = async (project: ProjectApiItem): Promise<string[]> => {
+const resolveProjectMetadata = async (
+  project: ProjectApiItem
+): Promise<ProjectListMetadata> => {
   try {
-    const repos = await fetchProjectRepos(project.id);
-    return sanitizeLanguageTags(extractLanguagesFromRepos(repos));
+    const [repos, members] = await Promise.all([
+      fetchProjectRepos(project.id),
+      fetchProjectMembers(project.id),
+    ]);
+    const owner = extractOwner(project.id, members);
+
+    return {
+      languages: sanitizeLanguageTags(extractLanguagesFromRepos(repos)),
+      hostUsername: owner.username,
+      hostProfileImageUrl: owner.profileImageUrl,
+    };
   } catch (error) {
     console.error(
-      `[ProjectManagement] 프로젝트(${project.id}) 레포 조회 실패:`,
+      `[ProjectManagement] 프로젝트(${project.id}) 메타데이터 조회 실패:`,
       error
     );
-    return [];
+    return {
+      languages: [],
+      hostUsername: "OWNER",
+      hostProfileImageUrl: "",
+    };
   }
 };
 
@@ -69,20 +106,24 @@ export default function useProjectManagementModel() {
         const projectResponses = await fetchProjects();
         if (cancelled) return;
 
-        const languageEntries = await Promise.all(
+        const metadataEntries = await Promise.all(
           projectResponses.map(async (project) => {
-            const languages = await resolveProjectLanguages(project);
-            return [project.id, languages] as const;
+            const metadata = await resolveProjectMetadata(project);
+            return [project.id, metadata] as const;
           })
         );
         if (cancelled) return;
 
-        const languagesByProjectId = new Map<number, string[]>(languageEntries);
+        const metadataByProjectId = new Map<number, ProjectListMetadata>(metadataEntries);
 
         const mappedProjects = projectResponses.map((project) =>
           toProjectListItem(
             project,
-            languagesByProjectId.get(project.id) ?? []
+            metadataByProjectId.get(project.id) ?? {
+              languages: [],
+              hostUsername: "OWNER",
+              hostProfileImageUrl: "",
+            }
           )
         );
         setProjects(mappedProjects);

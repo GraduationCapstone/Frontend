@@ -13,6 +13,7 @@ type Props = {
   detail?: ProjectDetail;
 
   onOpenProject?: (projectId: string) => void;
+  onCreateProject?: () => void;
   onOpenSettings?: () => void;
   onBackToList?: () => void;
   onCancelSettings?: () => void;
@@ -34,6 +35,7 @@ export default function ProjectManagementView(props: Props) {
     projects,
     detail,
     onOpenProject,
+    onCreateProject,
     onOpenSettings,
     onCancelSettings,
     onSaveSettings,
@@ -49,6 +51,7 @@ export default function ProjectManagementView(props: Props) {
           title="나의 프로젝트"
           projects={projects ?? []}
           onOpenProject={(id) => onOpenProject?.(id)}
+          onCreateProject={() => onCreateProject?.()}
         />
       )}
       

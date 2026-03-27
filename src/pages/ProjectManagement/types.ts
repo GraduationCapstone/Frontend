@@ -15,6 +15,8 @@ import type {
     code: string;
     name: string;
     tags: string[];
+    hostUsername: string;
+    hostProfileImageUrl: string;
     updatedText: string;
   };
   

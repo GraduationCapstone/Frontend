@@ -68,6 +68,22 @@ export const fetchProjectRepos = async (projectId: number): Promise<ProjectRepoR
 };
 
 // ==========================================
+// 4-1. 특정 프로젝트 멤버 목록 조회 (GET)
+// ==========================================
+export interface ProjectMemberResponse {
+  userId: number;
+  username: string;
+  email: string;
+  profileImageUrl: string;
+  role: "OWNER" | "MEMBER";
+}
+
+export const fetchProjectMembers = async (projectId: number): Promise<ProjectMemberResponse[]> => {
+  const response = await axiosInstance.get<ProjectMemberResponse[]>(`/api/projects/${projectId}/members`);
+  return response.data;
+};
+
+// ==========================================
 // 5. 유저 검색 (GET) - 초대 대상 탐색용
 // ==========================================
 export interface SearchUserResponse {

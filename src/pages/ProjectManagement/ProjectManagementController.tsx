@@ -9,6 +9,7 @@ export default function ProjectManagementController() {
   const model = useProjectManagementModel();
 
   const goList = () => nav("/project-management");
+  const goCreateProject = () => nav("/new-project");
   const goDetail = (projectId: string) => nav(`/project-management/${projectId}`);
   const goSettings = (projectId: string) => nav(`/project-management/${projectId}/settings`);
 
@@ -17,6 +18,7 @@ export default function ProjectManagementController() {
       mode="list"
       projects={model.projects}
       onOpenProject={goDetail}
+      onCreateProject={goCreateProject}
     />
   );
 

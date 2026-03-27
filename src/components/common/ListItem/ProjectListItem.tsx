@@ -1,12 +1,12 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import DotIcon from "../../../assets/icons/dot.svg?react";
 
 export interface ProjectListItemProps extends React.HTMLAttributes<HTMLDivElement> {
   code: string;
   title: string;
-  hostLabel?: string;
-  hostName?: string;
-  languages?: Array<{ name: string; color: string; }>;
+  hostName: string;
+  hostProfileImageUrl: string;
+  languages?: Array<{ name: string; color?: string; }>;
   updatedAt?: string;
   disabled?: boolean;
   selected?: boolean;
@@ -18,8 +18,8 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
     {
       code,
       title,
-      hostLabel = "호스트",
-      hostName = "User1234",
+      hostName,
+      hostProfileImageUrl,
       languages,
       updatedAt,
       disabled = false,
@@ -32,6 +32,7 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
     ref
   ) => {
     const [internalSelected, setInternalSelected] = useState(false);
+    const [hostAvatarError, setHostAvatarError] = useState(false);
     const isControlled = selected !== undefined;
     const isSelected = isControlled ? selected : internalSelected;
 
@@ -44,6 +45,11 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
 
     const textColorClass = disabled ? "text-system-deactive" : "text-grayscale-black";
     const subTextColorClass = disabled ? "text-system-deactive" : "text-grayscale-gy800";
+    const hostInitial = hostName.trim().charAt(0).toUpperCase() || "H";
+
+    useEffect(() => {
+      setHostAvatarError(false);
+    }, [hostProfileImageUrl]);
     
     // dotColorClass는 이제 이미지로 대체되어 제거하거나, 
     // 이미지가 색상 제어가 안 된다면 opacity로 비활성화 느낌을 줄 수 있습니다.
@@ -90,16 +96,49 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
           </div>
 
           {/* {호스트 닉네임/프로필 표시} */}
-          <div className=" px-2 py-1 rounded-lg inline-flex justify-center items-center gap-2.5 bg-secondary-sg100">
-            <div className="text-center justify-center text-medium500-ko">{hostLabel}</div>
+          <div
+            className={`
+              px-2 py-1 rounded-lg inline-flex justify-center items-center gap-2.5
+              ${disabled ? "bg-grayscale-gy100" : "bg-secondary-sg100"}
+            `}
+          >
+            <div
+              className={`text-center justify-center text-medium500-ko ${
+                disabled ? "text-system-deactive" : "text-primary-sg600"
+              }`}
+            >
+              {hostName}
+            </div>
 
             <div className="inline-flex justify-start items-center gap-3">
-              <div className="w-5 h-5 rounded-[20px] overflow-hidden flex items-center justify-center">
-                {/* // 추후 프로필 이미지 삽입 */}
-                <span className="text-center justify-center text-h4-ko text-grayscale-black">✓</span>
+              <div
+                className={`
+                  w-5 h-5 rounded-[20px] overflow-hidden flex items-center justify-center
+                  ${disabled ? "bg-system-deactive" : "bg-primary-sg550"}
+                `}
+              >
+                {hostProfileImageUrl && !hostAvatarError ? (
+                  <img
+                    src={hostProfileImageUrl}
+                    alt={`${hostName} profile`}
+                    className="w-full h-full object-cover"
+                    onError={() => setHostAvatarError(true)}
+                  />
+                ) : (
+                  <span className="text-[10px] font-semibold leading-none text-grayscale-white">
+                    {hostInitial}
+                  </span>
+                )}
               </div>
 
-              <div className="text-center justify-center text-h4-ko">{hostName}</div>
+              <div
+                className={`
+                  max-w-28 truncate text-center justify-center text-h4-ko
+                  ${disabled ? "text-system-deactive" : "text-grayscale-black"}
+                `}
+              >
+                {hostName}
+              </div>
             </div>
           </div>
         </div>

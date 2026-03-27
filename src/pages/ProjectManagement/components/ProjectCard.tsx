@@ -4,6 +4,8 @@ type ProjectLanguage = { name: string; color?: string };
 type Props = {
   code: string;
   name: string;
+  hostUsername: string;
+  hostProfileImageUrl: string;
   languages?: ProjectLanguage[];
   tags?: string[];
 
@@ -17,6 +19,8 @@ type Props = {
 export default function ProjectCard({
   code,
   name,
+  hostUsername,
+  hostProfileImageUrl,
   languages,
   tags,
   updatedText,
@@ -33,6 +37,8 @@ export default function ProjectCard({
       className="w-xl self-stretch inline-flex justify-start items-center gap-5"
       code={code}
       title={name}
+      hostName={hostUsername}
+      hostProfileImageUrl={hostProfileImageUrl}
       languages={resolvedLanguages}
       updatedAt={updatedText}
       disabled={disabled}
