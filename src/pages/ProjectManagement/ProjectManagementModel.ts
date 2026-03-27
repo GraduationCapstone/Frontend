@@ -33,12 +33,15 @@ type ProjectListMetadata = {
   myRole: ProjectRolePreview;
 };
 
+const formatProjectCode = (projectId: number): string =>
+  `P${String(projectId).padStart(3, "0")}`;
+
 const toProjectListItem = (
   project: ProjectApiItem,
   metadata: ProjectListMetadata
 ): ProjectListItem => ({
   id: String(project.id),
-  code: `P${project.id}`,
+  code: formatProjectCode(project.id),
   name: project.projectName,
   tags: metadata.languages,
   hostUsername: metadata.hostUsername,
