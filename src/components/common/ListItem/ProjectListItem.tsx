@@ -96,27 +96,11 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
           </div>
 
           {/* {호스트 닉네임/프로필 표시} */}
-          <div
-            className={`
-              px-2 py-1 rounded-lg inline-flex justify-center items-center gap-2.5
-              ${disabled ? "bg-grayscale-gy100" : "bg-secondary-sg100"}
-            `}
-          >
-            <div
-              className={`text-center justify-center text-medium500-ko ${
-                disabled ? "text-system-deactive" : "text-primary-sg600"
-              }`}
-            >
-              {hostName}
-            </div>
-
+          <div className="px-2 py-1 rounded-lg inline-flex justify-center items-center gap-2.5 bg-secondary-sg100">
+            <div className="text-center justify-center text-medium500-ko text-primary-sg600">호스트</div>
             <div className="inline-flex justify-start items-center gap-3">
               <div
-                className={`
-                  w-5 h-5 rounded-[20px] overflow-hidden flex items-center justify-center
-                  ${disabled ? "bg-system-deactive" : "bg-primary-sg550"}
-                `}
-              >
+                className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center">
                 {hostProfileImageUrl && !hostAvatarError ? (
                   <img
                     src={hostProfileImageUrl}
@@ -125,20 +109,12 @@ const ProjectListItem = forwardRef<HTMLDivElement, ProjectListItemProps>(
                     onError={() => setHostAvatarError(true)}
                   />
                 ) : (
-                  <span className="text-[10px] font-semibold leading-none text-grayscale-white">
-                    {hostInitial}
-                  </span>
+                  // 프로필 없을 때라 하드코딩
+                  <span className="text-[10px] font-semibold leading-none text-grayscale-white">{hostInitial}</span>
                 )}
               </div>
 
-              <div
-                className={`
-                  max-w-28 truncate text-center justify-center text-h4-ko
-                  ${disabled ? "text-system-deactive" : "text-grayscale-black"}
-                `}
-              >
-                {hostName}
-              </div>
+              <div className="truncate text-center justify-center text-h4-ko text-grayscale-black">{hostName}</div>
             </div>
           </div>
         </div>
