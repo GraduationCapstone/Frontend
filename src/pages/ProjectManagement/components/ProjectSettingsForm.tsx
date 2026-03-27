@@ -5,7 +5,6 @@ import MemberSearch from "./MemberSearch";
 import { Button } from "../../../components/common";
 import InputField from "../../../components/common/InputField";
 import LeaveProjectModal from "../../../components/common/Modal/LeaveProjectModal";
-import Tabs from "../../../components/common/Tabs";
 
 function ProfileAvatar({ name, imageUrl }: { name: string; imageUrl?: string }) {
   const [imageError, setImageError] = useState(false);
@@ -52,7 +51,6 @@ export default function ProjectSettingsForm({
   onLeaveProject,
   onLeaveDone,
 }: Props) {
-  const [rolePreview, setRolePreview] = useState<ProjectRolePreview>(currentRole);
   const hostMember = useMemo(
     () => initialMembers.find((member) => member.role === "OWNER") ?? initialMembers[0] ?? null,
     [initialMembers]
@@ -85,10 +83,6 @@ export default function ProjectSettingsForm({
   );
 
   useEffect(() => {
-    setRolePreview(currentRole);
-  }, [currentRole]);
-
-  useEffect(() => {
     setName(initialName);
   }, [initialName]);
 
@@ -103,7 +97,7 @@ export default function ProjectSettingsForm({
   const [isLeaving, setIsLeaving] = useState(false);
 
   const canSave = useMemo(() => {
-    const nextName = rolePreview === "owner" ? name.trim() : initialName.trim();
+    const nextName = currentRole === "owner" ? name.trim() : initialName.trim();
     if (nextName.length === 0) return false;
 
     if (nextName !== initialName.trim()) return true;
@@ -112,7 +106,7 @@ export default function ProjectSettingsForm({
     const a = [...draftMembers].map((m) => m.id).sort().join(",");
     const b = [...committedMembers].map((m) => m.id).sort().join(",");
     return a !== b;
-  }, [rolePreview, name, draftMembers, committedMembers, initialName]);
+  }, [currentRole, name, draftMembers, committedMembers, initialName]);
 
   const openLeaveModal = () => {
     setLeaveModalStep("confirm");
@@ -162,20 +156,8 @@ export default function ProjectSettingsForm({
 
       <section className="w-xl px-3 inline-flex flex-col justify-start items-start gap-6">
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
-          <div className="text-h3-ko text-grayscale-black">역할 프리뷰 (임시)</div>
-          <Tabs
-            items={[
-              { value: "owner", label: "오너", disabled: currentRole !== "owner" },
-              { value: "member", label: "멤버", disabled: currentRole !== "member" },
-            ]}
-            value={rolePreview}
-            onValueChange={(value) => setRolePreview(value as "owner" | "member")}
-          />
-        </div>
-
-        <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
           <div className="text-h3-ko text-grayscale-black">프로젝트명</div>
-          {rolePreview === "owner" ? (
+          {currentRole === "owner" ? (
             <InputField
               value={name}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
@@ -194,14 +176,14 @@ export default function ProjectSettingsForm({
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
           <div className="text-h3-ko text-grayscale-black">멤버 초대</div>
           <MemberSearch
-            allCandidates={rolePreview === "owner" ? allCandidates : memberModeCandidates}
-            selected={rolePreview === "owner" ? draftMembers : pendingAddedMembers}
+            allCandidates={currentRole === "owner" ? allCandidates : memberModeCandidates}
+            selected={currentRole === "owner" ? draftMembers : pendingAddedMembers}
             nonRemovableIds={
-              rolePreview === "owner" ? [] : committedMembers.map((member) => member.id)
+              currentRole === "owner" ? [] : committedMembers.map((member) => member.id)
             }
-            collapsedUntilSearch={rolePreview === "member"}
+            collapsedUntilSearch={currentRole === "member"}
             onChangeSelected={(next) => {
-              if (rolePreview === "owner") {
+              if (currentRole === "owner") {
                 setDraftMembers(next);
                 return;
               }
