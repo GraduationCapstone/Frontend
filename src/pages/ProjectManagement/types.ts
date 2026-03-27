@@ -33,9 +33,15 @@ import type {
     seconds: number; // 평균 테스트 시간(초)
   };
   
+export type ProjectMemberRole = "OWNER" | "MEMBER";
+export type ProjectRolePreview = "owner" | "member";
+
   export type Member = {
     id: string;
     username: string; // GitHub ID 같은 형태류
+    email?: string;
+    profileImageUrl?: string;
+    role?: ProjectMemberRole;
   };
   
   export type ProjectDetail = {
@@ -45,6 +51,8 @@ import type {
     avgTestTime: AvgTestTimePoint[];
     tests: TestCodeItem[];
     members: Member[];
+    myUserId: string;
+    myRole: ProjectRolePreview;
   };
   
   export type ProjectManagementMode = "list" | "detail" | "settings";

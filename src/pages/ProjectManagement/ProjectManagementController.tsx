@@ -55,6 +55,13 @@ export default function ProjectManagementController() {
     const handleSave = (nextName: string, nextMembers: Member[]) => {
       model.saveSettings(id, nextName, nextMembers);
     };
+    const handleLeaveProject = async () => {
+      await model.leaveOrDeleteProject(id);
+    };
+    const handleLeaveDone = () => {
+      model.removeProjectLocally(id);
+      goList();
+    };
 
     return (
       <ProjectManagementView
@@ -62,6 +69,8 @@ export default function ProjectManagementController() {
         detail={detail}
         onCancelSettings={() => goDetail(id)}
         onSaveSettings={handleSave}
+        onLeaveProject={handleLeaveProject}
+        onLeaveDone={handleLeaveDone}
         allGithubCandidates={model.allGithubCandidates}
       />
     );

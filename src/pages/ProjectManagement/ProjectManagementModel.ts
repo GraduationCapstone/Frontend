@@ -1,17 +1,36 @@
 import { useEffect, useState } from "react";
-import type { ProjectDetail, ProjectListItem, Member, AvgTestTimePoint } from "./types";
 import type {
-  ProjectMemberResponse,
-  ProjectRepoResponse,
-  ProjectResponse,
+  ProjectDetail,
+  ProjectListItem,
+  Member,
+  AvgTestTimePoint,
+  ProjectRolePreview,
+} from "./types";
+import type { ProjectMemberResponse, ProjectRepoResponse, ProjectResponse } from "../../api/project";
+import {
+  deleteProject,
+  fetchProjectMembers,
+  fetchProjectRepos,
+  fetchProjects,
+  leaveProjectAsMember,
 } from "../../api/project";
-import { fetchProjectMembers, fetchProjectRepos, fetchProjects } from "../../api/project";
+import { fetchUserMe } from "../../api/user";
 
 type ProjectApiItem = ProjectResponse;
+type CurrentUserIdentity = {
+  id?: number;
+  userId?: number;
+  username?: string;
+  githubId?: string;
+  email?: string;
+};
 type ProjectListMetadata = {
   languages: string[];
   hostUsername: string;
   hostProfileImageUrl: string;
+  members: Member[];
+  myUserId: string;
+  myRole: ProjectRolePreview;
 };
 
 const toProjectListItem = (
@@ -42,18 +61,76 @@ const sanitizeLanguageTags = (languages: string[]): string[] =>
     .map((language) => language.trim())
     .filter((language) => language.length > 0);
 
-const extractOwner = (
-  projectId: number,
-  members: ProjectMemberResponse[]
-): ProjectMemberResponse => {
-  const owner = members.find((member) => member.role === "OWNER");
-  if (!owner) {
-    throw new Error(`[ProjectManagement] 프로젝트(${projectId}) OWNER가 없습니다.`);
-  }
-  return owner;
+const normalizeMemberRole = (role: string | undefined): "OWNER" | "MEMBER" => {
+  const normalized = role?.trim().toUpperCase() ?? "";
+  return normalized.includes("OWNER") ? "OWNER" : "MEMBER";
 };
 
-const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
+const mapProjectMembers = (members: ProjectMemberResponse[]): Member[] =>
+  members.map((member) => ({
+    id: String(member.userId),
+    username: member.username,
+    email: member.email,
+    profileImageUrl: member.profileImageUrl,
+    role: normalizeMemberRole(member.role),
+  }));
+
+const getCurrentUserId = (currentUser: CurrentUserIdentity): number | undefined => {
+  if (typeof currentUser.id === "number") return currentUser.id;
+  if (typeof currentUser.userId === "number") return currentUser.userId;
+  return undefined;
+};
+
+const resolveCurrentMembership = (
+  projectId: number,
+  members: ProjectMemberResponse[],
+  currentUser: CurrentUserIdentity
+): { myUserId: string; myRole: ProjectRolePreview } => {
+  const directUserId = getCurrentUserId(currentUser);
+  const normalizedNameCandidates = [currentUser.username, currentUser.githubId]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.trim().toLowerCase());
+  const normalizedEmail = currentUser.email?.trim().toLowerCase();
+
+  let me: ProjectMemberResponse | undefined;
+  if (directUserId !== undefined) {
+    me = members.find((member) => member.userId === directUserId);
+  }
+
+  if (!me && normalizedNameCandidates.length > 0) {
+    me = members.find((member) =>
+      normalizedNameCandidates.includes(member.username.trim().toLowerCase())
+    );
+  }
+
+  if (!me && normalizedEmail) {
+    me = members.find((member) => member.email?.trim().toLowerCase() === normalizedEmail);
+  }
+
+  if (!me) {
+    console.warn(
+      `[ProjectManagement] 프로젝트(${projectId})에서 현재 유저 매칭 실패 - member로 처리합니다.`,
+      { currentUser, members }
+    );
+    return {
+      myUserId: directUserId !== undefined ? String(directUserId) : "",
+      myRole: "member",
+    };
+  }
+
+  return {
+    myUserId: String(me.userId),
+    myRole: normalizeMemberRole(me.role) === "OWNER" ? "owner" : "member",
+  };
+};
+
+const buildDefaultDetail = (
+  id: string,
+  name: string,
+  members: Member[],
+  myUserId: string,
+  myRole: ProjectRolePreview
+): ProjectDetail => ({
   id,
   name,
   summary: {
@@ -63,35 +140,53 @@ const buildDefaultDetail = (id: string, name: string): ProjectDetail => ({
   },
   avgTestTime: [] as AvgTestTimePoint[],
   tests: [],
-  members: [],
+  members,
+  myUserId,
+  myRole,
 });
 
 const resolveProjectMetadata = async (
-  project: ProjectApiItem
+  project: ProjectApiItem,
+  currentUser: CurrentUserIdentity
 ): Promise<ProjectListMetadata> => {
-  try {
-    const [repos, members] = await Promise.all([
-      fetchProjectRepos(project.id),
-      fetchProjectMembers(project.id),
-    ]);
-    const owner = extractOwner(project.id, members);
+  const directUserId = getCurrentUserId(currentUser);
 
-    return {
-      languages: sanitizeLanguageTags(extractLanguagesFromRepos(repos)),
-      hostUsername: owner.username,
-      hostProfileImageUrl: owner.profileImageUrl,
-    };
+  let members: ProjectMemberResponse[] = [];
+  try {
+    members = await fetchProjectMembers(project.id);
   } catch (error) {
-    console.error(
-      `[ProjectManagement] 프로젝트(${project.id}) 메타데이터 조회 실패:`,
-      error
-    );
-    return {
-      languages: [],
-      hostUsername: "OWNER",
-      hostProfileImageUrl: "",
-    };
+    console.error(`[ProjectManagement] 프로젝트(${project.id}) 멤버 조회 실패:`, error);
   }
+
+  let languages: string[] = [];
+  try {
+    const repos = await fetchProjectRepos(project.id);
+    languages = sanitizeLanguageTags(extractLanguagesFromRepos(repos));
+  } catch (error) {
+    console.error(`[ProjectManagement] 프로젝트(${project.id}) 레포 조회 실패:`, error);
+  }
+
+  const mappedMembers = mapProjectMembers(members);
+  const ownerFromMembers =
+    members.find((member) => normalizeMemberRole(member.role) === "OWNER") ?? members[0];
+
+  let myMembership: { myUserId: string; myRole: ProjectRolePreview } = {
+    myUserId: directUserId !== undefined ? String(directUserId) : "",
+    myRole: "member",
+  };
+
+  if (members.length > 0) {
+    myMembership = resolveCurrentMembership(project.id, members, currentUser);
+  }
+
+  return {
+    languages,
+    hostUsername: ownerFromMembers?.username ?? "OWNER",
+    hostProfileImageUrl: ownerFromMembers?.profileImageUrl ?? "",
+    members: mappedMembers,
+    myUserId: myMembership.myUserId,
+    myRole: myMembership.myRole,
+  };
 };
 
 export default function useProjectManagementModel() {
@@ -103,12 +198,14 @@ export default function useProjectManagementModel() {
 
     const loadProjects = async () => {
       try {
-        const projectResponses = await fetchProjects();
+        const [projectResponses, myInfo] = await Promise.all([fetchProjects(), fetchUserMe()]);
+        const currentUser: CurrentUserIdentity = myInfo;
+        const currentUserId = getCurrentUserId(currentUser);
         if (cancelled) return;
 
         const metadataEntries = await Promise.all(
           projectResponses.map(async (project) => {
-            const metadata = await resolveProjectMetadata(project);
+            const metadata = await resolveProjectMetadata(project, currentUser);
             return [project.id, metadata] as const;
           })
         );
@@ -123,6 +220,9 @@ export default function useProjectManagementModel() {
               languages: [],
               hostUsername: "OWNER",
               hostProfileImageUrl: "",
+              members: [],
+              myUserId: currentUserId !== undefined ? String(currentUserId) : "",
+              myRole: "member",
             }
           )
         );
@@ -131,9 +231,22 @@ export default function useProjectManagementModel() {
         setDetailsById((prev) => {
           const next: Record<string, ProjectDetail> = {};
           mappedProjects.forEach((project) => {
+            const metadata = metadataByProjectId.get(Number(project.id));
             next[project.id] = prev[project.id]
-              ? { ...prev[project.id], name: project.name }
-              : buildDefaultDetail(project.id, project.name);
+              ? {
+                  ...prev[project.id],
+                  name: project.name,
+                  members: metadata?.members ?? [],
+                  myUserId: metadata?.myUserId ?? "",
+                  myRole: metadata?.myRole ?? "member",
+                }
+              : buildDefaultDetail(
+                  project.id,
+                  project.name,
+                  metadata?.members ?? [],
+                  metadata?.myUserId ?? "",
+                  metadata?.myRole ?? "member"
+                );
           });
           return next;
         });
@@ -153,6 +266,35 @@ export default function useProjectManagementModel() {
 
   const getDetail = (projectId: string) => detailsById[projectId] ?? null;
 
+  const leaveOrDeleteProject = async (projectId: string) => {
+    const detail = detailsById[projectId];
+    if (!detail) return;
+
+    const numericProjectId = Number(projectId);
+    if (!Number.isFinite(numericProjectId)) {
+      throw new Error(`유효하지 않은 프로젝트 ID입니다: ${projectId}`);
+    }
+
+    if (detail.myRole === "owner") {
+      await deleteProject(numericProjectId);
+    } else {
+      const numericUserId = Number(detail.myUserId);
+      if (!Number.isFinite(numericUserId)) {
+        throw new Error(`유효하지 않은 유저 ID입니다: ${detail.myUserId}`);
+      }
+      await leaveProjectAsMember(numericProjectId, numericUserId);
+    }
+  };
+
+  const removeProjectLocally = (projectId: string) => {
+    setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    setDetailsById((prev) => {
+      const next = { ...prev };
+      delete next[projectId];
+      return next;
+    });
+  };
+
   const saveSettings = (projectId: string, nextName: string, nextMembers: Member[]) => {
     setProjects((prev) =>
       prev.map((p) => (p.id === projectId ? { ...p, name: nextName } : p))
@@ -171,6 +313,8 @@ export default function useProjectManagementModel() {
     projects,
     getProject,
     getDetail,
+    leaveOrDeleteProject,
+    removeProjectLocally,
     saveSettings,
     allGithubCandidates,
   };

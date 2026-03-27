@@ -100,3 +100,17 @@ export const searchUsers = async (keyword: string): Promise<SearchUserResponse[]
   });
   return response.data;
 };
+
+// ==========================================
+// 6. 프로젝트 삭제/나가기 (DELETE)
+// ==========================================
+export const deleteProject = async (projectId: number): Promise<void> => {
+  await axiosInstance.delete(`/api/projects/${projectId}`);
+};
+
+export const leaveProjectAsMember = async (
+  projectId: number,
+  userId: number
+): Promise<void> => {
+  await axiosInstance.delete(`/api/projects/${projectId}/members/${userId}`);
+};
