@@ -11,7 +11,7 @@ import {
 } from "../../../components/common/ListButton";
 
 import PencilIcon from "../../../assets/icons/pencil.svg?react";
-import DeleteIcon from "../../../assets/icons/delete.svg?react";
+import DeleteIcon from "../../../assets/icons/Delete.svg?react";
 import AscIcon from "../../../assets/icons/asc.svg?react";
 import DescIcon from "../../../assets/icons/desc.svg?react";
 
