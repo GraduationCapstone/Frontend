@@ -9,6 +9,7 @@ export default function ProjectManagementController() {
   const model = useProjectManagementModel();
 
   const goList = () => nav("/project-management");
+  const goCreateProject = () => nav("/new-project");
   const goDetail = (projectId: string) => nav(`/project-management/${projectId}`);
   const goSettings = (projectId: string) => nav(`/project-management/${projectId}/settings`);
 
@@ -17,6 +18,7 @@ export default function ProjectManagementController() {
       mode="list"
       projects={model.projects}
       onOpenProject={goDetail}
+      onCreateProject={goCreateProject}
     />
   );
 
@@ -53,6 +55,13 @@ export default function ProjectManagementController() {
     const handleSave = (nextName: string, nextMembers: Member[]) => {
       model.saveSettings(id, nextName, nextMembers);
     };
+    const handleLeaveProject = async () => {
+      await model.leaveOrDeleteProject(id);
+    };
+    const handleLeaveDone = () => {
+      model.removeProjectLocally(id);
+      goList();
+    };
 
     return (
       <ProjectManagementView
@@ -60,6 +69,8 @@ export default function ProjectManagementController() {
         detail={detail}
         onCancelSettings={() => goDetail(id)}
         onSaveSettings={handleSave}
+        onLeaveProject={handleLeaveProject}
+        onLeaveDone={handleLeaveDone}
         allGithubCandidates={model.allGithubCandidates}
       />
     );

@@ -1,9 +1,12 @@
 import ProjectListItem from "../../../components/common/ListItem/ProjectListItem";
 
+type ProjectLanguage = { name: string; color?: string };
 type Props = {
   code: string;
   name: string;
-  languages?: Language;
+  hostUsername: string;
+  hostProfileImageUrl: string;
+  languages?: ProjectLanguage[];
   tags?: string[];
 
   updatedText: string;
@@ -16,6 +19,8 @@ type Props = {
 export default function ProjectCard({
   code,
   name,
+  hostUsername,
+  hostProfileImageUrl,
   languages,
   tags,
   updatedText,
@@ -24,21 +29,22 @@ export default function ProjectCard({
   selected,
   onSelectChange,
 }: Props) {
-  const resolvedLanguages: Language | undefined =
-    languages ?? (tags?.length ? tags.map((t) => ({ name: t })) : undefined);
+  const resolvedLanguages: ProjectLanguage[] | undefined =
+    languages ?? (tags?.length ? tags.map((tag) => ({ name: tag })) : undefined);
+
   return (
     <ProjectListItem
       className="w-xl self-stretch inline-flex justify-start items-center gap-5"
       code={code}
       title={name}
+      hostName={hostUsername}
+      hostProfileImageUrl={hostProfileImageUrl}
       languages={resolvedLanguages}
       updatedAt={updatedText}
       disabled={disabled}
       selected={selected}
       onSelectChange={onSelectChange}
-      onClick={() => onClick()}
-      
+      onClick={onClick}
     />
   );
 }
-

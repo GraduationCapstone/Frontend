@@ -1,15 +1,39 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
-import type { Member } from "../types";
+import type { Member, ProjectRolePreview } from "../types";
 import MemberSearch from "./MemberSearch";
 import { Button } from "../../../components/common";
 import InputField from "../../../components/common/InputField";
 import LeaveProjectModal from "../../../components/common/Modal/LeaveProjectModal";
-import Tabs from "../../../components/common/Tabs";
+
+function ProfileAvatar({ name, imageUrl }: { name: string; imageUrl?: string }) {
+  const [imageError, setImageError] = useState(false);
+  const initial = name[0]?.toUpperCase() ?? "U";
+
+  useEffect(() => {
+    setImageError(false);
+  }, [imageUrl]);
+
+  return (
+    <div className="w-6 h-6 rounded-full overflow-hidden bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px] shrink-0">
+      {imageUrl && !imageError ? (
+        <img
+          src={imageUrl}
+          alt={`${name} profile`}
+          className="w-full h-full object-cover"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        initial
+      )}
+    </div>
+  );
+}
 
 type Props = {
   initialName: string;
   initialMembers: Member[];
+  currentRole: ProjectRolePreview;
   allCandidates: Member[];
   onCancel: () => void;
   onSave: (nextName: string, nextMembers: Member[]) => void;
@@ -20,15 +44,17 @@ type Props = {
 export default function ProjectSettingsForm({
   initialName,
   initialMembers,
+  currentRole,
   allCandidates,
   onCancel,
   onSave,
   onLeaveProject,
   onLeaveDone,
 }: Props) {
-  // ❌(temp-role-switch): 오너/멤버 API 연동 후 이 임시 프리뷰 스위치 로직 전체 삭제
-  const [rolePreview, setRolePreview] = useState<"owner" | "member">("owner");
-  const hostMember = initialMembers[0] ?? null;
+  const hostMember = useMemo(
+    () => initialMembers.find((member) => member.role === "OWNER") ?? initialMembers[0] ?? null,
+    [initialMembers]
+  );
   const initialProjectMembers = useMemo(
     () => (hostMember ? initialMembers.filter((m) => m.id !== hostMember.id) : initialMembers),
     [initialMembers, hostMember]
@@ -56,13 +82,22 @@ export default function ProjectSettingsForm({
     [allCandidates, memberCandidateIds, hostMember]
   );
 
+  useEffect(() => {
+    setName(initialName);
+  }, [initialName]);
+
+  useEffect(() => {
+    setDraftMembers(initialProjectMembers);
+    setCommittedMembers(initialProjectMembers);
+  }, [initialProjectMembers]);
+
   // 나가기 모달
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [leaveModalStep, setLeaveModalStep] = useState<"confirm" | "done">("confirm");
   const [isLeaving, setIsLeaving] = useState(false);
 
   const canSave = useMemo(() => {
-    const nextName = rolePreview === "owner" ? name.trim() : initialName.trim();
+    const nextName = currentRole === "owner" ? name.trim() : initialName.trim();
     if (nextName.length === 0) return false;
 
     if (nextName !== initialName.trim()) return true;
@@ -71,7 +106,7 @@ export default function ProjectSettingsForm({
     const a = [...draftMembers].map((m) => m.id).sort().join(",");
     const b = [...committedMembers].map((m) => m.id).sort().join(",");
     return a !== b;
-  }, [rolePreview, name, draftMembers, committedMembers, initialName]);
+  }, [currentRole, name, draftMembers, committedMembers, initialName]);
 
   const openLeaveModal = () => {
     setLeaveModalStep("confirm");
@@ -120,22 +155,9 @@ export default function ProjectSettingsForm({
       </div>
 
       <section className="w-xl px-3 inline-flex flex-col justify-start items-start gap-6">
-        {/* ❌: 오너/멤버 API 연동 후 제거. ui 확인을 위해 구현 */}
-        <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
-          <div className="text-h3-ko text-grayscale-black">역할 프리뷰 (임시)</div>
-          <Tabs
-            items={[
-              { value: "owner", label: "오너" },
-              { value: "member", label: "멤버" },
-            ]}
-            value={rolePreview}
-            onValueChange={(value) => setRolePreview(value as "owner" | "member")}
-          />
-        </div>
-
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
           <div className="text-h3-ko text-grayscale-black">프로젝트명</div>
-          {rolePreview === "owner" ? (
+          {currentRole === "owner" ? (
             <InputField
               value={name}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
@@ -154,14 +176,14 @@ export default function ProjectSettingsForm({
         <div className="self-stretch inline-flex flex-col justify-start items-start gap-3">
           <div className="text-h3-ko text-grayscale-black">멤버 초대</div>
           <MemberSearch
-            allCandidates={rolePreview === "owner" ? allCandidates : memberModeCandidates}
-            selected={rolePreview === "owner" ? draftMembers : pendingAddedMembers}
+            allCandidates={currentRole === "owner" ? allCandidates : memberModeCandidates}
+            selected={currentRole === "owner" ? draftMembers : pendingAddedMembers}
             nonRemovableIds={
-              rolePreview === "owner" ? [] : committedMembers.map((member) => member.id)
+              currentRole === "owner" ? [] : committedMembers.map((member) => member.id)
             }
-            collapsedUntilSearch={rolePreview === "member"}
+            collapsedUntilSearch={currentRole === "member"}
             onChangeSelected={(next) => {
-              if (rolePreview === "owner") {
+              if (currentRole === "owner") {
                 setDraftMembers(next);
                 return;
               }
@@ -178,9 +200,7 @@ export default function ProjectSettingsForm({
           {hostMember ? (
             <ul className="w-full grid grid-cols-4 gap-x-10 gap-y-4">
               <li className="inline-flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px]">
-                  {hostMember.username[0]?.toUpperCase() ?? "H"}
-                </div>
+                <ProfileAvatar name={hostMember.username} imageUrl={hostMember.profileImageUrl} />
                 <span className="text-h4-ko text-grayscale-black">
                   {hostMember.username}
                 </span>
@@ -198,9 +218,7 @@ export default function ProjectSettingsForm({
           <ul className="w-full grid grid-cols-4 gap-x-10 gap-y-4">
             {visibleMembers.map((m) => (
               <li key={m.id} className="inline-flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-primary-sg550 text-grayscale-white flex items-center justify-center text-[14px]">
-                  {m.username[0]?.toUpperCase() ?? "U"}
-                </div>
+                <ProfileAvatar name={m.username} imageUrl={m.profileImageUrl} />
                 <span className="text-h4-ko text-grayscale-black">
                   {m.username}
                 </span>
@@ -213,7 +231,7 @@ export default function ProjectSettingsForm({
           <Button
             variant="dynamicClearSTextUnderlined"
             children={undefined}
-            label={rolePreview === "owner" ? "프로젝트 삭제" : "프로젝트 나가기"}
+            label={currentRole === "owner" ? "프로젝트 삭제" : "프로젝트 나가기"}
             onClick={openLeaveModal}
           />
         </div>
@@ -226,7 +244,7 @@ export default function ProjectSettingsForm({
           label="저장"
           disabled={!canSave}
           onClick={() => {
-            const nextName = rolePreview === "owner" ? name.trim() : initialName.trim();
+            const nextName = currentRole === "owner" ? name.trim() : initialName.trim();
             setCommittedMembers(draftMembers);
             const nextMembers = hostMember ? [hostMember, ...draftMembers] : draftMembers;
             onSave(nextName, nextMembers);
@@ -237,8 +255,7 @@ export default function ProjectSettingsForm({
       <LeaveProjectModal
         open={isLeaveModalOpen}
         step={leaveModalStep}
-        // ❌: 오너/멤버 API 연동 후 mode 전달 삭제
-        mode={rolePreview}
+        mode={currentRole}
         loading={isLeaving}
         onClose={closeLeaveModal}
         onLeave={handleLeaveProject}

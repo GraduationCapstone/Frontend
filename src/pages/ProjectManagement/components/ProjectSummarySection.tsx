@@ -7,13 +7,6 @@ type Props = {
   summary: ProjectDetail["summary"];
 };
 
-const MOCK_SUMMARY: Summary = {
-  pass: 12,
-  block: 3,
-  fail: 2,
-  untest: 5,
-};
-
 const normalizeSummary = (s: ProjectDetail["summary"] | null | undefined): Summary => ({
   pass: Number((s as any)?.pass ?? 0) || 0,
   block: Number((s as any)?.block ?? 0) || 0,
@@ -48,12 +41,7 @@ const DotItem = (props: {
 
 export default function ProjectSummarySection({ summary }: Props) {
   const apiSummary = normalizeSummary(summary);
-  const apiTotal = getTotal(apiSummary);
-
-  // TODO(api): API 연결 후, 실데이터가 정상적으로 들어오면 이 로직 제거/수정
-  const useMock = import.meta.env.DEV && apiTotal === 0;
-
-  const effectiveSummary = useMock ? MOCK_SUMMARY : apiSummary;
+  const effectiveSummary = apiSummary;
 
   const totalCount = getTotal(effectiveSummary);
   const testedCount = effectiveSummary.pass + effectiveSummary.block + effectiveSummary.fail;

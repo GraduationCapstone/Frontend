@@ -1,74 +1,302 @@
-import { useMemo, useState } from "react";
-import type { ProjectDetail, ProjectListItem, Member, AvgTestTimePoint } from "./types";
-import type { TestCodeItem } from "../TEDashBoard/types";
+import { useEffect, useState } from "react";
+import type {
+  ProjectDetail,
+  ProjectListItem,
+  Member,
+  AvgTestTimePoint,
+  ProjectRolePreview,
+} from "./types";
+import type { ProjectMemberResponse, ProjectRepoResponse, ProjectResponse } from "../../api/project";
+import {
+  deleteProject,
+  fetchProjectMembers,
+  fetchProjectRepos,
+  fetchProjects,
+  leaveProjectAsMember,
+} from "../../api/project";
+import { fetchUserMe } from "../../api/user";
 
-const makeTests = (projectId: string): TestCodeItem[] => {
-  const base: Array<Pick<TestCodeItem, "codeId" | "title" | "status" | "duration" | "user" | "date">> = [
-    { codeId: "T1234", title: "test", status: "70.7%", duration: "48s", user: "User1234", date: "2025-09-09 15:34" },
-    { codeId: "T1235", title: "login spec", status: "88.2%", duration: "35s", user: "User7788", date: "2025-09-09 15:10" },
-    { codeId: "T1236", title: "routing spec", status: "63.0%", duration: "52s", user: "User1234", date: "2025-09-09 14:58" },
-    { codeId: "T1237", title: "table spec", status: "91.4%", duration: "29s", user: "User0001", date: "2025-09-09 14:31" },
-    { codeId: "T1238", title: "settings spec", status: "77.7%", duration: "41s", user: "User2222", date: "2025-09-09 14:02" },
-  ];
-
-  return base.map((b, idx) => ({
-    id: `${projectId}-${b.codeId}-${idx}`,
-    ...b,
-  }));
+type ProjectApiItem = ProjectResponse;
+type CurrentUserIdentity = {
+  id?: number;
+  userId?: number;
+  username?: string;
+  githubId?: string;
+  email?: string;
+};
+type ProjectListMetadata = {
+  languages: string[];
+  hostUsername: string;
+  hostProfileImageUrl: string;
+  members: Member[];
+  myUserId: string;
+  myRole: ProjectRolePreview;
 };
 
-const makeAvgSeries = (): AvgTestTimePoint[] => [
-  { date: "2025-09-04", seconds: 160 },
-  { date: "2025-09-05", seconds: 330 },
-  { date: "2025-09-06", seconds: 250 },
-  { date: "2025-09-07", seconds: 280 },
-  { date: "2025-09-08", seconds: 210 },
-  { date: "2025-09-09", seconds: 185 },
-];
+const formatProjectCode = (projectId: number): string =>
+  `P${String(projectId).padStart(3, "0")}`;
 
-const SEED_PROJECTS: ProjectListItem[] = [
-  { id: "P1234", code: "P1234", name: "Project A", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-  { id: "P2345", code: "P2345", name: "Project B", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-  { id: "P3456", code: "P3456", name: "Project C", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-  { id: "P4567", code: "P4567", name: "Project D", tags: ["TypeScript", "TypeScript", "TypeScript"], updatedText: "Updated 1 hour ago" },
-];
+const toProjectListItem = (
+  project: ProjectApiItem,
+  metadata: ProjectListMetadata
+): ProjectListItem => ({
+  id: String(project.id),
+  code: formatProjectCode(project.id),
+  name: project.projectName,
+  tags: metadata.languages,
+  hostUsername: metadata.hostUsername,
+  hostProfileImageUrl: metadata.hostProfileImageUrl,
+  updatedText: "",
+});
 
-const SEED_MEMBERS: Member[] = [
-  { id: "u1", username: "User1234" },
-  { id: "u2", username: "User7788" },
-  { id: "u3", username: "User0001" },
-  { id: "u4", username: "User2222" },
-];
-
-const buildSeedDetails = (): Record<string, ProjectDetail> => {
-  const makeDetail = (id: string, name: string): ProjectDetail => ({
-    id,
-    name,
-    summary: {
-      passRateText: "77.1% Pass",
-      testedText: "47 / 50 Tested",
-      counts: { pass: 44, block: 1, fail: 2, untest: 3 },
-    },
-    avgTestTime: makeAvgSeries(),
-    tests: makeTests(id),
-    members: SEED_MEMBERS,
+const extractLanguagesFromRepos = (repos: ProjectRepoResponse[]): string[] => {
+  const unique = new Set<string>();
+  repos.forEach((repo) => {
+    const lang = repo.language?.trim();
+    if (!lang) return;
+    unique.add(lang);
   });
+  return Array.from(unique);
+};
+
+const sanitizeLanguageTags = (languages: string[]): string[] =>
+  languages
+    .map((language) => language.trim())
+    .filter((language) => language.length > 0);
+
+const normalizeMemberRole = (role: string | undefined): "OWNER" | "MEMBER" => {
+  const normalized = role?.trim().toUpperCase() ?? "";
+  return normalized.includes("OWNER") ? "OWNER" : "MEMBER";
+};
+
+const mapProjectMembers = (members: ProjectMemberResponse[]): Member[] =>
+  members.map((member) => ({
+    id: String(member.userId),
+    username: member.username,
+    email: member.email,
+    profileImageUrl: member.profileImageUrl,
+    role: normalizeMemberRole(member.role),
+  }));
+
+const getCurrentUserId = (currentUser: CurrentUserIdentity): number | undefined => {
+  if (typeof currentUser.id === "number") return currentUser.id;
+  if (typeof currentUser.userId === "number") return currentUser.userId;
+  return undefined;
+};
+
+const resolveCurrentMembership = (
+  projectId: number,
+  members: ProjectMemberResponse[],
+  currentUser: CurrentUserIdentity
+): { myUserId: string; myRole: ProjectRolePreview } => {
+  const directUserId = getCurrentUserId(currentUser);
+  const normalizedNameCandidates = [currentUser.username, currentUser.githubId]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.trim().toLowerCase());
+  const normalizedEmail = currentUser.email?.trim().toLowerCase();
+
+  let me: ProjectMemberResponse | undefined;
+  if (directUserId !== undefined) {
+    me = members.find((member) => member.userId === directUserId);
+  }
+
+  if (!me && normalizedNameCandidates.length > 0) {
+    me = members.find((member) =>
+      normalizedNameCandidates.includes(member.username.trim().toLowerCase())
+    );
+  }
+
+  if (!me && normalizedEmail) {
+    me = members.find((member) => member.email?.trim().toLowerCase() === normalizedEmail);
+  }
+
+  if (!me) {
+    console.warn(
+      `[ProjectManagement] 프로젝트(${projectId})에서 현재 유저 매칭 실패 - member로 처리합니다.`,
+      { currentUser, members }
+    );
+    return {
+      myUserId: directUserId !== undefined ? String(directUserId) : "",
+      myRole: "member",
+    };
+  }
 
   return {
-    P1234: makeDetail("P1234", "Project A"),
-    P2345: makeDetail("P2345", "Project B"),
-    P3456: makeDetail("P3456", "Project C"),
-    P4567: makeDetail("P4567", "Project D"),
+    myUserId: String(me.userId),
+    myRole: normalizeMemberRole(me.role) === "OWNER" ? "owner" : "member",
+  };
+};
+
+const buildDefaultDetail = (
+  id: string,
+  name: string,
+  members: Member[],
+  myUserId: string,
+  myRole: ProjectRolePreview
+): ProjectDetail => ({
+  id,
+  name,
+  summary: {
+    passRateText: "0% Pass",
+    testedText: "0 / 0 Tested",
+    counts: { pass: 0, block: 0, fail: 0, untest: 0 },
+  },
+  avgTestTime: [] as AvgTestTimePoint[],
+  tests: [],
+  members,
+  myUserId,
+  myRole,
+});
+
+const resolveProjectMetadata = async (
+  project: ProjectApiItem,
+  currentUser: CurrentUserIdentity
+): Promise<ProjectListMetadata> => {
+  const directUserId = getCurrentUserId(currentUser);
+
+  let members: ProjectMemberResponse[] = [];
+  try {
+    members = await fetchProjectMembers(project.id);
+  } catch (error) {
+    console.error(`[ProjectManagement] 프로젝트(${project.id}) 멤버 조회 실패:`, error);
+  }
+
+  let languages: string[] = [];
+  try {
+    const repos = await fetchProjectRepos(project.id);
+    languages = sanitizeLanguageTags(extractLanguagesFromRepos(repos));
+  } catch (error) {
+    console.error(`[ProjectManagement] 프로젝트(${project.id}) 레포 조회 실패:`, error);
+  }
+
+  const mappedMembers = mapProjectMembers(members);
+  const ownerFromMembers =
+    members.find((member) => normalizeMemberRole(member.role) === "OWNER") ?? members[0];
+
+  let myMembership: { myUserId: string; myRole: ProjectRolePreview } = {
+    myUserId: directUserId !== undefined ? String(directUserId) : "",
+    myRole: "member",
+  };
+
+  if (members.length > 0) {
+    myMembership = resolveCurrentMembership(project.id, members, currentUser);
+  }
+
+  return {
+    languages,
+    hostUsername: ownerFromMembers?.username ?? "OWNER",
+    hostProfileImageUrl: ownerFromMembers?.profileImageUrl ?? "",
+    members: mappedMembers,
+    myUserId: myMembership.myUserId,
+    myRole: myMembership.myRole,
   };
 };
 
 export default function useProjectManagementModel() {
-  const [projects, setProjects] = useState<ProjectListItem[]>(SEED_PROJECTS);
-  const [detailsById, setDetailsById] = useState<Record<string, ProjectDetail>>(buildSeedDetails);
+  const [projects, setProjects] = useState<ProjectListItem[]>([]);
+  const [detailsById, setDetailsById] = useState<Record<string, ProjectDetail>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProjects = async () => {
+      try {
+        const [projectResponses, myInfo] = await Promise.all([fetchProjects(), fetchUserMe()]);
+        const currentUser: CurrentUserIdentity = myInfo;
+        const currentUserId = getCurrentUserId(currentUser);
+        if (cancelled) return;
+
+        const metadataEntries = await Promise.all(
+          projectResponses.map(async (project) => {
+            const metadata = await resolveProjectMetadata(project, currentUser);
+            return [project.id, metadata] as const;
+          })
+        );
+        if (cancelled) return;
+
+        const metadataByProjectId = new Map<number, ProjectListMetadata>(metadataEntries);
+
+        const mappedProjects = projectResponses.map((project) =>
+          toProjectListItem(
+            project,
+            metadataByProjectId.get(project.id) ?? {
+              languages: [],
+              hostUsername: "OWNER",
+              hostProfileImageUrl: "",
+              members: [],
+              myUserId: currentUserId !== undefined ? String(currentUserId) : "",
+              myRole: "member",
+            }
+          )
+        );
+        setProjects(mappedProjects);
+
+        setDetailsById((prev) => {
+          const next: Record<string, ProjectDetail> = {};
+          mappedProjects.forEach((project) => {
+            const metadata = metadataByProjectId.get(Number(project.id));
+            next[project.id] = prev[project.id]
+              ? {
+                  ...prev[project.id],
+                  name: project.name,
+                  members: metadata?.members ?? [],
+                  myUserId: metadata?.myUserId ?? "",
+                  myRole: metadata?.myRole ?? "member",
+                }
+              : buildDefaultDetail(
+                  project.id,
+                  project.name,
+                  metadata?.members ?? [],
+                  metadata?.myUserId ?? "",
+                  metadata?.myRole ?? "member"
+                );
+          });
+          return next;
+        });
+      } catch (error) {
+        console.error("[ProjectManagement] 프로젝트 목록 조회 실패:", error);
+      }
+    };
+
+    loadProjects();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const getProject = (projectId: string) => projects.find((p) => p.id === projectId) ?? null;
 
   const getDetail = (projectId: string) => detailsById[projectId] ?? null;
+
+  const leaveOrDeleteProject = async (projectId: string) => {
+    const detail = detailsById[projectId];
+    if (!detail) return;
+
+    const numericProjectId = Number(projectId);
+    if (!Number.isFinite(numericProjectId)) {
+      throw new Error(`유효하지 않은 프로젝트 ID입니다: ${projectId}`);
+    }
+
+    if (detail.myRole === "owner") {
+      await deleteProject(numericProjectId);
+    } else {
+      const numericUserId = Number(detail.myUserId);
+      if (!Number.isFinite(numericUserId)) {
+        throw new Error(`유효하지 않은 유저 ID입니다: ${detail.myUserId}`);
+      }
+      await leaveProjectAsMember(numericProjectId, numericUserId);
+    }
+  };
+
+  const removeProjectLocally = (projectId: string) => {
+    setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    setDetailsById((prev) => {
+      const next = { ...prev };
+      delete next[projectId];
+      return next;
+    });
+  };
 
   const saveSettings = (projectId: string, nextName: string, nextMembers: Member[]) => {
     setProjects((prev) =>
@@ -82,20 +310,14 @@ export default function useProjectManagementModel() {
     });
   };
 
-  const allGithubCandidates = useMemo<Member[]>(() => {
-    // 실제론 API로 받아오겠지만 지금은 가라 후보
-    return [
-      ...SEED_MEMBERS,
-      { id: "u5", username: "User9999" },
-      { id: "u6", username: "User3141" },
-      { id: "u7", username: "User2718" },
-    ];
-  }, []);
+  const allGithubCandidates: Member[] = [];
 
   return {
     projects,
     getProject,
     getDetail,
+    leaveOrDeleteProject,
+    removeProjectLocally,
     saveSettings,
     allGithubCandidates,
   };

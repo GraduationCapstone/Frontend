@@ -13,10 +13,13 @@ type Props = {
   detail?: ProjectDetail;
 
   onOpenProject?: (projectId: string) => void;
+  onCreateProject?: () => void;
   onOpenSettings?: () => void;
   onBackToList?: () => void;
   onCancelSettings?: () => void;
   onSaveSettings?: (nextName: string, nextMembers: Member[]) => void;
+  onLeaveProject?: () => void | Promise<void>;
+  onLeaveDone?: () => void;
   allGithubCandidates?: Member[];
 };
 
@@ -34,9 +37,12 @@ export default function ProjectManagementView(props: Props) {
     projects,
     detail,
     onOpenProject,
+    onCreateProject,
     onOpenSettings,
     onCancelSettings,
     onSaveSettings,
+    onLeaveProject,
+    onLeaveDone,
     allGithubCandidates,
   } = props;
 
@@ -49,6 +55,7 @@ export default function ProjectManagementView(props: Props) {
           title="나의 프로젝트"
           projects={projects ?? []}
           onOpenProject={(id) => onOpenProject?.(id)}
+          onCreateProject={() => onCreateProject?.()}
         />
       )}
       
@@ -75,9 +82,12 @@ export default function ProjectManagementView(props: Props) {
           <ProjectSettingsForm
             initialName={detail.name}
             initialMembers={detail.members}
+            currentRole={detail.myRole}
             allCandidates={allGithubCandidates ?? []}
             onCancel={() => onCancelSettings?.()}
             onSave={(nextName, nextMembers) => onSaveSettings?.(nextName, nextMembers)}
+            onLeaveProject={onLeaveProject}
+            onLeaveDone={onLeaveDone}
           />
         </>
       )}
