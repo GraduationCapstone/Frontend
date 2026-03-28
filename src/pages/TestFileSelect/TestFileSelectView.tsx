@@ -293,9 +293,9 @@ export default function TestFileSelectView({
                 updatedAt={repo.updatedAt}
                 selected={selectedRepoIds.has(repo.id)}
                 onSelectChange={() => toggleRepositorySelection(repo.id)}
-                activityGraph={
+                /* activityGraph={
                   <div className="w-44 h-9 border-2 border-primary-sg500/50 rounded-sm opacity-50" />
-                }
+                } */
               />
             ))}
             
