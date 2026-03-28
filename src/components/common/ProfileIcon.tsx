@@ -4,13 +4,15 @@ interface ProfileIconProps {
   isActive?: boolean;
   initial?: string; // 예전 글자(Fallback)
   src?: string;     // ✨ [추가] 진짜 이미지 URL
+  className?: string;
   //size?: 'sm' | 'md' | 'lg'; 사이즈 조절(선택)
 }
 
 export default function ProfileIcon({ 
   isActive = false, 
   initial = 'U', 
-  src
+  src,
+  className
 }: ProfileIconProps) {
 
   const sizeClass = 'w-10 h-10';
@@ -19,6 +21,7 @@ export default function ProfileIcon({
     sizeClass,
     "rounded-full flex items-center justify-center overflow-hidden shrink-0", // overflow-hidden 필수!
     isActive ? "bg-primary-p300" : "bg-grayscale-gy200",
+    className,
   ].join(" ");
 
   // ✨ [핵심 로직] 이미지가 넘어왔다면 <img> 태그를 렌더링합니다.

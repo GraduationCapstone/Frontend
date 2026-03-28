@@ -1,5 +1,3 @@
-import React from "react";
-
 interface CommitActivityGraphProps {
   // 나중에 실제 데이터를 받을 때를 대비해 props 구조를 열어둡니다.
   data?: any[]; 

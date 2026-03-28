@@ -93,7 +93,7 @@ export default function SideSheet({
   });
 
   // ✨ [추가] 프로필 아이콘에 들어갈 첫 글자 추출 (없으면 'U')
-  const profileInitial = username ? username.charAt(0).toUpperCase() : 'U';
+  // const profileInitial = username ? username.charAt(0).toUpperCase() : 'U';
 
   return (
     <div

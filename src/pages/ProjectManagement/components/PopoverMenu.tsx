@@ -44,7 +44,7 @@ export default function PopoverMenu({
   if (menu.kind === "none") return null;
 
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, onClose, menu.kind !== "none");
+  useClickOutside(ref, onClose);
 
   const [pos, setPos] = useState<Pos>({
     left: 0,

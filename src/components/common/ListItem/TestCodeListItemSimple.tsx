@@ -42,17 +42,6 @@ const TestCodeListItemSimple = forwardRef<HTMLDivElement, TestCodeListItemSimple
       onSelectChange?.(nextValue);
     };
 
-    const shortStatusMap: Record<StatusBadgeType, StatusBadgeType> = {
-      pass: "passShort",
-      passShort: "passShort",
-      block: "blockShort",
-      blockShort: "blockShort",
-      fail: "failShort",
-      failShort: "failShort",
-      untest: "untestShort",
-      untestShort: "untestShort",
-    };
-
     const badgeType = status;
     const isUntest = badgeType === "untestShort";
 
