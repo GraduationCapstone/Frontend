@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User } from './types';
-import { searchUsers } from '../../api/project';
+import { searchUsers, checkProjectNameDuplicate } from '../../api/project';
 
 export default function useNewProjectModel() {
   const navigate = useNavigate();
   const [projectName, setProjectName] = useState('');
+  const [projectNameError, setProjectNameError] = useState('');
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
   const [invitedMembers, setInvitedMembers] = useState<User[]>([]);
 
@@ -69,20 +70,36 @@ export default function useNewProjectModel() {
   // 프로젝트 이름이 있고, 통신 중이 아닐 때만 다음 단계 진행 가능
   const canProceed = projectName.trim().length > 0;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!canProceed) return;
     
-    navigate('/test-file-select', { 
-      state: { 
-        mode: 'new', // 새 프로젝트 생성 모드임을 명시
-        projectName: projectName,
-        invitedMembers: invitedMembers, 
-      } 
-    });
+    try {
+      // API 호출 (true = 사용 가능, false = 중복으로 처리)
+      const isDuplicated = await checkProjectNameDuplicate(projectName.trim());
+      
+      // false일 때: 중복되지 않음 -> 정상적으로 다음 페이지 이동
+      if (isDuplicated === false) {
+        navigate('/test-file-select', { 
+          state: { 
+            mode: 'new',
+            projectName: projectName,
+            invitedMembers: invitedMembers, 
+          } 
+        });
+      }
+      // true일 때: 중복됨 -> 에러 메시지 표시 후 이동 안 함
+      else {
+        setProjectNameError('생성하신 프로젝트와 중복된 프로젝트 명은 사용할 수 없습니다.');
+      }
+    } catch (error) {
+      console.error("프로젝트명 중복 체크 실패:", error);
+      setProjectNameError('중복 체크 중 오류가 발생했습니다.');
+    }
   };
 
   return {
     projectName,
+    projectNameError,
     memberSearchQuery,
     searchResults,
     invitedMembers,
