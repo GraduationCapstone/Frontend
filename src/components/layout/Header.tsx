@@ -75,7 +75,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
   return (
     <header
       className={`
-        w-full h-16 px-10 fixed top-0 left-0 z-50
+        w-full h-18 px-10 fixed top-0 left-0 z-50
         flex items-center
         ${bgClass}
         ${layoutClass}
@@ -127,10 +127,10 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
           className="pl-3 pr-4 py-2 rounded-lg flex justify-center items-center gap-2 hover:bg-grayscale-white/10 transition-colors"
         >
           <div className="w-6 h-6 flex items-center justify-center">
-             <PersonIcon className="w-4 h-4 text-grayscale-white fill-current[&_*]:fill-current [&_*]:stroke-current" />
+             <PersonIcon className="w-4 h-4 text-grayscale-white [&_*]:!fill-current [&_*]:!stroke-current" />
           </div>
           {/* text-sm ... -> text-h5-ko (타이포그래피 토큰 적용) */}
-          <span className="text-center text-grayscale-white text-h5-ko">
+          <span className="text-center text-grayscale-white text-h4-ko">
             로그인
           </span>
         </button>

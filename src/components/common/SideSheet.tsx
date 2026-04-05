@@ -121,10 +121,10 @@ export default function SideSheet({
             initial={username ? username.charAt(0).toUpperCase() : 'U'} 
             src={profileImageUrl}
           />
-          <span className="text-grayscale-black text-h4-ko">{username}</span>
+          <span className="text-grayscale-black text-h3-ko">{username}</span>
         </div>
         {/* Email */}
-        <span className="self-stretch text-grayscale-black text-h5-ko">
+        <span className="self-stretch text-grayscale-black text-h4-ko">
           {email.includes('@no-email.com') ? '이메일 비공개' : email}
         </span>
       </div>
