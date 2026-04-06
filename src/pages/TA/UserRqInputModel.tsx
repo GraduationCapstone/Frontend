@@ -1,6 +1,6 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 export interface ScenarioItem {
   id: string;
@@ -81,7 +81,6 @@ const SCENARIO_DATA: ScenarioCategory[] = [
 export type TestProcessStage = "idle" | "generating" | "testing" | "complete" | "report_generating" | "report_complete";
 
 export const useUserRqInputModel = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as { testName?: string }; // 이전 페이지에서 전달받은 state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_KEY } from '../constants/key';
 import { deleteMyAccount, logout, clearAuthStorage } from '../api/auth';

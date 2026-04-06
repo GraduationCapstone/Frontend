@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import dismissIcon from "../../../assets/icons/dismiss.svg?react";
 import { Button, IconOnlyButton } from "../Button";
 
