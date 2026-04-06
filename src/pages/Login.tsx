@@ -40,14 +40,6 @@ export default function Login() {
             children={undefined}
             onClick={handleLogin}
           />
-          <div className="mt-5 w-full flex items-center justify-between">
-            <span className="text-grayscale-black text-medium500-ko">처음 이용하신다면?</span>
-            <Button
-              variant="dynamicClearSTextUnderlined"
-              label="회원가입"
-              children={undefined}
-            />
-          </div>
         </div>
       </main>
       <div className="mt-auto w-full">
