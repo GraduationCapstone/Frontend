@@ -10,6 +10,8 @@ export interface GithubRepoResponse {
   forksCount: number;
   stargazersCount: number;
   openIssuesCount: number;
+  isPublic: boolean;
+  updatedAt: string;
 }
 
 // 레포지토리 목록 가져오기 API 함수
@@ -29,6 +31,8 @@ export interface PostRepoRequest {
   forksCount: number;
   stargazersCount: number;
   openIssuesCount: number;
+  isPublic: boolean;
+  updatedAt: string;
 }
 
 export interface PostRepoResponse extends PostRepoRequest {
