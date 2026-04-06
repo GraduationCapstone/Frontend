@@ -85,19 +85,18 @@ export default function TestFileSelectView({
         className={`
           self-stretch 
           flex justify-start items-center gap-2
-          /* 선택 여부에 따른 패딩 변화 (Clicked: px-3, Default: px-10) */
-          ${isSelected ? 'px-3 py-2' : 'px-10 py-2'}
+          px-3 py-2
           bg-grayscale-white 
           hover:bg-grayscale-gy100
           transition-all duration-200
         `}
       >
-        {/* 선택된 경우 체크 아이콘 표시 */}
-        {isSelected && (
-          <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
+        {/* 선택 여부와 상관없이 아이콘 자리를 확보하여 글자 밀림 방지 */}
+        <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
+          {isSelected && (
              <CheckIcon className="w-3.5 h-2.5 [&_path]:stroke-grayscale-black [&_path]:stroke-2" />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* 메인 아이콘 */}
         <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
@@ -105,7 +104,7 @@ export default function TestFileSelectView({
         </div>
 
         {/* 라벨 텍스트 */}
-        <div className="flex-1 text-left text-grayscale-black text-xs font-medium font-['Pretendard'] leading-4 line-clamp-1">
+        <div className="flex-1 text-left text-grayscale-black text-regular500-ko line-clamp-1">
           {label}
         </div>
       </button>

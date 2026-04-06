@@ -36,7 +36,7 @@ export default function NewProjectView({
   return (
     // MainLayout의 Outlet 위치에 렌더링됩니다.
     // 기존의 Header, Footer, SideSheet 관련 코드는 제거되었습니다.
-    <main className="flex-1 w-full flex flex-col items-center pt-44 pb-24 gap-14 z-0">
+    <main className="flex-1 w-full flex flex-col items-center pt-45 pb-24 gap-15 z-0">
       
       {/* Title: 새 프로젝트 */}
       <div className="w-228 flex justify-start">
