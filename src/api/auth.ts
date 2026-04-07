@@ -1,6 +1,5 @@
 import { axiosInstance, publicAxiosInstance } from "./axios";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
-import type { UserMeResponse } from "../types/user";
 
 export function extractAccessTokenFromUrl(search: string) {
   const params = new URLSearchParams(search);

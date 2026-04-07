@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { SvgIconComponent } from "../Button";
+export type { SvgIconComponent };
 
 export type ListButtonVariant =
   | "staticWhiteMIconText"

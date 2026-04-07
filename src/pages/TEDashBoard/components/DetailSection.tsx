@@ -211,7 +211,7 @@ export default function DetailSection({ projectTitle, item, onClose }: Props) {
 
 // 
 function OutputBox(props: { title: string; content: string }) {
-  const { title, content } = props;
+  const { title } = props;
   return (
     <div className="self-stretch min-h-80 px-3 py-2 bg-grayscale-white rounded-lg outline outline-1 outline-offset-[-1px] outline-grayscale-gy400 inline-flex flex-col justify-start items-start gap-2">
       <div className="self-stretch justify-center text-grayscale-black text-medium500-ko">

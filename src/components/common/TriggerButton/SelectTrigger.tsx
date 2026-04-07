@@ -1,5 +1,5 @@
 import type { SelectTriggerProps } from "./types";
-import { getSelectTriggerClassNames, cn } from "./styles";
+import { getSelectTriggerClassNames } from "./styles";
 import DescIcon from "../../../assets/icons/desc.svg?react";
 import TriggerDownIcon from "../../../assets/icons/triangle_down.svg?react";
 
