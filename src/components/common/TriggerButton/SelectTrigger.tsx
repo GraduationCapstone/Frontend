@@ -23,7 +23,7 @@ export default function SelectTrigger({
     className,
   });
 
-  const svgColorClass = "[&_*]:fill-current [&_*]:stroke-current";
+  const svgColorClass = "[&_*]:fill-current";
 
   return (
     <button

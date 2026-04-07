@@ -189,7 +189,7 @@ export const getIconButtonLabelClassName = (variant: IconButtonVariant) => {
 };
 
 export const getIconDefaultClassName = (iconClassName?: string) => {
-  return cn("shrink-0 w-6 h-6 fill-current stroke-current [&_*]:fill-current [&_*]:stroke-current", iconClassName);
+  return cn("shrink-0 w-6 h-6 fill-current [&_*]:fill-current", iconClassName);
 };
 
 // Btn_Static/Clear_XS/Icon (고정형)
