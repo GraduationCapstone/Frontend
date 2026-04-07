@@ -7,7 +7,7 @@ export default function Landing() {
     <VideoLayout variant="dark">
       <Header variant="transparent" />
       {/* Main */}
-      <main className="self-stretch min-h-[63rem] flex-1 pt-72 inline-flex flex-col justify-start items-center gap-44">
+      <main className="self-stretch min-h-[63rem] flex-1 pt-75 inline-flex flex-col justify-start items-center gap-44">
         <section className="self-stretch flex flex-col justify-start items-center gap-8">
           <h1 className="self-stretch text-center justify-center text-grayscale-white text-extra-ko">
             Probe로 테스트를 자동화하세요.
