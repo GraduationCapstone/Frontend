@@ -225,7 +225,7 @@ export default function TestFileSelectView({
                <SelectTrigger 
                   label={sortOption} 
                   variant="dynamic" 
-                  className="bg-transparent border-none py-2 cursor-pointer focus:bg-transparent"
+                  className="bg-transparent border-none cursor-pointer"
                   onClick={toggleSortDropdown}
                />
 
