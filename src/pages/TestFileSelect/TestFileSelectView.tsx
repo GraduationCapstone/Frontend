@@ -183,7 +183,7 @@ export default function TestFileSelectView({
       </div>
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-28 pt-24 pb-5 gap-10 relative min-w-0">
+     <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-(--General-Margin_L,7.25rem) pt-25 pb-5 gap-10 relative min-w-0">
         
         {/* Title & Search Bar Area */}
         <div className="w-full flex flex-col gap-10 shrink-0">
@@ -212,7 +212,7 @@ export default function TestFileSelectView({
           {/* List Header */}
           <div className="w-full px-5 py-1 bg-grayscale-gy200 flex justify-between items-center border-b border-grayscale-gy300 shrink-0">
             <div className="flex items-center gap-1 text-h4-ko text-grayscale-black">
-              <span>0</span>
+              <span>{selectedRepoIds.size}</span>
               <span>/</span>
               <span>{totalCount}</span>
               <span>repositories</span>
