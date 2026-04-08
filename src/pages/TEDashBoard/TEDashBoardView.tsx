@@ -77,7 +77,6 @@ export default function TEDashBoardView({ data, state }: Props) {
         </div>
         {isSplit && selectedItem && (
           <DetailSection
-            projectTitle={state.title}
             item={selectedItem}
             onClose={() => state.selectItem(null)}
           />

@@ -1,5 +1,10 @@
 import type { TEDashBoardData, TestCodeItem } from "./types";
 
+const DEFAULT_TEST_CODE_PREFIX = "T0101";
+
+const formatTestCodeId = (prefix: string, index: number) =>
+  `${prefix}_${String(index).padStart(2, "0")}`;
+
 const makeStatuses = (): TestCodeItem["status"][] => {
   const total = 50;
   const statuses: TestCodeItem["status"][] = Array.from(
@@ -18,7 +23,7 @@ const makeStatuses = (): TestCodeItem["status"][] => {
   return statuses;
 };
 
-const mockList = (): TestCodeItem[] => {
+const mockList = (testCodePrefix: string): TestCodeItem[] => {
   const statuses = makeStatuses();
 
   return statuses.map((status, i) => {
@@ -30,7 +35,7 @@ const mockList = (): TestCodeItem[] => {
 
     return {
       id: `row-${idx}`,
-      codeId: `C${String(idx).padStart(4, "0")}`,
+      codeId: formatTestCodeId(testCodePrefix, idx),
       title: `test_code_${idx}`,
       status,
       duration: status === "Untest" ? undefined : `${30 + (idx % 90)}s`,
@@ -40,8 +45,16 @@ const mockList = (): TestCodeItem[] => {
   });
 };
 
-export const getTEDashBoardData = (): TEDashBoardData => {
-  const list = mockList();
+type GetTEDashBoardDataOptions = {
+  // TODO: 백엔드 연동 시 response의 prefix 값을 여기에 주입
+  testCodePrefix?: string;
+};
+
+export const getTEDashBoardData = (
+  options: GetTEDashBoardDataOptions = {}
+): TEDashBoardData => {
+  const testCodePrefix = options.testCodePrefix ?? DEFAULT_TEST_CODE_PREFIX;
+  const list = mockList(testCodePrefix);
 
   const summary = list.reduce(
     (acc, it) => {
