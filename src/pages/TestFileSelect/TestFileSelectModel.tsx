@@ -100,24 +100,31 @@ export const useTestFileSelectModel = () => {
         }
 
         // 받아온 데이터를 화면에 뿌리기 좋게 매핑 (두 API 응답 형식이 비슷하므로 공통 적용 가능)
-        const mappedRepos: Repository[] = repoList.map((repo: any) => ({
-          // 깃허브 전체 조회 API는 id가 없으므로 owner/repoName 조합을 사용
-          id: repo.id ? repo.id.toString() : `${repo.owner}/${repo.repoName}`,
-          title: repo.repoName,
-          description: repo.description || undefined,
-          isPublic: true,
-          language: {
-            name: repo.language || 'Unknown',
-            color: getLanguageColor(repo.language),
-          },
-          stats: {
-            forks: repo.forksCount || 0,
-            stars: repo.stargazersCount || 0,
-            issues: repo.openIssuesCount || 0,
-          },
-          updatedAt: 'Recently',
-          updatedAtDate: new Date(),
-        }));
+        const mappedRepos: Repository[] = repoList.map((repo: any) => {
+          // ✨ 날짜 포맷팅 (예: "2026-04-03" 형식으로 변환)
+          const dateObj = repo.updatedAt ? new Date(repo.updatedAt) : new Date();
+          const formattedDate = repo.updatedAt 
+            ? `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
+            : 'Recently';
+
+          return {
+            id: repo.id ? repo.id.toString() : `${repo.owner}/${repo.repoName}`,
+            title: repo.repoName,
+            description: repo.description || undefined,
+            isPublic: repo.isPublic ?? true, // ✨ API에서 받아온 값 사용 (값이 없으면 기본값 true)
+            language: {
+              name: repo.language || 'Unknown',
+              color: getLanguageColor(repo.language),
+            },
+            stats: {
+              forks: repo.forksCount || 0,
+              stars: repo.stargazersCount || 0,
+              issues: repo.openIssuesCount || 0,
+            },
+            updatedAt: formattedDate, // ✨ 문자열로 변환된 날짜
+            updatedAtDate: dateObj,   // ✨ 정렬 로직을 위해 사용하는 Date 객체
+          };
+        });
         
         setRawRepositories(mappedRepos);
       } catch (err: any) {
@@ -219,6 +226,9 @@ export const useTestFileSelectModel = () => {
                 forksCount: repo.stats.forks,
                 stargazersCount: repo.stats.stars,
                 openIssuesCount: repo.stats.issues,
+                isPublic: repo.isPublic, // ✨ 새로 추가: 저장해둔 isPublic 값 전송
+                // ✨ 새로 추가: Date 객체를 백엔드가 요구하는 ISO 문자열 형식("2026-04-03T08:42:10.561Z")으로 변환하여 전송
+                updatedAt: repo.updatedAtDate.toISOString(),
               });
             })
           );

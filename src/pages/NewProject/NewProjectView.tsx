@@ -7,6 +7,7 @@ import type { User } from './types';
 
 interface NewProjectViewProps {
   projectName: string;
+  projectNameError: string;
   memberSearchQuery: string;
   searchResults: User[];
   invitedMembers: User[];
@@ -20,6 +21,7 @@ interface NewProjectViewProps {
 
 export default function NewProjectView({
   projectName,
+  projectNameError,
   memberSearchQuery,
   searchResults,
   invitedMembers,
@@ -61,6 +63,8 @@ export default function NewProjectView({
               onChange={onProjectNameChange}
               showIcon={false} 
               widthClass="w-full"
+              isError={projectNameError.length > 0} 
+              errorMessage={projectNameError}
             />
           </div>
         </section>

@@ -4,6 +4,7 @@ import NewProjectView from './NewProjectView';
 export default function NewProjectController() {
   const {
     projectName,
+    projectNameError,
     memberSearchQuery,
     searchResults,
     invitedMembers,
@@ -18,6 +19,7 @@ export default function NewProjectController() {
   return (
     <NewProjectView
       projectName={projectName}
+      projectNameError={projectNameError}
       memberSearchQuery={memberSearchQuery}
       searchResults={searchResults}
       invitedMembers={invitedMembers}

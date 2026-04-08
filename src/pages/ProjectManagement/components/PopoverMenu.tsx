@@ -11,7 +11,7 @@ import {
 } from "../../../components/common/ListButton";
 
 import PencilIcon from "../../../assets/icons/pencil.svg?react";
-import DeleteIcon from "../../../assets/icons/delete.svg?react";
+import DeleteIcon from "../../../assets/icons/Delete.svg?react";
 import AscIcon from "../../../assets/icons/asc.svg?react";
 import DescIcon from "../../../assets/icons/desc.svg?react";
 
@@ -44,7 +44,7 @@ export default function PopoverMenu({
   if (menu.kind === "none") return null;
 
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, onClose, menu.kind !== "none");
+  useClickOutside(ref, onClose);
 
   const [pos, setPos] = useState<Pos>({
     left: 0,

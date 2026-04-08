@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import dismissIcon from "../../../assets/icons/dismiss.svg?react";
 import downloadIcon from "../../../assets/icons/download.svg?react";
 import { Button, IconOnlyButton } from "../Button";
@@ -31,8 +30,6 @@ export default function TestDownloadModal({
   disabled = false,
 }: TestDownloadModalProps) {
   if (!isOpen) return null;
-
-  const disabledStyle = disabled ? "opacity-50 cursor-not-allowed" : "";
 
   return (
     // Backdrop

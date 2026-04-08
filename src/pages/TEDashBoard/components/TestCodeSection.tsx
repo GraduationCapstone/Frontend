@@ -80,6 +80,8 @@ export default function TestCodeSection({
   const safeSelect = (id: string | null) => {
     if (typeof onSelect === "function") onSelect(id);
   };
+  const editingItem = editModalId ? list.find((it) => it.id === editModalId) ?? null : null;
+  const deletingItem = deleteModalId ? list.find((it) => it.id === deleteModalId) ?? null : null;
 
   return (
     <section className="w-full max-w-size-max inline-flex flex-col justify-start items-start gap-5">
@@ -114,7 +116,7 @@ export default function TestCodeSection({
                   duration={it.duration}
                   selected={isSelected}
                   onSelectChange={handleSelectChange}
-                  onMenuClick={(e) => onOpenRowMenu(it.id, e)}
+                  onMenuClick={(e) => onOpenRowMenu(it.id, e as React.MouseEvent<HTMLElement>)}
                 />
               ) : (
                 <TestCodeListItem
@@ -127,7 +129,7 @@ export default function TestCodeSection({
                   date={it.date}
                   selected={isSelected}
                   onSelectChange={handleSelectChange}
-                  onMenuClick={(e) => onOpenRowMenu(it.id, e)}
+                  onMenuClick={(e) => onOpenRowMenu(it.id, e as React.MouseEvent<HTMLElement>)}
                 />
               );
             })}
@@ -145,8 +147,22 @@ export default function TestCodeSection({
         onDelete={(id) => onOpenDeleteModal(id)}
       />
 
-      {editModalId && <EditModal open onClose={onCloseModals} id={editModalId} />}
-      {deleteModalId && <DeleteModal open onClose={onCloseModals} id={deleteModalId} />}
+      {editModalId && (
+        <EditModal
+          open
+          title={editingItem?.title ?? ""}
+          onClose={onCloseModals}
+          onConfirm={() => onCloseModals()}
+        />
+      )}
+      {deleteModalId && (
+        <DeleteModal
+          open
+          title={deletingItem?.title ?? ""}
+          onClose={onCloseModals}
+          onConfirm={onCloseModals}
+        />
+      )}
     </section>
   );
 }
