@@ -132,13 +132,14 @@ export default function TestFileSelectView({
               placeholder="Project Name"
               widthClass="w-full"
               heightClass="h-12"
-              className="shadow-inner rounded-2xl bg-grayscale-white pl-5 pr-4 text-h4-ko text-grayscale-black"
+              className="shadow-inner rounded-2xl bg-grayscale-white text-h4-ko text-grayscale-black"
             />
             {/* 저장 버튼: 피그마 스타일 (bg-grayscale-gy900, text-white, px-4 py-2) */}
             <Button 
                 variant="dynamicSg500SText"
                 className="hover:bg-grayscale-gy800" // 기본 hover 색상(Primary) 대신 회색 계열을 원하실 경우 추가
                 onClick={handleSaveProjectName}
+                disabled={projectName.trim() === ''}
             >
                 저장
             </Button>
@@ -149,7 +150,7 @@ export default function TestFileSelectView({
             <span className="text-h3-ko text-grayscale-black truncate">{projectName}</span>
             <button 
               type="button" 
-              className="p-1 rounded-lg flex items-center justify-center hover:bg-grayscale-gy100 transition-colors"
+              className="p-1 rounded-lg flex items-center justify-center hover:bg-grayscale-gy100 active:bg-grayscale-gy200 transition-colors"
               aria-label="Edit Project Name"
               onClick={() => setIsEditingProjectName(true)}
             >
@@ -174,7 +175,7 @@ export default function TestFileSelectView({
                 className={`w-full justify-start transition-colors duration-200 rounded-xl ${
                     isSelected 
                       ? 'bg-secondary-sg100! text-primary-sg600!' 
-                      : 'hover:bg-grayscale-gy100 text-grayscale-black'
+                      : ''
                 }`}
               />
             );
