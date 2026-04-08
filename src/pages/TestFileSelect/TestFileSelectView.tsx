@@ -114,7 +114,7 @@ export default function TestFileSelectView({
   return (
     // [Screen Scroll] 화면 전체 높이 최소값 설정
     <div 
-        className="w-full min-h-[calc(100vh-5rem)] flex bg-grayscale-white relative"
+        className="w-full min-h-[calc(100vh-5rem)] mt-[5rem] flex bg-grayscale-white relative"
         onClick={() => isSortDropdownOpen && closeSortDropdown()}
     >
       
