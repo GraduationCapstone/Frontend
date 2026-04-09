@@ -10,7 +10,6 @@ export default function MemberChip({ member, onRemove }: Props) {
   return (
     <Btn_Dynamic_GY100_XS_IMG_Text_Icon
       label={member.username}
-      avatarText={member.username[0]?.toUpperCase() ?? "U"}
       src={member.profileImageUrl}
       onRemove={onRemove}
     />

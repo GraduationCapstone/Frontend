@@ -132,7 +132,6 @@ export default function NewProjectView({
                      key={user.userId}
                      label={user.username}
                      src={user.profileImageUrl}
-                     avatarText={user.username.charAt(0).toUpperCase()}
                      // Chip의 클릭 이벤트가 곧 삭제 버튼 역할 (Chip 컴포넌트 구조상 전체가 버튼)
                      onRemove={() => onRemoveInvitedUser(user)}
                    />
