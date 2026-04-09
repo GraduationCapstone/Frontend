@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchGithubRepos, postSelectedRepo } from '../../api/github';
-import { createProject, inviteMembers, fetchProjectRepos } from '../../api/project';
+import { createProject, inviteMembers, fetchProjectRepos, checkProjectNameDuplicate } from '../../api/project';
 
 export type CategoryType = 'All' | 'Public' | 'Sources' | 'Forks' | 'Archived' | 'Templates';
 // 정렬 옵션 타입 정의
@@ -71,6 +71,8 @@ export const useTestFileSelectModel = () => {
     isNewMode ? (state?.projectName ?? '새 프로젝트') : (isTestMode ? (state?.testName ?? '') : 'Project C')
   );
   const [isEditingProjectName, setIsEditingProjectName] = useState(false);
+  // [추가] 프로젝트명 중복 에러 상태
+  const [projectNameError, setProjectNameError] = useState('');
 
   // [추가] 정렬 관련 상태
   const [sortOption, setSortOption] = useState<SortOptionType>('Last pushed');
@@ -198,8 +200,31 @@ export const useTestFileSelectModel = () => {
     setSelectedRepoIds(newSet);
   };
 
-  const handleSaveProjectName = () => {
-    setIsEditingProjectName(false);
+  const handleSaveProjectName = async () => {
+    const trimmedName = projectName.trim();
+    
+    // 빈 값 체크 (이전 QA 반영)
+    if (trimmedName === '') {
+      setProjectNameError('프로젝트명을 입력해주세요.');
+      return;
+    }
+
+    try {
+      // API 호출 (true = 중복, false = 사용 가능)
+      const isDuplicated = await checkProjectNameDuplicate(trimmedName);
+      
+      if (isDuplicated) {
+        // 중복 시 에러 메시지 세팅하고 편집 모드 유지
+        setProjectNameError('생성하신 프로젝트와 중복된 프로젝트 명은 사용할 수 없습니다.');
+      } else {
+        // 성공 시 에러 초기화 및 편집 모드 종료
+        setProjectNameError('');
+        setIsEditingProjectName(false);
+      }
+    } catch (error) {
+      console.error("프로젝트명 중복 체크 실패:", error);
+      setProjectNameError('중복 체크 중 오류가 발생했습니다.');
+    }
   };
 
   const handleNextClick = async () => {
@@ -299,6 +324,7 @@ export const useTestFileSelectModel = () => {
     toggleRepositorySelection,
     projectName,
     setProjectName, 
+    projectNameError,
     isEditingProjectName,
     setIsEditingProjectName,
     handleSaveProjectName,

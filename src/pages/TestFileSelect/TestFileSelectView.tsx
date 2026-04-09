@@ -51,6 +51,7 @@ export default function TestFileSelectView({
   toggleRepositorySelection,
   projectName,
   setProjectName,
+  projectNameError,
   isEditingProjectName,
   setIsEditingProjectName,
   handleSaveProjectName,
@@ -133,6 +134,8 @@ export default function TestFileSelectView({
               widthClass="w-full"
               heightClass="h-12"
               className="shadow-inner rounded-2xl bg-grayscale-whiteg text-h4-ko text-grayscale-black"
+              isError={projectNameError.length > 0} 
+              errorMessage={projectNameError}
             />
             {/* 저장 버튼: 피그마 스타일 (bg-grayscale-gy900, text-white, px-4 py-2) */}
             <Button 
