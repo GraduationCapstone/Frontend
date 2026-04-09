@@ -88,13 +88,13 @@ export default function TestFileSelectView({
           px-3 py-2
           bg-grayscale-white 
           hover:bg-grayscale-gy100
-          transition-all duration-200
+          active:bg-grayscale-gy200
         `}
       >
         {/* 선택 여부와 상관없이 아이콘 자리를 확보하여 글자 밀림 방지 */}
         <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
           {isSelected && (
-             <CheckIcon className="w-3.5 h-2.5 [&_path]:stroke-grayscale-black [&_path]:stroke-2" />
+             <CheckIcon className="w-3.75 h-2.5 [&_path]:fill-grayscale-black" />
           )}
         </div>
 
@@ -114,7 +114,7 @@ export default function TestFileSelectView({
   return (
     // [Screen Scroll] 화면 전체 높이 최소값 설정
     <div 
-        className="w-full min-h-[calc(100vh-5rem)] mt-[5rem] flex bg-grayscale-white relative"
+        className="w-full h-[calc(100vh-5rem)] mt-20 flex bg-grayscale-white relative"
         onClick={() => isSortDropdownOpen && closeSortDropdown()}
     >
       
@@ -132,7 +132,7 @@ export default function TestFileSelectView({
               placeholder="Project Name"
               widthClass="w-full"
               heightClass="h-12"
-              className="shadow-inner rounded-2xl bg-grayscale-white text-h4-ko text-grayscale-black"
+              className="shadow-inner rounded-2xl bg-grayscale-whiteg text-h4-ko text-grayscale-black"
             />
             {/* 저장 버튼: 피그마 스타일 (bg-grayscale-gy900, text-white, px-4 py-2) */}
             <Button 
@@ -184,7 +184,7 @@ export default function TestFileSelectView({
       </div>
 
       {/* 2. Main Content Area */}
-     <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-(--General-Margin_L,7.25rem) pt-25 pb-5 gap-10 relative min-w-0">
+     <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-layout-margin-l pt-25 pb-5 gap-10 relative min-w-0">
         
         {/* Title & Search Bar Area */}
         <div className="w-full flex flex-col gap-10 shrink-0">
@@ -208,7 +208,7 @@ export default function TestFileSelectView({
 
         {/* [List Area Scroll] List Box Container */}
         {/* 높이 45.75rem(732px) 고정, 내부 스크롤 적용 */}
-        <div className="w-full h-183 flex flex-col rounded-lg border border-grayscale-gy300 bg-grayscale-white shadow-sm overflow-hidden shrink-0">
+        <div className="w-full flex-1 min-h-0 flex flex-col rounded-lg border border-grayscale-gy300 bg-grayscale-white shadow-sm overflow-hidden">
           
           {/* List Header */}
           <div className="w-full px-5 py-1 bg-grayscale-gy200 flex justify-between items-center border-b border-grayscale-gy300 shrink-0">
@@ -224,6 +224,7 @@ export default function TestFileSelectView({
                {/* Trigger Button */}
                <SelectTrigger 
                   label={sortOption} 
+                  leftIcon={sortOrder === 'Asc' ? AscIcon : DescIcon}
                   variant="dynamic" 
                   className="bg-transparent border-none py-2 cursor-pointer focus:bg-transparent"
                   onClick={toggleSortDropdown}

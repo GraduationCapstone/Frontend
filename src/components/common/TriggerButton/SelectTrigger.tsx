@@ -12,6 +12,7 @@ export default function SelectTrigger({
   iconClassName,
   className,
   disabled,
+  leftIcon: LeftIcon,
   ...rest
 }: SelectTriggerProps) {
   const cx = getSelectTriggerClassNames({
@@ -25,6 +26,8 @@ export default function SelectTrigger({
 
   const svgColorClass = "[&_*]:fill-current [&_*]:stroke-current";
 
+  const IconComponent = LeftIcon || DescIcon;
+
   return (
     <button
       type="button"
@@ -34,12 +37,12 @@ export default function SelectTrigger({
       {...rest}
     >
       <span className="inline-flex items-center gap-2 min-w-0 flex-1">
-        {/* 왼쪽 아이콘 고정 */}
+        {/* 왼쪽 아이콘 렌더링 */}
         {variant === "dynamic" && (
-          <DescIcon 
-          aria-hidden="true"
-          className={[cx.icon, svgColorClass].filter(Boolean).join(" ")}
-        />
+          <IconComponent 
+            aria-hidden="true"
+            className={[cx.icon, svgColorClass].filter(Boolean).join(" ")}
+          />
         )}
 
         <span className={cx.label}>{label}</span>
