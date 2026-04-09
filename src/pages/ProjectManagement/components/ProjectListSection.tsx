@@ -22,7 +22,7 @@ export default function ProjectListSection({
       <div className="w-xl justify-center text-grayscale-black text-h2-ko">{title}</div>
 
       {isEmpty ? (
-        <div className="w-xl px-5 pt-24 pb-14 rounded-2xl inline-flex flex-col justify-start items-center gap-14 shadow-is-100 bg-grayscale-white">
+        <div className="w-xl px-5 pt-25 pb-15 rounded-2xl inline-flex flex-col justify-start items-center gap-15 shadow-is-100 bg-grayscale-white">
           <div className="inline-flex flex-col justify-start items-center gap-3">
             <div className="text-medium500-ko text-grayscale-black">참여 중인 프로젝트가 없습니다.</div>
             <div className="text-medium500-ko text-grayscale-black text-center">

@@ -35,10 +35,10 @@ export default function GraphFrame({ summary, totalCount, testedCount }: Props) 
       </div>
 
       <div className="inline-flex flex-col justify-start items-start gap-3">
-        <DotItem label="Pass" count={summary.pass} colorClass="text-chip-pass fill-current stroke-current [&_*]:fill-current [&_*]:stroke-current" />
-        <DotItem label="Block" count={summary.block} colorClass="text-chip-block fill-current stroke-current [&_*]:fill-current [&_*]:stroke-current" />
-        <DotItem label="Fail" count={summary.fail} colorClass="text-chip-fail fill-current stroke-current [&_*]:fill-current [&_*]:stroke-current" />
-        <DotItem label="Untest" count={summary.untest} colorClass="text-chip-untest fill-current stroke-current [&_*]:fill-current [&_*]:stroke-current" />
+        <DotItem label="Pass" count={summary.pass} colorClass="text-chip-pass fill-current [&_*]:fill-current" />
+        <DotItem label="Block" count={summary.block} colorClass="text-chip-block fill-current [&_*]:fill-current" />
+        <DotItem label="Fail" count={summary.fail} colorClass="text-chip-fail fill-current [&_*]:fill-current" />
+        <DotItem label="Untest" count={summary.untest} colorClass="text-chip-untest fill-current [&_*]:fill-current" />
       </div>
     </section>
   );

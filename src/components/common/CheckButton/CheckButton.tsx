@@ -131,7 +131,7 @@ export default function CheckboxButton({
         aria-hidden="true"
         className={cn(
           "shrink-0 w-6 h-6",
-          "[&_*]:fill-current [&_*]:stroke-current",
+          "[&_*]:fill-current",
           iconClassName
         )}
       />

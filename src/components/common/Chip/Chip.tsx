@@ -1,12 +1,13 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import CloseIcon from "../../../assets/icons/dismiss.svg?react";
+import DefaultProfileImg from "../../../assets/profile/default_profile.webp";
+import DeactiveProfileImg from "../../../assets/profile/deactive_profile.webp";
 const cn = (...classes: Array<string | undefined | false>) =>
   classes.filter(Boolean).join(" ");
 
 type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   label: ReactNode;
   leftSlot?: ReactNode;
-  avatarText?: string; // 프로필 이미지 없어서 대체 U 글자
   src?: string;
   paddingClassName?: string;
   labelClassName?: string;
@@ -18,7 +19,6 @@ type ChipProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
 export default function Chip({
   label,
   leftSlot,
-  avatarText = "U",
   src,
   paddingClassName = "py-1 pl-2.5 pr-2",
   labelClassName,
@@ -39,6 +39,8 @@ export default function Chip({
 
   const baseRoot =
     "inline-flex items-center min-w-0 rounded-xl gap-4 transition-colors duration-200 ease-in-out justify-center text-h4-ko text-grayscale-black";
+  const fallbackProfileSrc = disabled ? DeactiveProfileImg : DefaultProfileImg;
+  const profileSrc = src ?? fallbackProfileSrc;
 
     return (
       <button
@@ -59,37 +61,29 @@ export default function Chip({
         {/* 프로필 */}
         {leftSlot ? (
           <span className="inline-flex items-center justify-center">{leftSlot}</span>
-          ) : src ? (
-          // 1. 이미지가 있을 경우 (기존 칩 사이즈 w-6 h-6 그대로 유지)
+          ) : (
+          // src가 없으면 assets/profile 기본 이미지를 사용
           <img
-            src={src}
+            src={profileSrc}
             alt="profile"
             className={cn(
               "inline-flex w-6 h-6 aspect-square items-center justify-center rounded-full object-cover shrink-0",
               disabled && "opacity-50" // disabled 일 땐 이미지도 살짝 투명하게
             )}
             onError={(e) => {
-              // 이미지 로드 실패 시 안 보이게 처리
-              (e.target as HTMLImageElement).style.display = 'none';
+              const image = e.currentTarget;
+              if (image.dataset.fallbackApplied !== "true") {
+                image.dataset.fallbackApplied = "true";
+                image.src = fallbackProfileSrc;
+                return;
+              }
+              image.style.display = "none";
             }}
           />
-          // 2. 이미지가 없을 경우 (기존 글자 렌더링)
-        ) : (
-          <span
-            className={cn(
-              "inline-flex w-6 h-6 aspect-square items-center justify-center rounded-full text-[0.75rem] font-semibold",
-              disabled
-                ? "bg-system-deactive text-grayscale-white"
-                : "bg-primary-sg500 text-grayscale-white"
-            )}
-            aria-hidden
-          >
-            {avatarText}
-          </span>
         )}
   
         {/* 길면 짜름 */}
-        <span className={cn("min-w-0 truncate text-h3-ko", labelClassName)}>
+        <span className={cn("min-w-0 truncate text-h4-ko", labelClassName)}>
           {label}
         </span>
   
@@ -109,7 +103,7 @@ export default function Chip({
               aria-hidden="true"
               className={cn(
                 "shrink-0 w-6 h-6",
-                "[&_*]:fill-current [&_*]:stroke-current",
+                "[&_*]:fill-current",
                 iconClassName
               )}
             />

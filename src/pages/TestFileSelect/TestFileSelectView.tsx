@@ -95,7 +95,7 @@ export default function TestFileSelectView({
         {/* 선택된 경우 체크 아이콘 표시 */}
         {isSelected && (
           <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
-             <CheckIcon className="w-3.5 h-2.5 [&_path]:stroke-grayscale-black [&_path]:stroke-2" />
+             <CheckIcon className="w-3.5 h-2.5 [&_*]:fill-current text-grayscale-black" />
           </div>
         )}
 
@@ -225,7 +225,7 @@ export default function TestFileSelectView({
                <SelectTrigger 
                   label={sortOption} 
                   variant="dynamic" 
-                  className="bg-transparent border-none py-2 cursor-pointer focus:bg-transparent"
+                  className="bg-transparent border-none cursor-pointer"
                   onClick={toggleSortDropdown}
                />
 

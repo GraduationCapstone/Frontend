@@ -117,7 +117,7 @@ const InputField = ({
           ].join(" ")}
         />
         {showIcon && (
-          <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current [&_*]:stroke-current`} />
+          <SearchIcon className={`shrink-0 w-[1.5rem] h-[1.5rem] ${iconColorClass} [&_*]:fill-current`} />
         )}
       </div>
 

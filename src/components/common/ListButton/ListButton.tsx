@@ -21,7 +21,7 @@ const SvgIcon = (props: { Icon: SvgIconComponent; className?: string }) => {
     <Icon
       aria-hidden="true"
       focusable="false"
-      className={cn("shrink-0", "[&_*]:fill-current [&_*]:stroke-current", className)}
+      className={cn("shrink-0", "[&_*]:fill-current", className)}
     />
   );
 };
