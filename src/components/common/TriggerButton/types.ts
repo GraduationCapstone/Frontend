@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, FunctionComponent, SVGProps } from "react";
 
 export type SelectTriggerVariant = "static" | "dynamic";
 
@@ -11,4 +11,5 @@ export interface SelectTriggerProps
   labelClassName?: string;
   iconClassName?: string;
   className?: string;
+  leftIcon?: FunctionComponent<SVGProps<SVGSVGElement>>;
 }

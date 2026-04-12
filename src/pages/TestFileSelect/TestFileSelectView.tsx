@@ -51,6 +51,7 @@ export default function TestFileSelectView({
   toggleRepositorySelection,
   projectName,
   setProjectName,
+  projectNameError,
   isEditingProjectName,
   setIsEditingProjectName,
   handleSaveProjectName,
@@ -85,19 +86,18 @@ export default function TestFileSelectView({
         className={`
           self-stretch 
           flex justify-start items-center gap-2
-          /* 선택 여부에 따른 패딩 변화 (Clicked: px-3, Default: px-10) */
-          ${isSelected ? 'px-3 py-2' : 'px-10 py-2'}
+          px-3 py-2
           bg-grayscale-white 
           hover:bg-grayscale-gy100
-          transition-all duration-200
+          active:bg-grayscale-gy200
         `}
       >
-        {/* 선택된 경우 체크 아이콘 표시 */}
-        {isSelected && (
-          <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
-             <CheckIcon className="w-3.5 h-2.5 [&_path]:stroke-grayscale-black [&_path]:stroke-2" />
-          </div>
-        )}
+        {/* 선택 여부와 상관없이 아이콘 자리를 확보하여 글자 밀림 방지 */}
+        <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
+          {isSelected && (
+             <CheckIcon className="w-3.75 h-2.5 [&_path]:fill-grayscale-black" />
+          )}
+        </div>
 
         {/* 메인 아이콘 */}
         <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
@@ -105,7 +105,7 @@ export default function TestFileSelectView({
         </div>
 
         {/* 라벨 텍스트 */}
-        <div className="flex-1 text-left text-grayscale-black text-xs font-medium font-['Pretendard'] leading-4 line-clamp-1">
+        <div className="flex-1 text-left text-grayscale-black text-regular500-ko line-clamp-1">
           {label}
         </div>
       </button>
@@ -115,7 +115,7 @@ export default function TestFileSelectView({
   return (
     // [Screen Scroll] 화면 전체 높이 최소값 설정
     <div 
-        className="w-full min-h-[calc(100vh-5rem)] flex bg-grayscale-white relative"
+        className="w-full h-[calc(100vh-5rem)] mt-20 flex bg-grayscale-white relative"
         onClick={() => isSortDropdownOpen && closeSortDropdown()}
     >
       
@@ -133,13 +133,16 @@ export default function TestFileSelectView({
               placeholder="Project Name"
               widthClass="w-full"
               heightClass="h-12"
-              className="shadow-inner rounded-2xl bg-grayscale-white pl-5 pr-4 text-h4-ko text-grayscale-black"
+              className="shadow-inner rounded-2xl bg-grayscale-whiteg text-h4-ko text-grayscale-black"
+              isError={projectNameError.length > 0} 
+              errorMessage={projectNameError}
             />
             {/* 저장 버튼: 피그마 스타일 (bg-grayscale-gy900, text-white, px-4 py-2) */}
             <Button 
                 variant="dynamicSg500SText"
                 className="hover:bg-grayscale-gy800" // 기본 hover 색상(Primary) 대신 회색 계열을 원하실 경우 추가
                 onClick={handleSaveProjectName}
+                disabled={projectName.trim() === ''}
             >
                 저장
             </Button>
@@ -150,7 +153,7 @@ export default function TestFileSelectView({
             <span className="text-h3-ko text-grayscale-black truncate">{projectName}</span>
             <button 
               type="button" 
-              className="p-1 rounded-lg flex items-center justify-center hover:bg-grayscale-gy100 transition-colors"
+              className="p-1 rounded-lg flex items-center justify-center hover:bg-grayscale-gy100 active:bg-grayscale-gy200 transition-colors"
               aria-label="Edit Project Name"
               onClick={() => setIsEditingProjectName(true)}
             >
@@ -175,7 +178,7 @@ export default function TestFileSelectView({
                 className={`w-full justify-start transition-colors duration-200 rounded-xl ${
                     isSelected 
                       ? 'bg-secondary-sg100! text-primary-sg600!' 
-                      : 'hover:bg-grayscale-gy100 text-grayscale-black'
+                      : ''
                 }`}
               />
             );
@@ -184,7 +187,7 @@ export default function TestFileSelectView({
       </div>
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-28 pt-24 pb-5 gap-10 relative min-w-0">
+     <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-layout-margin-l pt-25 pb-5 gap-10 relative min-w-0">
         
         {/* Title & Search Bar Area */}
         <div className="w-full flex flex-col gap-10 shrink-0">
@@ -208,12 +211,12 @@ export default function TestFileSelectView({
 
         {/* [List Area Scroll] List Box Container */}
         {/* 높이 45.75rem(732px) 고정, 내부 스크롤 적용 */}
-        <div className="w-full h-183 flex flex-col rounded-lg border border-grayscale-gy300 bg-grayscale-white shadow-sm overflow-hidden shrink-0">
+        <div className="w-full flex-1 min-h-0 flex flex-col rounded-lg border border-grayscale-gy300 bg-grayscale-white shadow-sm overflow-hidden">
           
           {/* List Header */}
           <div className="w-full px-5 py-1 bg-grayscale-gy200 flex justify-between items-center border-b border-grayscale-gy300 shrink-0">
             <div className="flex items-center gap-1 text-h4-ko text-grayscale-black">
-              <span>0</span>
+              <span>{selectedRepoIds.size}</span>
               <span>/</span>
               <span>{totalCount}</span>
               <span>repositories</span>
@@ -224,6 +227,7 @@ export default function TestFileSelectView({
                {/* Trigger Button */}
                <SelectTrigger 
                   label={sortOption} 
+                  leftIcon={sortOrder === 'Asc' ? AscIcon : DescIcon}
                   variant="dynamic" 
                   className="bg-transparent border-none py-2 cursor-pointer focus:bg-transparent"
                   onClick={toggleSortDropdown}

@@ -10,7 +10,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
       className={`
         w-full 
         h-[3.75rem]
-        px-10
+        px-layout-margin
         flex 
         items-center 
         justify-start 
@@ -19,7 +19,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
       `}
     >
       <p className="text-small500-ko text-grayscale-gy700 text-center">
-        Copyright © 2025 Team Probe. All rights reserved.
+        Copyright © 2026 Team Probe. All rights reserved.
       </p>
     </footer>
   );

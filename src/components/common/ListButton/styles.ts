@@ -59,7 +59,7 @@ const LIST_BUTTON_STATE_M_CLICK_GREEN = {
     "disabled:bg-grayscale-white disabled:cursor-not-allowed " +
     "disabled:hover:bg-white disabled:active:bg-white",
     default: "bg-grayscale-white text-grayscale-black",
-    hover: "hover:bg-grayscale-gy200 hover:text-grayscale-black",
+    hover: "hover:bg-grayscale-gy100 hover:text-grayscale-black",
     pressing: "active:bg-grayscale-gy200 active:text-grayscale-black",
     clicked: "focus:bg-grayscale-white focus:text-primary-sg600 focus:outline-none",
 } as const;

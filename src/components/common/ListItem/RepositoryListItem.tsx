@@ -121,17 +121,17 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
             </span>
             {isPublic && (
               <div className={`
-                px-2 py-0.5 rounded-xl border flex justify-center items-center gap-2.5
-                ${disabled ? "border-grayscale-gy300 text-grayscale-gy400" : "border-grayscale-gy300 text-grayscale-black"}
+                px-2 py-0.5 rounded-xl outline outline-offset-1 flex justify-center items-center gap-2.5
+                ${disabled ? "outline-grayscale-gy300 text-grayscale-gy400" : "outline-grayscale-gy300 text-grayscale-black"}
               `}>
-                <span className="text-xs font-medium font-pretendard leading-4">Public</span>
+                <span className="text-regular500-ko">Public</span>
               </div>
             )}
           </div>
 
           {/* Description */}
           {description && (
-            <p className={`text-medium-ko line-clamp-2 ${contentColor}`}>
+            <p className={`text-medium500-ko line-clamp-2 ${contentColor}`}>
               {description}
             </p>
           )}
@@ -150,7 +150,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                     }}
                   />
                 </div>
-                <span className={`text-regular-ko ${contentColor}`}>
+                <span className={`text-regular500-ko ${contentColor}`}>
                   {language.name}
                 </span>
               </div>
@@ -171,7 +171,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                    <div className="w-5 h-5 flex items-center justify-center">
                     <img src={forkIcon} alt="forks" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-ko ${contentColor}`}>{stats.forks}</span>
+                  <span className={`text-regular500-ko ${contentColor}`}>{stats.forks}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <DotIcon 
@@ -187,7 +187,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <div className="w-5 h-5 flex items-center justify-center">
                     <img src={starIcon} alt="stars" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-ko ${contentColor}`}>{stats.stars}</span>
+                  <span className={`text-regular500-ko ${contentColor}`}>{stats.stars}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <DotIcon 
@@ -204,7 +204,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
                   <div className="w-5 h-5 flex items-center justify-center">
                     <img src={issueIcon} alt="issues" className={`w-4 h-4 ${iconOpacity}`} />
                   </div>
-                  <span className={`text-regular-ko ${contentColor}`}>{stats.issues}</span>
+                  <span className={`text-regular500-ko ${contentColor}`}>{stats.issues}</span>
                 </div>
                 <div className="w-1.5 h-1.5 flex items-center justify-center">
                     <DotIcon 
@@ -230,13 +230,13 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
             )}*/}
 
             {updatedAt && (
-              <span className={`text-regular-ko ${contentColor}`}>{updatedAt}</span>
+              <span className={`text-regular500-ko ${contentColor}`}>{updatedAt}</span>
             )}
           </div>
         </div>
 
         {/* 3. Right: Activity Graph Area */}
-        <div className={`
+        {/* <div className={`
             flex-shrink-0 
             w-60 h-20 
             relative overflow-hidden
@@ -245,6 +245,7 @@ const RepositoryListItem = forwardRef<HTMLDivElement, RepositoryListItemProps>(
         `}>
           {activityGraph ? activityGraph : <div className="w-full h-full" />}
         </div>
+        */}
       </div>
     );
   }
