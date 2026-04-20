@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchGithubRepos, postSelectedRepo } from '../../api/github';
 import { createProject, inviteMembers, fetchProjectRepos, checkProjectNameDuplicate } from '../../api/project';
 
-export type CategoryType = 'All' | 'Public' | 'Sources' | 'Forks' | 'Archived' | 'Templates';
+export type CategoryType = 'All' | 'Public' | 'Private';
 // 정렬 옵션 타입 정의
 export type SortOptionType = 'Last pushed' | 'Name' | 'Stars';
 export type SortOrderType = 'Asc' | 'Desc';
@@ -161,6 +161,7 @@ export const useTestFileSelectModel = () => {
     let result = targetList.filter((repo) => {
       // 1. 카테고리 필터
       if (selectedCategory === 'Public' && !repo.isPublic) return false;
+      if (selectedCategory === 'Private' && repo.isPublic) return false;
 
       // 2. 검색어 필터
       if (searchQuery) {
