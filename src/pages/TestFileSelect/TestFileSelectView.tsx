@@ -10,11 +10,8 @@ import { Button } from '../../components/common/Button/Button';
 import ConfirmModal from '../../components/common/Modal/ConfirmModal';
 // Icons
 import EntireIcon from '../../assets/icons/entire.svg?react';
-import GlobeIcon from '../../assets/icons/globe.svg?react';
 import RepoIcon from '../../assets/icons/repo.svg?react';
-import ForkIcon from '../../assets/icons/fork.svg?react';
-import ArchiveIcon from '../../assets/icons/archive.svg?react';
-import TemplateIcon from '../../assets/icons/repo_template.svg?react';
+import RepoPrivateIcon from '../../assets/icons/repo_private.svg?react';
 import PencilIcon from '../../assets/icons/pencil.svg?react';
 import CheckIcon from '../../assets/icons/check.svg?react';
 import RepoPushIcon from '../../assets/icons/repo_push.svg?react';
@@ -30,11 +27,8 @@ interface Props extends ReturnType<typeof useTestFileSelectModel> {}
 
 const CATEGORIES: { label: CategoryType; icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>> }[] = [
   { label: 'All', icon: EntireIcon },
-  { label: 'Public', icon: GlobeIcon },
-  { label: 'Sources', icon: RepoIcon },
-  { label: 'Forks', icon: ForkIcon },
-  { label: 'Archived', icon: ArchiveIcon },
-  { label: 'Templates', icon: TemplateIcon },
+  { label: 'Public', icon: RepoIcon },
+  { label: 'Private', icon: RepoPrivateIcon },
 ];
 
 export default function TestFileSelectView({
