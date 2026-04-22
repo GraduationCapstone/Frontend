@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchGithubRepos, postSelectedRepo } from '../../api/github';
-import { createProject, inviteMembers, fetchProjectRepos } from '../../api/project';
+import { createProject, inviteMembers, fetchProjectRepos, checkProjectNameDuplicate } from '../../api/project';
 
 export type CategoryType = 'All' | 'Public' | 'Sources' | 'Forks' | 'Archived' | 'Templates';
 // 정렬 옵션 타입 정의
@@ -71,6 +71,8 @@ export const useTestFileSelectModel = () => {
     isNewMode ? (state?.projectName ?? '새 프로젝트') : (isTestMode ? (state?.testName ?? '') : 'Project C')
   );
   const [isEditingProjectName, setIsEditingProjectName] = useState(false);
+  // [추가] 프로젝트명 중복 에러 상태
+  const [projectNameError, setProjectNameError] = useState('');
 
   // [추가] 정렬 관련 상태
   const [sortOption, setSortOption] = useState<SortOptionType>('Last pushed');
@@ -100,24 +102,31 @@ export const useTestFileSelectModel = () => {
         }
 
         // 받아온 데이터를 화면에 뿌리기 좋게 매핑 (두 API 응답 형식이 비슷하므로 공통 적용 가능)
-        const mappedRepos: Repository[] = repoList.map((repo: any) => ({
-          // 깃허브 전체 조회 API는 id가 없으므로 owner/repoName 조합을 사용
-          id: repo.id ? repo.id.toString() : `${repo.owner}/${repo.repoName}`,
-          title: repo.repoName,
-          description: repo.description || undefined,
-          isPublic: true,
-          language: {
-            name: repo.language || 'Unknown',
-            color: getLanguageColor(repo.language),
-          },
-          stats: {
-            forks: repo.forksCount || 0,
-            stars: repo.stargazersCount || 0,
-            issues: repo.openIssuesCount || 0,
-          },
-          updatedAt: 'Recently',
-          updatedAtDate: new Date(),
-        }));
+        const mappedRepos: Repository[] = repoList.map((repo: any) => {
+          // ✨ 날짜 포맷팅 (예: "2026-04-03" 형식으로 변환)
+          const dateObj = repo.updatedAt ? new Date(repo.updatedAt) : new Date();
+          const formattedDate = repo.updatedAt 
+            ? `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`
+            : 'Recently';
+
+          return {
+            id: repo.id ? repo.id.toString() : `${repo.owner}/${repo.repoName}`,
+            title: repo.repoName,
+            description: repo.description || undefined,
+            isPublic: repo.isPublic ?? true, // ✨ API에서 받아온 값 사용 (값이 없으면 기본값 true)
+            language: {
+              name: repo.language || 'Unknown',
+              color: getLanguageColor(repo.language),
+            },
+            stats: {
+              forks: repo.forksCount || 0,
+              stars: repo.stargazersCount || 0,
+              issues: repo.openIssuesCount || 0,
+            },
+            updatedAt: formattedDate, // ✨ 문자열로 변환된 날짜
+            updatedAtDate: dateObj,   // ✨ 정렬 로직을 위해 사용하는 Date 객체
+          };
+        });
         
         setRawRepositories(mappedRepos);
       } catch (err: any) {
@@ -191,8 +200,31 @@ export const useTestFileSelectModel = () => {
     setSelectedRepoIds(newSet);
   };
 
-  const handleSaveProjectName = () => {
-    setIsEditingProjectName(false);
+  const handleSaveProjectName = async () => {
+    const trimmedName = projectName.trim();
+    
+    // 빈 값 체크 (이전 QA 반영)
+    if (trimmedName === '') {
+      setProjectNameError('프로젝트명을 입력해주세요.');
+      return;
+    }
+
+    try {
+      // API 호출 (true = 중복, false = 사용 가능)
+      const isDuplicated = await checkProjectNameDuplicate(trimmedName);
+      
+      if (isDuplicated) {
+        // 중복 시 에러 메시지 세팅하고 편집 모드 유지
+        setProjectNameError('생성하신 프로젝트와 중복된 프로젝트 명은 사용할 수 없습니다.');
+      } else {
+        // 성공 시 에러 초기화 및 편집 모드 종료
+        setProjectNameError('');
+        setIsEditingProjectName(false);
+      }
+    } catch (error) {
+      console.error("프로젝트명 중복 체크 실패:", error);
+      setProjectNameError('중복 체크 중 오류가 발생했습니다.');
+    }
   };
 
   const handleNextClick = async () => {
@@ -219,6 +251,9 @@ export const useTestFileSelectModel = () => {
                 forksCount: repo.stats.forks,
                 stargazersCount: repo.stats.stars,
                 openIssuesCount: repo.stats.issues,
+                isPublic: repo.isPublic, // ✨ 새로 추가: 저장해둔 isPublic 값 전송
+                // ✨ 새로 추가: Date 객체를 백엔드가 요구하는 ISO 문자열 형식("2026-04-03T08:42:10.561Z")으로 변환하여 전송
+                updatedAt: repo.updatedAtDate.toISOString(),
               });
             })
           );
@@ -289,6 +324,7 @@ export const useTestFileSelectModel = () => {
     toggleRepositorySelection,
     projectName,
     setProjectName, 
+    projectNameError,
     isEditingProjectName,
     setIsEditingProjectName,
     handleSaveProjectName,

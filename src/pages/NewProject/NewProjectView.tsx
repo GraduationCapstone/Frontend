@@ -7,6 +7,7 @@ import type { User } from './types';
 
 interface NewProjectViewProps {
   projectName: string;
+  projectNameError: string;
   memberSearchQuery: string;
   searchResults: User[];
   invitedMembers: User[];
@@ -20,6 +21,7 @@ interface NewProjectViewProps {
 
 export default function NewProjectView({
   projectName,
+  projectNameError,
   memberSearchQuery,
   searchResults,
   invitedMembers,
@@ -36,7 +38,7 @@ export default function NewProjectView({
   return (
     // MainLayout의 Outlet 위치에 렌더링됩니다.
     // 기존의 Header, Footer, SideSheet 관련 코드는 제거되었습니다.
-    <main className="flex-1 w-full flex flex-col items-center pt-44 pb-24 gap-14 z-0">
+    <main className="flex-1 w-full flex flex-col items-center pt-45 pb-24 gap-15 z-0">
       
       {/* Title: 새 프로젝트 */}
       <div className="w-228 flex justify-start">
@@ -56,11 +58,13 @@ export default function NewProjectView({
           <div className="self-stretch">
             {/* [Refactor] 돋보기 아이콘 숨김 (showIcon={false}) */}
             <InputField 
-              placeholder="프로젝트명을 입력하세요"
+              placeholder="프로젝트명 입력"
               value={projectName}
               onChange={onProjectNameChange}
               showIcon={false} 
               widthClass="w-full"
+              isError={projectNameError.length > 0} 
+              errorMessage={projectNameError}
             />
           </div>
         </section>
@@ -72,7 +76,7 @@ export default function NewProjectView({
           <div className="self-stretch flex flex-col items-start gap-3">
             <div className="flex items-center gap-2">
               <span className="text-h3-ko text-grayscale-black">멤버 초대</span>
-              <span className="text-medium400-ko text-grayscale-black">(선택)</span>
+              <span className="text-medium500-ko text-grayscale-black">(선택)</span>
             </div>
 
             {/* Search Input Field with Icon */}
@@ -91,7 +95,7 @@ export default function NewProjectView({
           {isSearching ? (
             // [수정됨] 디자인 요구사항(그림자) 적용 + 짤림 방지 패딩 유지
             <div className={`
-                self-stretch h-48 
+                self-stretch h-50
                 bg-grayscale-white 
                 rounded-2xl 
                 overflow-hidden 
@@ -124,7 +128,7 @@ export default function NewProjectView({
             </div>
           ) : (
             // --- [초대된 멤버 리스트 (기본)] ---
-            <div className="self-stretch h-48 p-3 bg-grayscale-gy100 rounded-2xl shadow-is-100 overflow-y-auto">
+            <div className="self-stretch h-50 p-3 bg-grayscale-gy100 rounded-2xl shadow-is-100 overflow-y-auto">
                {/* 초대된 멤버 리스트 */}
                <div className="flex flex-wrap content-start gap-4">
                  {invitedMembers && invitedMembers.length > 0 && invitedMembers.map((user) => (

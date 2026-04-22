@@ -15,7 +15,7 @@ export default function ProfileIcon({
   className
 }: ProfileIconProps) {
 
-  const sizeClass = 'w-10 h-10';
+  const sizeClass = 'w-9 h-9';
 
   const baseClasses = [
     sizeClass,

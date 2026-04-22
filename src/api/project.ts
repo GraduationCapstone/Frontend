@@ -114,3 +114,13 @@ export const leaveProjectAsMember = async (
 ): Promise<void> => {
   await axiosInstance.delete(`/api/projects/${projectId}/members/${userId}`);
 };
+
+// ==========================================
+// 6. 프로젝트명 중복 체크 (GET)
+// ==========================================
+export const checkProjectNameDuplicate = async (projectName: string): Promise<boolean> => {
+  const response = await axiosInstance.get<boolean>('/api/projects/check-name', {
+    params: { name: projectName } 
+  });
+  return response.data;
+};

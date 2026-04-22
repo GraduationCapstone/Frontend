@@ -70,12 +70,12 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
 
     const isProjectManagementActive = location.pathname.startsWith("/project-management");
 
-    // const isServiceIntroActive = location.pathname.startsWith("/service-intro"); 나중에 서비스 소개 페이지 생기면 추가하기
+    const isServiceIntroActive = location.pathname.startsWith("/Intro");
 
   return (
     <header
       className={`
-        w-full h-16 px-10 fixed top-0 left-0 z-50
+        w-full h-18 px-layout-margin fixed top-0 left-0 z-50
         flex items-center
         ${bgClass}
         ${layoutClass}
@@ -104,7 +104,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
             {/* Menu 2 */}
             <Tab 
               label="서비스 소개" 
-              isSelected={false} 
+              isSelected={isServiceIntroActive} 
               onClick={() => navigate('/Intro')} // 서비스 소개 페이지로 이동
             />
           </nav>
@@ -130,7 +130,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
              <PersonIcon className="w-4 h-4 text-grayscale-white fill-current [&_*]:fill-current" />
           </div>
           {/* text-sm ... -> text-h5-ko (타이포그래피 토큰 적용) */}
-          <span className="text-center text-grayscale-white text-h5-ko">
+          <span className="text-center text-grayscale-white text-h4-ko">
             로그인
           </span>
         </button>
