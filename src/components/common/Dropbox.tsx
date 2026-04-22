@@ -101,9 +101,6 @@ export default function Dropbox({
   const [isHovering, setIsHovering] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
 
-  const triggerStatus =
-    disabled ? "Deactive" : isPressing ? "Pressing" : isHovering ? "Hovering" : "Default";
-
   const state: DropboxState = (() => {
     if (disabled) return "deactive";
     if (isOpen) return "dropped";
@@ -137,7 +134,7 @@ export default function Dropbox({
   };
 
   const triggerLabel = selectedItem?.label ?? placeholder;
-  const labelBaseClass = "flex-1 justify-center min-w-0 text-left text-h4-ko line-clamp-1";
+  const labelBaseClass = "flex-1 min-w-0 text-left text-h4-ko line-clamp-1";
 
   return (
     <div
@@ -171,9 +168,6 @@ export default function Dropbox({
           }}
           onMouseDown={() => !disabled && setIsPressing(true)}
           onMouseUp={() => setIsPressing(false)}
-          data-show-icon="true"
-          data-show-profile="false"
-          data-status={triggerStatus}
           className={[
             "self-stretch",
             "px-5 py-3",
@@ -219,12 +213,6 @@ export default function Dropbox({
             const isNew = it.value === NEW_PROJECT_VALUE;
             const isSelected = !isNew && it.value === selectedValue;
 
-            const itemStatus = it.disabled
-              ? "Deactive"
-              : isSelected
-              ? "Selected"
-              : "Default";
-
             return (
               <button
                 key={it.value}
@@ -233,11 +221,10 @@ export default function Dropbox({
                 aria-selected={isSelected}
                 disabled={it.disabled}
                 onClick={() => handleSelect(it)}
-                data-show-icon={isNew ? "true" : "false"}
-                data-status={itemStatus}
                 className={[
                   "self-stretch",
                   "px-5 py-3",
+                  "text-h4-ko",
                   "bg-grayscale-white",
                   "inline-flex justify-start items-center",
                   "gap-2",
@@ -254,7 +241,7 @@ export default function Dropbox({
                     <PlusIcon className="w-6 h-6" />
                   </div>
                 ) : null}
-                  {it.label}
+                <span className="min-w-0 text-left line-clamp-1">{it.label}</span>
               </button>
             );
           })}

@@ -21,7 +21,7 @@ const PRESET: Record<SelectTriggerVariant, { root: string; label: string }> = {
   },
   dynamic: {
     root:
-      "inline-flex w-full px-[0.5rem] py-[0.75rem] items-center justify-between gap-[0.5rem] rounded-[0.5rem]",
+      "inline-flex w-full px-3 py-2 items-center justify-between gap-2 rounded-lg",
     label: "text-medium500-ko",
   },
 };

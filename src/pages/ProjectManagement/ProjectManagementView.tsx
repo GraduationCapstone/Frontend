@@ -23,7 +23,10 @@ type Props = {
   allGithubCandidates?: Member[];
 };
 
-const containerClassByMode: Record<ProjectManagementMode, string> = {
+type ProjectManagementContainerMode = ProjectManagementMode | "nonelist";
+
+const containerClassByMode: Record<ProjectManagementContainerMode, string> = {
+  nonelist: "self-stretch min-h-[1008px] desktop:min-h-[1440px] wide:min-h-[1008px] pt-40 inline-flex flex-col justify-start items-center gap-24",
   list: "self-stretch min-h-[1008px] desktop:min-h-[1440px] wide:min-h-[1008px] pt-60 inline-flex flex-col justify-start items-center gap-14",
   detail:
     "self-stretch min-h-[1008px] desktop:min-h-[1440px] wide:min-h-[1008px] px-layout-margin pt-26 pb-24 inline-flex flex-col justify-start items-center gap-10",
@@ -46,7 +49,9 @@ export default function ProjectManagementView(props: Props) {
     allGithubCandidates,
   } = props;
 
-  const containerClassName = containerClassByMode[mode];
+  const containerMode: ProjectManagementContainerMode =
+    mode === "list" && (projects?.length ?? 0) === 0 ? "nonelist" : mode;
+  const containerClassName = containerClassByMode[containerMode];
 
   return (
     <div className={containerClassName}>

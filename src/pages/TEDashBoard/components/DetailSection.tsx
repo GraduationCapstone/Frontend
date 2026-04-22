@@ -13,7 +13,6 @@ import proofImg from "../../../assets/bg/proofImg.png";
 type TabKey = "result" | "failCode" | "scenario" | "proof";
 
 type Props = {
-  projectTitle: string;
   item: TestCodeItem;
   onClose: () => void;
 };
@@ -77,7 +76,7 @@ const getDetailData = (item: TestCodeItem) => {
   };
 };
 
-export default function DetailSection({ projectTitle, item, onClose }: Props) {
+export default function DetailSection({ item, onClose }: Props) {
   const isFail = item.status === "Fail";
   const [tab, setTab] = useState<TabKey>("result");
 
@@ -139,7 +138,7 @@ export default function DetailSection({ projectTitle, item, onClose }: Props) {
           </div>
 
           <div className="justify-center text-grayscale-black text-h3-ko line-clamp-1">
-            {projectTitle}
+            {item.title}
           </div>
         </div>
 

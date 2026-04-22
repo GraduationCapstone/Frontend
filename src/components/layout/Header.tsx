@@ -127,7 +127,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
           className="pl-3 pr-4 py-2 rounded-lg flex justify-center items-center gap-2 hover:bg-grayscale-white/10 transition-colors"
         >
           <div className="w-6 h-6 flex items-center justify-center">
-             <PersonIcon className="w-4 h-4 text-grayscale-white [&_*]:!fill-current [&_*]:!stroke-current" />
+             <PersonIcon className="w-4 h-4 text-grayscale-white fill-current [&_*]:fill-current" />
           </div>
           {/* text-sm ... -> text-h5-ko (타이포그래피 토큰 적용) */}
           <span className="text-center text-grayscale-white text-h4-ko">

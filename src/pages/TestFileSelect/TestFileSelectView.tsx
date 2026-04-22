@@ -95,7 +95,7 @@ export default function TestFileSelectView({
         {/* 선택 여부와 상관없이 아이콘 자리를 확보하여 글자 밀림 방지 */}
         <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
           {isSelected && (
-             <CheckIcon className="w-3.75 h-2.5 [&_path]:fill-grayscale-black" />
+             <CheckIcon className="w-3.75 h-2.5 [[&_*]:fill-current text-grayscale-black" />
           )}
         </div>
 
@@ -229,7 +229,7 @@ export default function TestFileSelectView({
                   label={sortOption} 
                   leftIcon={sortOrder === 'Asc' ? AscIcon : DescIcon}
                   variant="dynamic" 
-                  className="bg-transparent border-none py-2 cursor-pointer focus:bg-transparent"
+                  className="bg-transparent border-none cursor-pointer"
                   onClick={toggleSortDropdown}
                />
 

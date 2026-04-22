@@ -24,7 +24,7 @@ export default function SelectTrigger({
     className,
   });
 
-  const svgColorClass = "[&_*]:fill-current [&_*]:stroke-current";
+  const svgColorClass = "[&_*]:fill-current";
 
   const IconComponent = LeftIcon || DescIcon;
 
