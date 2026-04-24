@@ -6,6 +6,7 @@ import TriggerDownIcon from "../../../assets/icons/triangle_down.svg?react";
 export default function SelectTrigger({
   label,
   variant = "static",
+  selected = false,
   widthClassName,
   paddingClassName,
   labelClassName,
@@ -17,6 +18,7 @@ export default function SelectTrigger({
 }: SelectTriggerProps) {
   const cx = getSelectTriggerClassNames({
     variant,
+    selected,
     widthClassName,
     paddingClassName,
     labelClassName,

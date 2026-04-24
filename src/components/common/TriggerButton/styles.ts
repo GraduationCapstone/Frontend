@@ -35,6 +35,7 @@ export const getSelectTriggerClassNames = (
     | "paddingClassName"
     | "labelClassName"
     | "iconClassName"
+    | "selected"
   >
 ) => {
   const {
@@ -44,6 +45,7 @@ export const getSelectTriggerClassNames = (
     paddingClassName,
     labelClassName,
     iconClassName,
+    selected = false,
   } = props;
 
   const preset = PRESET[variant];
@@ -52,12 +54,15 @@ export const getSelectTriggerClassNames = (
     "transition-colors ease-in-out focus-visible:outline-none";
   const labelBase = "min-w-0 truncate text-left";
 
+  const selectedStyle = STATE_ROOT_COMMON.clicked.replace(/focus:/g, "");
+
   return {
     root: cn(
       rootBase,
       preset.root,
       widthClassName,
       paddingClassName,
+      selected ? selectedStyle : STATE_ROOT_COMMON.default,
       STATE_ROOT_COMMON.default,
       STATE_ROOT_COMMON.hover,
       STATE_ROOT_COMMON.pressing,

@@ -6,6 +6,7 @@ export interface SelectTriggerProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label: ReactNode;
   variant?: SelectTriggerVariant;
+  selected?: boolean;
   widthClassName?: string;
   paddingClassName?: string;
   labelClassName?: string;

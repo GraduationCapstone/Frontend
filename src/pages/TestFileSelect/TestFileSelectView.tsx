@@ -169,11 +169,7 @@ export default function TestFileSelectView({
                 selected={isSelected}
                 onClick={() => handleCategoryChange(category.label)}
                 // 선택 시 배경색(secondary-sg100)과 텍스트(primary-sg600)만 변경
-                className={`w-full justify-start transition-colors duration-200 rounded-xl ${
-                    isSelected 
-                      ? 'bg-secondary-sg100! text-primary-sg600!' 
-                      : ''
-                }`}
+                className="w-full justify-start transition-colors rounded-xl"
               />
             );
           })}
