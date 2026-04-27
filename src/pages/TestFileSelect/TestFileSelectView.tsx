@@ -32,6 +32,7 @@ const CATEGORIES: { label: CategoryType; icon: React.FunctionComponent<React.SVG
 ];
 
 export default function TestFileSelectView({
+  isTestMode,
   isLoading,
   isSubmitting,
   error,
@@ -49,6 +50,7 @@ export default function TestFileSelectView({
   isEditingProjectName,
   setIsEditingProjectName,
   handleSaveProjectName,
+  handleSaveTestName,
   sortOption,
   sortOrder,
   isSortDropdownOpen,
@@ -124,7 +126,7 @@ export default function TestFileSelectView({
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               showIcon={false} 
-              placeholder="Project Name"
+              placeholder={isTestMode ? "Test Name" : "Project Name"}
               widthClass="w-full"
               heightClass="h-12"
               className="shadow-inner rounded-2xl bg-grayscale-whiteg text-h4-ko text-grayscale-black"
@@ -135,7 +137,7 @@ export default function TestFileSelectView({
             <Button 
                 variant="dynamicSg500SText"
                 className="hover:bg-grayscale-gy800" // 기본 hover 색상(Primary) 대신 회색 계열을 원하실 경우 추가
-                onClick={handleSaveProjectName}
+                onClick={isTestMode ? handleSaveTestName : handleSaveProjectName}
                 disabled={projectName.trim() === ''}
             >
                 저장
@@ -168,7 +170,6 @@ export default function TestFileSelectView({
                 icons={{ plus: category.icon }} 
                 selected={isSelected}
                 onClick={() => handleCategoryChange(category.label)}
-                // 선택 시 배경색(secondary-sg100)과 텍스트(primary-sg600)만 변경
                 className="w-full justify-start transition-colors rounded-xl"
               />
             );

@@ -128,7 +128,7 @@ export default function UserRqInputView({
                       selected={isSelected} // 추가됨
                       onClick={() => toggleScenario(item.id)}
                       // 색상 조건문 삭제, 기본 형태만 유지
-                      className="px-5 py-3 rounded-xl shadow-ds-200" 
+                      className="px-5 py-3 rounded-xl" 
                       iconClassName="hidden"
                     />
                   );
