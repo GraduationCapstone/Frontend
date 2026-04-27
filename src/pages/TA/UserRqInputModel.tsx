@@ -1,6 +1,7 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus } from '../../api/test';
 
 export interface ScenarioItem {
   id: string;
@@ -18,62 +19,62 @@ const SCENARIO_DATA: ScenarioCategory[] = [
     title: '회원 관련',
     iconType: 'member',
     items: [
-      { id: 'signup', label: '회원가입' },
-      { id: 'login', label: '로그인' },
-      { id: 'find_pw', label: '비밀번호 찾기/재설정' },
-      { id: 'logout', label: '로그아웃' },
+      { id: '01', label: '회원가입' },
+      { id: '02', label: '로그인' },
+      { id: '03', label: '비밀번호 찾기/재설정' },
+      { id: '04', label: '로그아웃' },
     ],
   },
   {
     title: '사용자 정보/권한 관련',
     iconType: 'auth',
     items: [
-      { id: 'profile_edit', label: '프로필 수정' },
-      { id: 'pw_change', label: '비밀번호 변경' },
-      { id: 'rbac', label: '권한 기반 접근 제어' },
-      { id: 'session', label: '세션 만료/토큰 만료' },
+      { id: '05', label: '프로필 수정' },
+      { id: '06', label: '비밀번호 변경' },
+      { id: '07', label: '권한 기반 접근 제어' },
+      { id: '08', label: '세션 만료/토큰 만료' },
     ],
   },
   {
     title: '게시판/콘텐츠 관련',
     iconType: 'content',
     items: [
-      { id: 'post_create', label: '게시글 작성' },
-      { id: 'post_edit_delete', label: '게시글 수정/삭제' },
-      { id: 'comment', label: '댓글 작성/수정/삭제' },
-      { id: 'like', label: '좋아요/즐겨찾기' },
-      { id: 'search', label: '검색' },
-      { id: 'filter', label: '필터/정렬' },
+      { id: '09', label: '게시글 작성' },
+      { id: '10', label: '게시글 수정/삭제' },
+      { id: '11', label: '댓글 작성/수정/삭제' },
+      { id: '12', label: '좋아요/즐겨찾기' },
+      { id: '13', label: '검색' },
+      { id: '14', label: '필터/정렬' },
     ],
   },
   {
     title: 'UI/UX/반응형/브라우저',
     iconType: 'ui',
     items: [
-      { id: 'responsive', label: '반응형 레이아웃' },
-      { id: 'browser_compat', label: '브라우저 호환성' },
-      { id: 'error_page', label: '에러 페이지 동작' },
+      { id: '15', label: '반응형 레이아웃' },
+      { id: '16', label: '브라우저 호환성' },
+      { id: '17', label: '에러 페이지 동작' },
     ],
   },
   {
     title: '네트워크/예외 상황',
     iconType: 'network',
     items: [
-      { id: 'offline', label: '네트워크 끊김 상태' },
-      { id: 'latency', label: '서버 응답 지연' },
-      { id: 'api_error', label: 'API 에러 응답 처리' },
+      { id: '18', label: '네트워크 끊김 상태' },
+      { id: '19', label: '서버 응답 지연' },
+      { id: '20', label: 'API 에러 응답 처리' },
     ],
   },
   {
     title: '그 외',
     iconType: 'etc',
     items: [
-      { id: 'ab_test', label: 'A/B 테스트 요소 확인' },
-      { id: 'validation', label: '입력값 유효성 검사' },
-      { id: 'i18n', label: '다국어 지원 시 언어 변경 테스트' },
-      { id: 'file_io', label: '파일 업로드/다운로드' },
-      { id: 'push', label: '푸시 알림' },
-      { id: 'concurrency', label: '다중 사용자 동시 접속' },
+      { id: '21', label: 'A/B 테스트 요소 확인' },
+      { id: '22', label: '입력값 유효성 검사' },
+      { id: '23', label: '다국어 지원 시 언어 변경 테스트' },
+      { id: '24', label: '파일 업로드/다운로드' },
+      { id: '25', label: '푸시 알림' },
+      { id: '26', label: '다중 사용자 동시 접속' },
     ],
   },
 ];
@@ -82,7 +83,11 @@ export type TestProcessStage = "idle" | "generating" | "testing" | "complete" | 
 
 export const useUserRqInputModel = () => {
   const location = useLocation();
-  const state = location.state as { testName?: string }; // 이전 페이지에서 전달받은 state
+  const state = location.state as { 
+    testName?: string;
+    targetProjectId?: string;
+    selectedRepoIds?: string[];
+  };
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [testName] = useState(state?.testName || 'Test A');
 
@@ -108,7 +113,10 @@ export const useUserRqInputModel = () => {
 
   const canProceed = selectedIds.size > 0;
 
-  const handleNext = () => {
+  // ✨ 생성된 executionId들을 저장할 상태 추가 (레포지토리가 2개면 2개 저장)
+  const [executionIds, setExecutionIds] = useState<number[]>([]);
+
+  const handleNext = async () => {
     if (!canProceed) return;
     // 1. 모달 열기 및 초기화
     setIsModalOpen(true);
@@ -121,11 +129,67 @@ export const useUserRqInputModel = () => {
       setElapsedTime((prev) => prev + 1);
     }, 1000);
 
-    // 3. (임시 시뮬레이션) 3초 후 완료 상태로 변경
-    setTimeout(() => {
-      setPlanStatus("complete");
+    try {
+      const projectId = state?.targetProjectId;
+      const repoIds = state?.selectedRepoIds || [];
+
+      if (!projectId) throw new Error("프로젝트 ID를 찾을 수 없습니다.");
+      if (repoIds.length === 0) throw new Error("선택된 타겟 레포지토리가 없습니다.");
+
+      // Request Body에 맞춰 Set에 저장된 시나리오 문자열 ID들을 배열로 변환
+      const scenarioIdsAsStrings = Array.from(selectedIds);
+
+      // 3. 선택된 타겟 레포지토리 수만큼 병렬로 API (POST) 반복 호출
+          const promises = repoIds.map((repoId) => {
+            return setupTest(projectId, {
+              baseTestGroupName: testName,
+              targetRepoId: Number(repoId), 
+              scenarioSerials: scenarioIdsAsStrings,
+              targetBranch: "main", // 하드코딩 반영
+        });
+      });
+
+      // API 실제 대기 (AI가 계획서를 다 만들 때까지 여기서 코드가 멈춰서 기다림)
+      // 이 기간 동안 화면의 elapsedTime은 계속 1초씩 올라갑니다.
+      const responses = await Promise.all(promises);
+
+      // 3. AI 처리가 끝나고 응답이 오면 executionId 저장
+      const ids = responses.flat();
+      setExecutionIds(ids);
+
+      // ✨ 1단계 폴링: AI가 계획서를 다 만들었는지 3초마다 물어봄
+      const pollPlanStatus = async () => {
+        try {
+          const statuses = await Promise.all(ids.map(id => fetchExecutionStatus(projectId, id)));
+          
+          if (statuses.some(s => s === 'FAILED')) {
+            throw new Error("AI 테스트 계획서 생성 중 오류가 발생했습니다. (FAILED)");
+          }
+          
+          // 모든 실행 ID가 PLAN_COMPLETED (또는 그 이후 상태)라면 대기 종료
+          if (statuses.every(s => s === 'PLAN_COMPLETED' || s === 'TESTING' || s === 'COMPLETED')) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            setPlanStatus("complete"); // ⬅️ 여기서 드디어 완료 화면으로 넘어감!
+          } else {
+            // 아직 생성 중(PLAN_GENERATING)이면 3초 뒤에 다시 확인
+            setTimeout(pollPlanStatus, 3000);
+          }
+        } catch (error: any) {
+          console.error("계획서 상태 폴링 중 에러:", error);
+          if (timerRef.current) clearInterval(timerRef.current);
+          alert(error.message || "상태 조회 중 오류가 발생했습니다.");
+          setIsModalOpen(false);
+        }
+      };
+
+      pollPlanStatus(); // 폴링 시작
+
+    } catch (error: any) {
+      console.error("테스트 설정 API 호출 실패:", error);
+      setIsModalOpen(false);
       if (timerRef.current) clearInterval(timerRef.current);
-    }, 3000);
+      alert(error.message || "테스트를 생성하는 중 오류가 발생했습니다.");
+    }
   };
 
   const handleCloseModal = () => {
@@ -136,22 +200,78 @@ export const useUserRqInputModel = () => {
     }
   };
 
-  const handleDownload = () => {
-    console.log("테스트 계획서 다운로드");
-    // 다운로드 로직 추가 가능
+  const handleDownload = async () => {
+    const projectId = state?.targetProjectId;
+    
+    if (!projectId || executionIds.length === 0) {
+      alert("다운로드할 테스트 계획서 정보가 없습니다.");
+      return;
+    }
+
+    try {
+      // 레포지토리를 여러 개 선택해 executionId가 여러 개라면, 순차적으로 모두 다운로드
+      for (const exId of executionIds) {
+        await downloadTestPlan(projectId, exId);
+      }
+    } catch (error) {
+      console.error("테스트 계획서 다운로드 실패:", error);
+      alert("테스트 계획서 다운로드 중 오류가 발생했습니다.");
+    }
   };
 
-  const handleStartTest = () => {
-    console.log("테스트 시작 -> 진행 모달 오픈");
-    handleCloseModal(); // 기존 계획서 모달 닫기
-    
-    // 새 모달 열기 및 초기화
-    setIsTestProcessModalOpen(true);
-    setTestProcessStage("generating");
-    setCodeGenTime(0);
-    setTestRunTime(0);
-    setReportGenTime(0);
-    setIsTestPaused(false);
+  // ✨ 2단계: 테스트 실행 & COMPLETED 대기
+  const handleStartTest = async () => {
+    if (executionIds.length === 0) return;
+    const projectId = state?.targetProjectId;
+    if (!projectId) return;
+
+    try {
+      // 1. 테스트 실행 접수
+      const promises = executionIds.map((exId) => dispatchTest(exId));
+      await Promise.all(promises);
+
+      // 2. 모달 교체 및 프론트 UI 연출용 타이머 초기화
+      handleCloseModal(); 
+      setIsTestProcessModalOpen(true);
+      setTestProcessStage("generating");
+      setCodeGenTime(0);
+      setTestRunTime(0);
+      setReportGenTime(0);
+      setIsTestPaused(false);
+
+      // ✨ 2단계 폴링: AI 테스트가 끝났는지 3초마다 물어봄
+      const pollTestStatus = async () => {
+        try {
+          const statuses = await Promise.all(executionIds.map(id => fetchExecutionStatus(projectId, id)));
+          
+          if (statuses.some(s => s === 'FAILED')) {
+            setIsTestPaused(true); // 에러 발생 시 진행 중이던 UI 애니메이션 일시정지
+            alert("테스트 실행 중 오류가 발생했습니다. (FAILED)");
+            return;
+          }
+
+          if (statuses.every(s => s === 'COMPLETED')) {
+            // 실제 서버 작업이 완료되면 강제로 UI를 '완료' 상태로 점프시킴
+            setTestProcessStage("report_complete");
+            setCodeGenTime(5);
+            setTestRunTime(5);
+            setReportGenTime(5);
+          } else {
+            // TESTING 상태일 때는 3초 뒤 다시 확인 (그동안 프론트엔드 UI 타이머는 계속 돌아감)
+            if (!isTestPaused) {
+              setTimeout(pollTestStatus, 3000);
+            }
+          }
+        } catch (error) {
+          console.error("테스트 실행 상태 폴링 에러:", error);
+        }
+      };
+
+      pollTestStatus(); // 폴링 시작
+
+    } catch (error: any) {
+      alert("테스트 실행을 시작할 수 없습니다.");
+    }
   };
 
   // --- 2. 테스트 진행 타이머 로직 (Model로 이동됨) ---

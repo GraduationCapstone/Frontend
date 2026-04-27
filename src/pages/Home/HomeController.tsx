@@ -8,6 +8,7 @@ export default function HomeController() {
     projectItems,
     selectedProject,
     testName,
+    testNameError,
     canStart,
     isLoading,
     handleProjectChange,
@@ -21,6 +22,7 @@ export default function HomeController() {
       projectItems={projectItems}
       selectedProject={selectedProject}
       testName={testName}
+      testNameError={testNameError}
       canStart={canStart}
       isLoading={isLoading}
       onProjectChange={handleProjectChange}

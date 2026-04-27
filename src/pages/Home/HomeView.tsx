@@ -10,6 +10,7 @@ interface HomeViewProps {
   projectItems: { value: string; label: string }[];
   selectedProject: string;
   testName: string;
+  testNameError: string;
   canStart: boolean;
   isLoading: boolean;
   onProjectChange: (value: string) => void;
@@ -21,6 +22,7 @@ export default function HomeView({
   projectItems,
   selectedProject,
   testName,
+  testNameError,
   canStart,
   isLoading,
   onProjectChange,
@@ -83,6 +85,8 @@ export default function HomeView({
             onChange={onTestNameChange}
             showIcon={false} 
             widthClass="w-full"
+            isError={testNameError.length > 0} 
+            errorMessage={testNameError}
           />
 
           {/* Start Button */}

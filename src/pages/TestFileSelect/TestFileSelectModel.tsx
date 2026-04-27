@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchGithubRepos, postSelectedRepo } from '../../api/github';
 import { createProject, inviteMembers, fetchProjectRepos, checkProjectNameDuplicate } from '../../api/project';
+import { checkTestNameDuplicate } from '../../api/test';
 
 export type CategoryType = 'All' | 'Public' | 'Private';
 // 정렬 옵션 타입 정의
@@ -228,11 +229,43 @@ export const useTestFileSelectModel = () => {
     }
   };
 
+  // ✨ 테스트 모드용 저장 함수 완전히 분리
+  const handleSaveTestName = async () => {
+    const trimmedName = projectName.trim();
+    
+    // 빈 값 체크 (테스트명)
+    if (trimmedName === '') {
+      setProjectNameError('테스트명을 입력해주세요.'); // ✨ 에러 메시지 분리
+      return;
+    }
+
+    try {
+      const projectId = state?.targetProjectId;
+      if (!projectId) throw new Error("프로젝트 ID가 없습니다.");
+
+      const isDuplicated = await checkTestNameDuplicate(projectId, trimmedName);
+      
+      if (isDuplicated) {
+        setProjectNameError('해당 프로젝트에 이미 존재하는 테스트명입니다.');
+      } else {
+        setProjectNameError('');
+        setIsEditingProjectName(false);
+      }
+    } catch (error) {
+      console.error("테스트명 중복 체크 실패:", error);
+      setProjectNameError('중복 체크 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleNextClick = async () => {
     if (selectedRepoIds.size > 0) {
       if (isTestMode) {
         navigate('/test-scenario', { 
-          state: { testName: projectName } 
+          state: {
+            testName: projectName,
+            targetProjectId: state?.targetProjectId, // Home에서 받아온 프로젝트 ID
+            selectedRepoIds: Array.from(selectedRepoIds)
+           }
         });
       } else {
         setIsSubmitting(true);
@@ -312,6 +345,7 @@ export const useTestFileSelectModel = () => {
   };
 
   return {
+    isTestMode,
     isLoading,
     isSubmitting,
     error,
@@ -329,6 +363,7 @@ export const useTestFileSelectModel = () => {
     isEditingProjectName,
     setIsEditingProjectName,
     handleSaveProjectName,
+    handleSaveTestName,
     // 정렬 관련 내보내기
     sortOption,
     sortOrder,

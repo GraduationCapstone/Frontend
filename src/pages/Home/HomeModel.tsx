@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { fetchProjects } from '../../api/project';
+import { checkTestNameDuplicate } from '../../api/test';
 
 export const useHomeModel = () => {
   const navigate = useNavigate();
   // 1. 상태 관리 (Data)
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [testName, setTestName] = useState<string>('');
+  const [testNameError, setTestNameError] = useState<string>('');
 
   const [projectItems, setProjectItems] = useState<{ value: string; label: string }[]>([]);
   // API 로딩 상태 관리
@@ -49,20 +51,35 @@ export const useHomeModel = () => {
     setTestName(e.target.value);
   };
 
-  const handleStartTest = () => {
+  const handleStartTest = async () => {
     if (!canStart) return;
-    // state 객체에 모드(mode)와 필요한 데이터를 담아서 보냅니다.
 
-    const selectedProjectName = projectItems.find(item => item.value === selectedProject)?.label || '';
+    try {
+      // 1. 중복 체크 API 호출
+      const isDuplicated = await checkTestNameDuplicate(selectedProject, testName);
 
-    navigate('/test-file-select', { 
-      state: { 
-        mode: 'test',             // 'test' 모드임을 명시
-        testName: testName,       // 입력한 테스트명 전달
-        targetProject: selectedProjectName, // 선택한 프로젝트명 전달 (이걸로 리포지토리 필터링)
-        targetProjectId: selectedProject, // 선택한 프로젝트의 ID도 전달
-      } 
-    });
+      if (isDuplicated) {
+        // 2-1. 중복이면 에러 메시지 띄우고 다음 화면으로 넘어가는 것 중단
+        setTestNameError('해당 프로젝트에 이미 존재하는 테스트명입니다. 다른 이름을 입력해주세요.');
+        return;
+      }
+
+      // 2-2. 중복이 아니면 통과 -> 다음 화면으로 이동
+      setTestNameError('');
+      const selectedProjectName = projectItems.find(item => item.value === selectedProject)?.label || '';
+
+      navigate('/test-file-select', { 
+        state: { 
+          mode: 'test',
+          testName: testName,
+          targetProject: selectedProjectName,
+          targetProjectId: selectedProject,
+        } 
+      });
+    } catch (error) {
+      console.error("테스트명 중복 체크 실패:", error);
+      setTestNameError('중복 체크 중 오류가 발생했습니다.');
+    }
   };
 
   // Controller에서 사용할 값과 함수들을 반환
@@ -70,6 +87,7 @@ export const useHomeModel = () => {
     projectItems,
     selectedProject,
     testName,
+    testNameError,
     canStart,
     isLoading,
     handleProjectChange,
