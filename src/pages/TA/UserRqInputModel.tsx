@@ -1,7 +1,7 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { setupTest, downloadTestPlan, dispatchTest } from '../../api/test';
+import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus } from '../../api/test';
 
 export interface ScenarioItem {
   id: string;
@@ -154,18 +154,41 @@ export const useUserRqInputModel = () => {
       const responses = await Promise.all(promises);
 
       // 3. AI 처리가 끝나고 응답이 오면 executionId 저장
-      const ids = responses.map(res => res.executionId);
+      const ids = responses.flat();
       setExecutionIds(ids);
 
-      // 4. 모든 API 통신이 성공하면 모달 상태를 "완료"로 변경
-      setPlanStatus("complete");
+      // ✨ 1단계 폴링: AI가 계획서를 다 만들었는지 3초마다 물어봄
+      const pollPlanStatus = async () => {
+        try {
+          const statuses = await Promise.all(ids.map(id => fetchExecutionStatus(projectId, id)));
+          
+          if (statuses.some(s => s === 'FAILED')) {
+            throw new Error("AI 테스트 계획서 생성 중 오류가 발생했습니다. (FAILED)");
+          }
+          
+          // 모든 실행 ID가 PLAN_COMPLETED (또는 그 이후 상태)라면 대기 종료
+          if (statuses.every(s => s === 'PLAN_COMPLETED' || s === 'TESTING' || s === 'COMPLETED')) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            setPlanStatus("complete"); // ⬅️ 여기서 드디어 완료 화면으로 넘어감!
+          } else {
+            // 아직 생성 중(PLAN_GENERATING)이면 3초 뒤에 다시 확인
+            setTimeout(pollPlanStatus, 3000);
+          }
+        } catch (error: any) {
+          console.error("계획서 상태 폴링 중 에러:", error);
+          if (timerRef.current) clearInterval(timerRef.current);
+          alert(error.message || "상태 조회 중 오류가 발생했습니다.");
+          setIsModalOpen(false);
+        }
+      };
 
-    } catch (error) {
+      pollPlanStatus(); // 폴링 시작
+
+    } catch (error: any) {
       console.error("테스트 설정 API 호출 실패:", error);
-      setIsModalOpen(false); // 실패 시 모달 닫기
-      alert("테스트를 생성하는 중 오류가 발생했습니다.");
-    } finally {
+      setIsModalOpen(false);
       if (timerRef.current) clearInterval(timerRef.current);
+      alert(error.message || "테스트를 생성하는 중 오류가 발생했습니다.");
     }
   };
 
@@ -196,21 +219,19 @@ export const useUserRqInputModel = () => {
     }
   };
 
-  const handleStartTest = async () => { // ✨ async 추가
-    if (executionIds.length === 0) {
-      alert("실행할 테스트 정보가 없습니다. 계획서 생성을 먼저 완료해주세요.");
-      return;
-    }
+  // ✨ 2단계: 테스트 실행 & COMPLETED 대기
+  const handleStartTest = async () => {
+    if (executionIds.length === 0) return;
+    const projectId = state?.targetProjectId;
+    if (!projectId) return;
 
     try {
-      // 1. 저장된 모든 executionId에 대해 테스트 실행 요청 (비동기 접수)
+      // 1. 테스트 실행 접수
       const promises = executionIds.map((exId) => dispatchTest(exId));
       await Promise.all(promises);
 
-      // 2. 요청 성공 시 기존 계획서 모달 닫기
+      // 2. 모달 교체 및 프론트 UI 연출용 타이머 초기화
       handleCloseModal(); 
-      
-      // 3. 새 모달(진행 과정) 열기 및 상태 초기화
       setIsTestProcessModalOpen(true);
       setTestProcessStage("generating");
       setCodeGenTime(0);
@@ -218,15 +239,38 @@ export const useUserRqInputModel = () => {
       setReportGenTime(0);
       setIsTestPaused(false);
 
-      console.log("🚀 테스트 실행 요청(Dispatch) 완료");
+      // ✨ 2단계 폴링: AI 테스트가 끝났는지 3초마다 물어봄
+      const pollTestStatus = async () => {
+        try {
+          const statuses = await Promise.all(executionIds.map(id => fetchExecutionStatus(projectId, id)));
+          
+          if (statuses.some(s => s === 'FAILED')) {
+            setIsTestPaused(true); // 에러 발생 시 진행 중이던 UI 애니메이션 일시정지
+            alert("테스트 실행 중 오류가 발생했습니다. (FAILED)");
+            return;
+          }
+
+          if (statuses.every(s => s === 'COMPLETED')) {
+            // 실제 서버 작업이 완료되면 강제로 UI를 '완료' 상태로 점프시킴
+            setTestProcessStage("report_complete");
+            setCodeGenTime(5);
+            setTestRunTime(5);
+            setReportGenTime(5);
+          } else {
+            // TESTING 상태일 때는 3초 뒤 다시 확인 (그동안 프론트엔드 UI 타이머는 계속 돌아감)
+            if (!isTestPaused) {
+              setTimeout(pollTestStatus, 3000);
+            }
+          }
+        } catch (error) {
+          console.error("테스트 실행 상태 폴링 에러:", error);
+        }
+      };
+
+      pollTestStatus(); // 폴링 시작
 
     } catch (error: any) {
-      console.error("테스트 실행 요청 실패:", error);
-      // 400(미완료), 404(정보 없음) 등 에러 처리
-      const errorMsg = error.response?.status === 400 
-        ? "테스트 계획서가 아직 준비되지 않았거나 잘못된 요청입니다." 
-        : "테스트 실행을 시작할 수 없습니다.";
-      alert(errorMsg);
+      alert("테스트 실행을 시작할 수 없습니다.");
     }
   };
 
