@@ -1,8 +1,12 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getTEDashBoardData } from './TEDashBoardModel';
-import { fetchTestDashboardBasicList, fetchTestDashboardGroup } from '../../api/testDashboard';
-import { fetchProjectMembers } from '../../api/project';
+import {
+  downloadTestDashboardReport,
+  fetchTestDashboardBasicList,
+  fetchTestDashboardGroup,
+} from '../../api/testDashboard';
+import { downloadTestPlan } from '../../api/test';
 import useTEDashBoard from '../../hooks/useTEDashBoard';
 import TEDashBoardView from './TEDashBoardView';
 import type { TEDashBoardData } from './types';
@@ -12,6 +16,7 @@ type DashboardRouteState = {
   targetProjectId?: string | number;
   groupId?: string | number;
   testGroupId?: string | number;
+  executionId?: string | number;
 };
 
 const toParam = (value: unknown): string | number | undefined => {
@@ -20,11 +25,40 @@ const toParam = (value: unknown): string | number | undefined => {
   return undefined;
 };
 
-function TEDashBoardContent({ data }: { data: TEDashBoardData }) {
+type TEDashBoardContentProps = {
+  data: TEDashBoardData;
+  onDownloadTestPlan: () => void;
+  onDownloadTestReport: () => void;
+};
+
+function TEDashBoardContent({
+  data,
+  onDownloadTestPlan,
+  onDownloadTestReport,
+}: TEDashBoardContentProps) {
   const state = useTEDashBoard(data.list, data.projectTitle);
 
-  return <TEDashBoardView data={data} state={state} />;
+  return (
+    <TEDashBoardView
+      data={data}
+      state={state}
+      onDownloadTestPlan={onDownloadTestPlan}
+      onDownloadTestReport={onDownloadTestReport}
+    />
+  );
 }
+
+const openDownloadUrl = (downloadData: Record<string, string>) => {
+  const downloadUrl = Object.values(downloadData).find((value) => value.startsWith('http'));
+  if (!downloadUrl) return;
+
+  const link = document.createElement('a');
+  link.href = downloadUrl;
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
 
 export default function TEDashBoardController() {
   const location = useLocation();
@@ -39,6 +73,13 @@ export default function TEDashBoardController() {
         toParam(routeState.targetProjectId) ??
         toParam(searchParams.get('projectId')),
       groupId:
+        toParam(routeState.groupId) ??
+        toParam(routeState.testGroupId) ??
+        toParam(searchParams.get('groupId')) ??
+        toParam(searchParams.get('testGroupId')),
+      executionId:
+        toParam(routeState.executionId) ??
+        toParam(searchParams.get('executionId')) ??
         toParam(routeState.groupId) ??
         toParam(routeState.testGroupId) ??
         toParam(searchParams.get('groupId')) ??
@@ -61,20 +102,16 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        const [group, results, members] = await Promise.all([
+        const [group, results] = await Promise.all([
           fetchTestDashboardGroup(projectId, groupId),
           fetchTestDashboardBasicList(projectId, groupId).catch((error) => {
             console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
             return [];
           }),
-          fetchProjectMembers(Number(projectId)).catch((error) => {
-            console.error('[TEDashBoard] 프로젝트 멤버 조회 실패:', error);
-            return [];
-          }),
         ]);
         if (cancelled) return;
 
-        setData(getTEDashBoardData({ group, results, members }));
+        setData(getTEDashBoardData({ group, results }));
       } catch (error) {
         if (cancelled) return;
 
@@ -94,5 +131,29 @@ export default function TEDashBoardController() {
     return `${projectId ?? 'none'}-${groupId ?? 'none'}-${data.projectTitle}-${data.totalCount}`;
   }, [dashboardParams, data.projectTitle, data.totalCount]);
 
-  return <TEDashBoardContent key={dashboardKey} data={data} />;
+  const handleDownloadTestPlan = async () => {
+    const { projectId, executionId } = dashboardParams;
+    if (!projectId || !executionId) return;
+
+    await downloadTestPlan(projectId, executionId);
+    console.log('[TEDashBoard] 테스트 계획서 다운로드 API 연결 완료');
+  };
+
+  const handleDownloadTestReport = async () => {
+    const { projectId, executionId } = dashboardParams;
+    if (!projectId || !executionId) return;
+
+    const downloadData = await downloadTestDashboardReport(projectId, executionId);
+    openDownloadUrl(downloadData);
+    console.log('[TEDashBoard] 테스트 결과 보고서 다운로드 API 연결 완료', downloadData);
+  };
+
+  return (
+    <TEDashBoardContent
+      key={dashboardKey}
+      data={data}
+      onDownloadTestPlan={handleDownloadTestPlan}
+      onDownloadTestReport={handleDownloadTestReport}
+    />
+  );
 }

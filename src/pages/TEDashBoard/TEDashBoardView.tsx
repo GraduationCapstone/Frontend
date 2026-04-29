@@ -9,9 +9,16 @@ import DetailSection from './components/DetailSection';
 type Props = {
   data: TEDashBoardData;
   state: TEDashBoardState;
+  onDownloadTestPlan: () => void;
+  onDownloadTestReport: () => void;
 };
 
-export default function TEDashBoardView({ data, state }: Props) {
+export default function TEDashBoardView({
+  data,
+  state,
+  onDownloadTestPlan,
+  onDownloadTestReport,
+}: Props) {
   const isSplit = state.selectedId !== null;
 
   const selectedItem = isSplit
@@ -41,6 +48,8 @@ export default function TEDashBoardView({ data, state }: Props) {
             onStartEditTitle={state.startEditTitle}
             onSaveTitle={state.saveTitle}
             onCancelTitle={state.cancelTitle}
+            onDownloadTestPlan={onDownloadTestPlan}
+            onDownloadTestReport={onDownloadTestReport}
           />
 
           <GraphFrame

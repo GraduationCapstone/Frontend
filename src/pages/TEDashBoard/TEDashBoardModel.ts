@@ -7,7 +7,6 @@ import type {
 type GetTEDashBoardDataOptions = {
   group?: TestDashboardGroupResponse | null;
   results?: TestDashboardBasicListItem[] | null;
-  members?: { username: string; profileImageUrl?: string | null }[];
 };
 
 const normalizeStatus = (status: string | null): TestStatus => {
@@ -41,19 +40,11 @@ const formatDate = (completedAt: string | null): string | undefined => {
   return text?.replace('T', ' ').slice(0, 16);
 };
 
-const findProfileImageUrl = (
-  tester: string | undefined,
-  members: { username: string; profileImageUrl?: string | null }[]
-): string | undefined =>
-  members.find((member) => member.username === tester)?.profileImageUrl ?? undefined;
-
 const mapResultToTestCodeItem = (
   result: TestDashboardBasicListItem,
-  index: number,
-  members: { username: string; profileImageUrl?: string | null }[]
+  index: number
 ): TestCodeItem => {
   const id = toOptionalText(result.testCaseId) ?? `result-${index + 1}`;
-  const user = toOptionalText(result.tester);
 
   return {
     id,
@@ -61,17 +52,13 @@ const mapResultToTestCodeItem = (
     title: toOptionalText(result.testCodeName) ?? id,
     status: normalizeStatus(result.status),
     duration: toOptionalText(result.duration),
-    user,
-    userProfileImageUrl: findProfileImageUrl(user, members),
+    user: toOptionalText(result.tester),
     date: formatDate(result.completedAt),
   };
 };
 
-const getList = (
-  results: TestDashboardBasicListItem[] | null | undefined,
-  members: { username: string; profileImageUrl?: string | null }[]
-): TestCodeItem[] =>
-  (results ?? []).map((result, index) => mapResultToTestCodeItem(result, index, members));
+const getList = (results?: TestDashboardBasicListItem[] | null): TestCodeItem[] =>
+  (results ?? []).map((result, index) => mapResultToTestCodeItem(result, index));
 
 const getSummary = (list: TestCodeItem[]) =>
   list.reduce(
@@ -87,7 +74,7 @@ const getSummary = (list: TestCodeItem[]) =>
 
 export const getTEDashBoardData = (options: GetTEDashBoardDataOptions = {}): TEDashBoardData => {
   const group = options.group;
-  const list = getList(options.results, options.members ?? []);
+  const list = getList(options.results);
   const summary = getSummary(list);
 
   const totalCount = list.length;

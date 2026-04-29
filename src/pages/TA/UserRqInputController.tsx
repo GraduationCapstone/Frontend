@@ -31,6 +31,7 @@ export default function UserRqInputController() {
       const params = new URLSearchParams({
         projectId: String(model.targetProjectId),
         groupId: String(model.dashboardGroupId),
+        executionId: String(model.dashboardGroupId),
       });
       navigate(`/test-dashboard?${params.toString()}`);
       return;

@@ -9,7 +9,6 @@ export type TestCodeItem = {
   status: TestStatus;
   duration?: string;
   user?: string;
-  userProfileImageUrl?: string;
   date?: string;
 };
 

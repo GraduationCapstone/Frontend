@@ -34,6 +34,8 @@ export interface UpdateTestDashboardCodeNameRequest {
   newTestCodeName: string;
 }
 
+export type TestDashboardReportDownloadResponse = Record<string, string>;
+
 // ==========================================
 // 1. 테스트 그룹 조회 (GET)
 // ==========================================
@@ -95,4 +97,18 @@ export const deleteTestDashboardCode = async (
   resultId: IdParam
 ): Promise<void> => {
   await axiosInstance.delete(`/api/projects/${projectId}/tests/results/${resultId}`);
+};
+
+// ==========================================
+// 4. 테스트 결과 보고서 다운로드 (GET)
+// ==========================================
+
+export const downloadTestDashboardReport = async (
+  projectId: IdParam,
+  executionId: IdParam
+): Promise<TestDashboardReportDownloadResponse> => {
+  const response = await axiosInstance.get<TestDashboardReportDownloadResponse>(
+    `/api/projects/${projectId}/tests/executions/${executionId}/download/report`
+  );
+  return response.data;
 };

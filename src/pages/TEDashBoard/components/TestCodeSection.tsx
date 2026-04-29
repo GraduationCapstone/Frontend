@@ -124,7 +124,6 @@ export default function TestCodeSection({
                   status={statusType}
                   duration={it.duration}
                   user={it.user}
-                  userProfileImageUrl={it.userProfileImageUrl}
                   date={it.date}
                   selected={isSelected}
                   onSelectChange={handleSelectChange}
