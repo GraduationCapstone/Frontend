@@ -1,6 +1,6 @@
-export type TestStatus = "Pass" | "Block" | "Fail" | "Untest";
+export type TestStatus = 'Pass' | 'Block' | 'Fail' | 'Untest';
 
-export type SortKey = "codeId" | "title" | "status" | "duration" | "user" | "date";
+export type SortKey = 'codeId' | 'title' | 'status' | 'duration' | 'user' | 'date';
 
 export type TestCodeItem = {
   id: string;
@@ -9,6 +9,7 @@ export type TestCodeItem = {
   status: TestStatus;
   duration?: string;
   user?: string;
+  userProfileImageUrl?: string;
   date?: string;
 };
 

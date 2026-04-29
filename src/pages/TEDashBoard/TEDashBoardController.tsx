@@ -1,7 +1,8 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getTEDashBoardData } from './TEDashBoardModel';
-import { fetchTestDashboardGroup } from '../../api/testDashboard';
+import { fetchTestDashboardBasicList, fetchTestDashboardGroup } from '../../api/testDashboard';
+import { fetchProjectMembers } from '../../api/project';
 import useTEDashBoard from '../../hooks/useTEDashBoard';
 import TEDashBoardView from './TEDashBoardView';
 import type { TEDashBoardData } from './types';
@@ -60,10 +61,20 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        const group = await fetchTestDashboardGroup(projectId, groupId);
+        const [group, results, members] = await Promise.all([
+          fetchTestDashboardGroup(projectId, groupId),
+          fetchTestDashboardBasicList(projectId, groupId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+            return [];
+          }),
+          fetchProjectMembers(Number(projectId)).catch((error) => {
+            console.error('[TEDashBoard] 프로젝트 멤버 조회 실패:', error);
+            return [];
+          }),
+        ]);
         if (cancelled) return;
 
-        setData(getTEDashBoardData({ group }));
+        setData(getTEDashBoardData({ group, results, members }));
       } catch (error) {
         if (cancelled) return;
 

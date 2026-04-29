@@ -26,12 +26,17 @@ export default function UserRqInputController() {
   const handleGoToDashboard = () => {
     console.log('대시보드로 이동');
     model.setIsTestProcessModalOpen(false);
-    navigate('/test-dashboard', {
-      state: {
-        projectId: model.targetProjectId,
-        groupId: model.dashboardGroupId,
-      },
-    });
+
+    if (model.targetProjectId && model.dashboardGroupId) {
+      const params = new URLSearchParams({
+        projectId: String(model.targetProjectId),
+        groupId: String(model.dashboardGroupId),
+      });
+      navigate(`/test-dashboard?${params.toString()}`);
+      return;
+    }
+
+    navigate('/test-dashboard');
   };
 
   return (

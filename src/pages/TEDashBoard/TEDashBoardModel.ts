@@ -1,37 +1,24 @@
 import type { TEDashBoardData, TestCodeItem, TestStatus } from './types';
-import type { TestDashboardGroupResponse } from '../../api/testDashboard';
+import type {
+  TestDashboardBasicListItem,
+  TestDashboardGroupResponse,
+} from '../../api/testDashboard';
 
 type GetTEDashBoardDataOptions = {
   group?: TestDashboardGroupResponse | null;
+  results?: TestDashboardBasicListItem[] | null;
+  members?: { username: string; profileImageUrl?: string | null }[];
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
+const normalizeStatus = (status: string | null): TestStatus => {
+  const normalized = status?.replace(/[\s_-]/g, '').toUpperCase() ?? '';
 
-const pickValue = (source: Record<string, unknown>, keys: string[]): unknown => {
-  const matchedKey = keys.find((key) => source[key] !== undefined);
-  return matchedKey ? source[matchedKey] : undefined;
-};
-
-const toText = (value: unknown): string | undefined => {
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : undefined;
-  }
-
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return String(value);
-  }
-
-  return undefined;
-};
-
-const normalizeStatus = (value: unknown): TestStatus => {
-  const normalized = toText(value)
-    ?.replace(/[\s_-]/g, '')
-    .toUpperCase();
-
-  if (normalized === 'PASS' || normalized === 'PASSED' || normalized === 'SUCCESS') {
+  if (
+    normalized === 'PASS' ||
+    normalized === 'PASSED' ||
+    normalized === 'SUCCESS' ||
+    normalized === 'COMPLETED'
+  ) {
     return 'Pass';
   }
   if (normalized === 'FAIL' || normalized === 'FAILED' || normalized === 'ERROR') {
@@ -44,66 +31,47 @@ const normalizeStatus = (value: unknown): TestStatus => {
   return 'Untest';
 };
 
-const formatDuration = (value: unknown): string | undefined => {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return `${value}s`;
-  }
-
-  return toText(value);
+const toOptionalText = (value: string | null): string | undefined => {
+  const trimmed = value?.trim() ?? '';
+  return trimmed.length > 0 ? trimmed : undefined;
 };
 
-const formatDate = (value: unknown): string | undefined => {
-  const text = toText(value);
-  if (!text) return undefined;
-
-  return text.replace('T', ' ').slice(0, 16);
+const formatDate = (completedAt: string | null): string | undefined => {
+  const text = toOptionalText(completedAt);
+  return text?.replace('T', ' ').slice(0, 16);
 };
 
-const getGroupResults = (group: TestDashboardGroupResponse): unknown[] => {
-  const candidates = [
-    group.results,
-    group.testResults,
-    group.testCodeResults,
-    group.testCodes,
-    group.list,
-  ];
+const findProfileImageUrl = (
+  tester: string | undefined,
+  members: { username: string; profileImageUrl?: string | null }[]
+): string | undefined =>
+  members.find((member) => member.username === tester)?.profileImageUrl ?? undefined;
 
-  return candidates.find((candidate): candidate is unknown[] => Array.isArray(candidate)) ?? [];
-};
-
-const mapResultToTestCodeItem = (result: Record<string, unknown>, index: number): TestCodeItem => {
-  const id =
-    toText(pickValue(result, ['resultId', 'testResultId', 'testCodeId', 'id'])) ??
-    `result-${index + 1}`;
-  const codeId =
-    toText(pickValue(result, ['codeId', 'testCodeId', 'testCodeSerial', 'testCaseId', 'testId'])) ??
-    id;
-  const title =
-    toText(pickValue(result, ['title', 'testCodeName', 'name', 'testName', 'testCaseName'])) ??
-    id;
+const mapResultToTestCodeItem = (
+  result: TestDashboardBasicListItem,
+  index: number,
+  members: { username: string; profileImageUrl?: string | null }[]
+): TestCodeItem => {
+  const id = toOptionalText(result.testCaseId) ?? `result-${index + 1}`;
+  const user = toOptionalText(result.tester);
 
   return {
     id,
-    codeId,
-    title,
-    status: normalizeStatus(pickValue(result, ['status', 'result', 'testStatus'])),
-    duration: formatDuration(
-      pickValue(result, ['duration', 'elapsedTime', 'executionTime', 'testTime'])
-    ),
-    user: toText(pickValue(result, ['user', 'username', 'createdBy', 'tester'])),
-    date: formatDate(
-      pickValue(result, ['date', 'createdAt', 'updatedAt', 'executedAt', 'testedAt'])
-    ),
+    codeId: id,
+    title: toOptionalText(result.testCodeName) ?? id,
+    status: normalizeStatus(result.status),
+    duration: toOptionalText(result.duration),
+    user,
+    userProfileImageUrl: findProfileImageUrl(user, members),
+    date: formatDate(result.completedAt),
   };
 };
 
-const getList = (group: TestDashboardGroupResponse | null | undefined): TestCodeItem[] => {
-  if (!group) return [];
-
-  return getGroupResults(group)
-    .filter(isRecord)
-    .map((result, index) => mapResultToTestCodeItem(result, index));
-};
+const getList = (
+  results: TestDashboardBasicListItem[] | null | undefined,
+  members: { username: string; profileImageUrl?: string | null }[]
+): TestCodeItem[] =>
+  (results ?? []).map((result, index) => mapResultToTestCodeItem(result, index, members));
 
 const getSummary = (list: TestCodeItem[]) =>
   list.reduce(
@@ -119,7 +87,7 @@ const getSummary = (list: TestCodeItem[]) =>
 
 export const getTEDashBoardData = (options: GetTEDashBoardDataOptions = {}): TEDashBoardData => {
   const group = options.group;
-  const list = getList(group);
+  const list = getList(options.results, options.members ?? []);
   const summary = getSummary(list);
 
   const totalCount = list.length;

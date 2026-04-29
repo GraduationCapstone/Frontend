@@ -1,4 +1,4 @@
-import { axiosInstance } from "./axios";
+import { axiosInstance } from './axios';
 
 type IdParam = number | string;
 
@@ -14,6 +14,17 @@ export interface TestDashboardGroupResponse {
   testCodes?: unknown[];
   list?: unknown[];
 }
+
+export interface TestDashboardBasicListItem {
+  testCaseId: string | null;
+  testCodeName: string | null;
+  status: string | null;
+  duration: string | null;
+  tester: string | null;
+  completedAt: string | null;
+}
+
+export type TestDashboardBasicListResponse = TestDashboardBasicListItem[];
 
 export interface UpdateTestDashboardGroupNameRequest {
   newGroupName: string;
@@ -31,9 +42,21 @@ export const fetchTestDashboardGroup = async <T = TestDashboardGroupResponse>(
   projectId: IdParam,
   groupId: IdParam
 ): Promise<T> => {
-  const response = await axiosInstance.get<T>(
-    `/api/projects/${projectId}/tests/groups/${groupId}`
-  );
+  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/groups/${groupId}`);
+  return response.data;
+};
+
+// ==========================================
+// 1.2 테스트 그룹 내 테스트 코드 목록 조회 (GET)
+// ==========================================
+
+export const fetchTestDashboardBasicList = async <T = TestDashboardBasicListResponse>(
+  projectId: IdParam,
+  groupId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`, {
+    params: { groupId },
+  });
   return response.data;
 };
 
