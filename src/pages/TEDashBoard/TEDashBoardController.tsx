@@ -5,6 +5,7 @@ import {
   downloadTestDashboardReport,
   fetchTestDashboardBasicList,
   fetchTestDashboardGroup,
+  updateTestDashboardGroupName,
 } from '../../api/testDashboard';
 import { downloadTestPlan } from '../../api/test';
 import useTEDashBoard from '../../hooks/useTEDashBoard';
@@ -27,16 +28,18 @@ const toParam = (value: unknown): string | number | undefined => {
 
 type TEDashBoardContentProps = {
   data: TEDashBoardData;
+  onSaveTitle: (title: string) => Promise<void>;
   onDownloadTestPlan: () => void;
   onDownloadTestReport: () => void;
 };
 
 function TEDashBoardContent({
   data,
+  onSaveTitle,
   onDownloadTestPlan,
   onDownloadTestReport,
 }: TEDashBoardContentProps) {
-  const state = useTEDashBoard(data.list, data.projectTitle);
+  const state = useTEDashBoard(data.list, data.projectTitle, onSaveTitle);
 
   return (
     <TEDashBoardView
@@ -131,6 +134,15 @@ export default function TEDashBoardController() {
     return `${projectId ?? 'none'}-${groupId ?? 'none'}-${data.projectTitle}-${data.totalCount}`;
   }, [dashboardParams, data.projectTitle, data.totalCount]);
 
+  const handleSaveTitle = async (title: string) => {
+    const { projectId, groupId } = dashboardParams;
+    if (!projectId || !groupId) return;
+
+    await updateTestDashboardGroupName(projectId, groupId, title);
+    setData((prev) => ({ ...prev, projectTitle: title }));
+    console.log('[TEDashBoard] 테스트 그룹명 수정 API 연결 완료');
+  };
+
   const handleDownloadTestPlan = async () => {
     const { projectId, executionId } = dashboardParams;
     if (!projectId || !executionId) return;
@@ -152,6 +164,7 @@ export default function TEDashBoardController() {
     <TEDashBoardContent
       key={dashboardKey}
       data={data}
+      onSaveTitle={handleSaveTitle}
       onDownloadTestPlan={handleDownloadTestPlan}
       onDownloadTestReport={handleDownloadTestReport}
     />

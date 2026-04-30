@@ -13,6 +13,8 @@ type ActiveSort =
   | { key: null; order: SortOrder }
   | { key: SortKey; order: SortOrder };
 
+type SaveTitleHandler = (title: string) => void | Promise<void>;
+
 const compare = (a: string, b: string, order: SortOrder) => {
   if (a === b) return 0;
   if (order === "asc") return a < b ? -1 : 1;
@@ -39,7 +41,11 @@ const getSortValue = (it: TestCodeItem, key: SortKey): string => {
   }
 };
 
-export default function useTEDashBoard(list: TestCodeItem[], initialTitle: string) {
+export default function useTEDashBoard(
+  list: TestCodeItem[],
+  initialTitle: string,
+  onSaveTitle?: SaveTitleHandler
+) {
   // title edit
   const [title, setTitle] = useState(initialTitle);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -49,10 +55,20 @@ export default function useTEDashBoard(list: TestCodeItem[], initialTitle: strin
     setDraftTitle(title);
     setIsEditingTitle(true);
   };
-  const saveTitle = () => {
+  const saveTitle = async () => {
     const next = draftTitle.trim();
-    if (next.length > 0) setTitle(next);
-    setIsEditingTitle(false);
+    if (next.length === 0) {
+      setIsEditingTitle(false);
+      return;
+    }
+
+    try {
+      await onSaveTitle?.(next);
+      setTitle(next);
+      setIsEditingTitle(false);
+    } catch (error) {
+      console.error("[TEDashBoard] 테스트 그룹명 수정 실패:", error);
+    }
   };
   const cancelTitle = () => {
     setDraftTitle(title);
