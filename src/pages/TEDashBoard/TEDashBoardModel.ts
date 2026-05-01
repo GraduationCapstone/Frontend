@@ -1,15 +1,16 @@
 import type { TEDashBoardData, TestCodeItem, TestStatus } from './types';
 import type {
+  ProjectTestSummaryListItem,
   TestDashboardBasicListItem,
   TestDashboardGroupResponse,
 } from '../../api/testDashboard';
 
 type GetTEDashBoardDataOptions = {
   group?: TestDashboardGroupResponse | null;
-  results?: TestDashboardBasicListItem[] | null;
+  results?: Array<TestDashboardBasicListItem | ProjectTestSummaryListItem> | null;
 };
 
-const normalizeStatus = (status: string | null): TestStatus => {
+const normalizeStatus = (status: string | null | undefined): TestStatus => {
   const normalized = status?.replace(/[\s_-]/g, '').toUpperCase() ?? '';
 
   if (
@@ -30,34 +31,45 @@ const normalizeStatus = (status: string | null): TestStatus => {
   return 'Untest';
 };
 
-const toOptionalText = (value: string | null): string | undefined => {
+const toOptionalText = (value: string | null | undefined): string | undefined => {
   const trimmed = value?.trim() ?? '';
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-const formatDate = (completedAt: string | null): string | undefined => {
+const formatDate = (completedAt: string | null | undefined): string | undefined => {
   const text = toOptionalText(completedAt);
   return text?.replace('T', ' ').slice(0, 16);
 };
 
+const formatCodeId = (id: string): string => {
+  const parts = id.split('_');
+  if (parts.length !== 3 || parts[0] !== parts[1]) return id;
+  return `${parts[0]}_${parts[2]}`;
+};
+
 const mapResultToTestCodeItem = (
-  result: TestDashboardBasicListItem,
+  result: TestDashboardBasicListItem | ProjectTestSummaryListItem,
   index: number
 ): TestCodeItem => {
-  const id = toOptionalText(result.testCaseId) ?? `result-${index + 1}`;
+  const id = toOptionalText(result.testCaseId) ?? toOptionalText(result.id);
+  const title = toOptionalText(result.testCodeName) ?? toOptionalText(result.testGroupName) ?? '';
+  const key = id ?? `${index}`;
 
   return {
-    id,
-    codeId: id,
-    title: toOptionalText(result.testCodeName) ?? id,
+    id: key,
+    codeId: id ? formatCodeId(id) : '',
+    title,
     status: normalizeStatus(result.status),
-    duration: toOptionalText(result.duration),
-    user: toOptionalText(result.tester),
-    date: formatDate(result.completedAt),
+    passRatio: toOptionalText(result.passRatio),
+    duration: toOptionalText(result.duration) ?? toOptionalText(result.testDuration),
+    user: toOptionalText(result.tester) ?? toOptionalText(result.testerName),
+    date: formatDate(result.completedAt ?? result.executedAt ?? result.createdAt),
   };
 };
 
-const getList = (results?: TestDashboardBasicListItem[] | null): TestCodeItem[] =>
+const getList = (
+  results?: Array<TestDashboardBasicListItem | ProjectTestSummaryListItem> | null
+): TestCodeItem[] =>
   (results ?? []).map((result, index) => mapResultToTestCodeItem(result, index));
 
 const getSummary = (list: TestCodeItem[]) =>

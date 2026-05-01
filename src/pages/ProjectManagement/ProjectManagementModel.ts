@@ -16,10 +16,14 @@ import {
   fetchProjects,
   leaveProjectAsMember,
 } from "../../api/project";
-import type { TestDashboardBasicListItem } from "../../api/testDashboard";
+import type {
+  ProjectTestSummaryListItem,
+  TestDashboardBasicListItem,
+} from "../../api/testDashboard";
 import {
   fetchProjectGlobalTestStats,
-  fetchProjectTestBasicList,
+  fetchProjectTestSummaryList,
+  fetchTestDashboardBasicList,
 } from "../../api/testDashboard";
 import { fetchUserMe } from "../../api/user";
 
@@ -98,27 +102,79 @@ const toOptionalText = (value: string | null | undefined): string | undefined =>
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-const formatCompletedAt = (completedAt: string | null): string | undefined => {
+const formatCompletedAt = (completedAt: string | null | undefined): string | undefined => {
   const text = toOptionalText(completedAt);
   return text?.replace("T", " ").slice(0, 16);
+};
+
+const formatCodeId = (id: string): string => {
+  const parts = id.split("_");
+  if (parts.length !== 3 || parts[0] !== parts[1]) return id;
+  return `${parts[0]}_${parts[2]}`;
+};
+
+type ProjectTestNameSource = Pick<
+  TestDashboardBasicListItem | ProjectTestSummaryListItem,
+  "testCodeName" | "testGroupName"
+>;
+
+const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
+  toOptionalText(test.testGroupName) ?? toOptionalText(test.testCodeName);
+
+const getNormalizedProjectTestName = (test: ProjectTestNameSource): string | undefined =>
+  getProjectTestName(test)?.replace(/\s+/g, "").toLowerCase();
+
+const createPassRatioByTestName = (
+  summaries: ProjectTestSummaryListItem[]
+): Map<string, string> => {
+  const passRatioByTestName = new Map<string, string>();
+
+  summaries.forEach((summary) => {
+    const testName = getNormalizedProjectTestName(summary);
+    const passRatio = toOptionalText(summary.passRatio);
+    if (!testName || !passRatio || passRatioByTestName.has(testName)) return;
+    passRatioByTestName.set(testName, passRatio);
+  });
+
+  return passRatioByTestName;
+};
+
+const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string =>
+  getProjectTestName(test) ??
+  toOptionalText(test.testCaseId) ??
+  `test-${index + 1}`;
+
+const getUniqueProjectTestGroups = (
+  tests: TestDashboardBasicListItem[]
+): TestDashboardBasicListItem[] => {
+  const seen = new Set<string>();
+
+  return tests.filter((test, index) => {
+    const key = getProjectTestGroupKey(test, index);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 const mapProjectTest = (
   test: TestDashboardBasicListItem,
   index: number,
-  passRatio?: string
+  fallbackPassRatio?: string
 ): TestCodeItem => {
-  const id = toOptionalText(test.testCaseId) ?? `test-${index + 1}`;
+  const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
+  const title = getProjectTestName(test) ?? '';
+  const key = id ?? `${index}`;
 
   return {
-    id,
-    codeId: id,
-    title: toOptionalText(test.testCodeName) ?? id,
+    id: key,
+    codeId: id ? formatCodeId(id) : '',
+    title,
     status: "Untest",
-    passRatio,
-    duration: toOptionalText(test.duration),
-    user: toOptionalText(test.tester),
-    date: formatCompletedAt(test.completedAt),
+    passRatio: toOptionalText(test.passRatio) ?? fallbackPassRatio,
+    duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
+    user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
+    date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
   };
 };
 
@@ -230,11 +286,16 @@ const resolveProjectMetadata = async (
   let tests: TestCodeItem[] = [];
   let summary = createSummary();
   try {
-    const [testResponses, stats] = await Promise.all([
-      fetchProjectTestBasicList(project.id),
+    const [testResponses, summaryResponses, stats] = await Promise.all([
+      fetchTestDashboardBasicList(project.id),
+      fetchProjectTestSummaryList(project.id),
       fetchProjectGlobalTestStats(project.id),
     ]);
-    tests = testResponses.map((test, index) => mapProjectTest(test, index, stats.passRatio));
+    const passRatioByTestName = createPassRatioByTestName(summaryResponses);
+    tests = getUniqueProjectTestGroups(testResponses).map((test, index) => {
+      const testName = getNormalizedProjectTestName(test);
+      return mapProjectTest(test, index, testName ? passRatioByTestName.get(testName) : undefined);
+    });
     summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
   } catch (error) {
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);

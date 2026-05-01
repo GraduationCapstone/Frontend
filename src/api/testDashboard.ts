@@ -17,14 +17,39 @@ export interface TestDashboardGroupResponse {
 
 export interface TestDashboardBasicListItem {
   testCaseId: string | null;
-  testCodeName: string | null;
-  status: string | null;
-  duration: string | null;
-  tester: string | null;
-  completedAt: string | null;
+  id?: string | null;
+  testCodeName?: string | null;
+  testGroupName?: string | null;
+  status?: string | null;
+  passRatio?: string | null;
+  duration?: string | null;
+  testDuration?: string | null;
+  tester?: string | null;
+  testerName?: string | null;
+  completedAt?: string | null;
+  executedAt?: string | null;
+  createdAt?: string | null;
 }
 
 export type TestDashboardBasicListResponse = TestDashboardBasicListItem[];
+
+export interface ProjectTestSummaryListItem {
+  testCaseId: string | null;
+  id?: string | null;
+  testCodeName?: string | null;
+  testGroupName?: string | null;
+  status?: string | null;
+  passRatio: string | null;
+  duration?: string | null;
+  testDuration?: string | null;
+  tester?: string | null;
+  testerName?: string | null;
+  completedAt?: string | null;
+  executedAt?: string | null;
+  createdAt?: string | null;
+}
+
+export type ProjectTestSummaryListResponse = ProjectTestSummaryListItem[];
 
 export interface ProjectGlobalTestStatsResponse {
   passCount: number;
@@ -52,6 +77,22 @@ export const fetchTestDashboardGroup = async <T = TestDashboardGroupResponse>(
   groupId: IdParam
 ): Promise<T> => {
   const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/groups/${groupId}`);
+  return response.data;
+};
+
+// ==========================================
+// 1.2 테스트 그룹 내 테스트 코드 목록 조회 (GET)
+// ==========================================
+
+export const fetchTestDashboardBasicList = async <T = TestDashboardBasicListResponse>(
+  projectId: IdParam,
+  groupId?: IdParam
+): Promise<T> => {
+  console.log('[test basic request]', { projectId, groupId });
+  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`, {
+    params: groupId === undefined ? undefined : { groupId },
+  });
+  console.log('[test basic response]', response.data);
   return response.data;
 };
 
@@ -114,10 +155,15 @@ export const downloadTestDashboardReport = async (
 // 1. 프로젝트 내 테스트 코드 목록 조회 (GET)
 // ==========================================
 
-export const fetchProjectTestBasicList = async <T = TestDashboardBasicListResponse>(
-  projectId: IdParam
+export const fetchProjectTestSummaryList = async <T = ProjectTestSummaryListResponse>(
+  projectId: IdParam,
+  groupId?: IdParam
 ): Promise<T> => {
-  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`);
+  console.log('[test summary request]', { projectId, groupId });
+  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/summary`, {
+    params: groupId === undefined ? undefined : { groupId },
+  });
+  console.log('[test summary response]', response.data);
   return response.data;
 };
 

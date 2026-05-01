@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { getTEDashBoardData } from './TEDashBoardModel';
 import {
   downloadTestDashboardReport,
+  fetchProjectTestSummaryList,
   fetchTestDashboardGroup,
   updateTestDashboardGroupName,
 } from '../../api/testDashboard';
@@ -10,6 +11,7 @@ import { downloadTestPlan } from '../../api/test';
 import useTEDashBoard from '../../hooks/useTEDashBoard';
 import TEDashBoardView from './TEDashBoardView';
 import type { TEDashBoardData } from './types';
+import type { ProjectTestSummaryListItem } from '../../api/testDashboard';
 
 type DashboardRouteState = {
   projectId?: string | number;
@@ -23,6 +25,19 @@ const toParam = (value: unknown): string | number | undefined => {
   if (typeof value === 'string' && value.trim().length > 0) return value;
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   return undefined;
+};
+
+const normalizeGroupName = (value: string | null | undefined): string =>
+  value?.replace(/\s+/g, '').trim() ?? '';
+
+const filterResultsByGroupName = (
+  results: ProjectTestSummaryListItem[],
+  groupName: string
+): ProjectTestSummaryListItem[] => {
+  const targetGroupName = normalizeGroupName(groupName);
+  if (!targetGroupName) return results;
+
+  return results.filter((result) => normalizeGroupName(result.testGroupName) === targetGroupName);
 };
 
 type TEDashBoardContentProps = {
@@ -104,10 +119,22 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        const group = await fetchTestDashboardGroup(projectId, groupId);
+        console.log('[TEDashBoard] 조회 파라미터:', { projectId, groupId });
+        const [group, results] = await Promise.all([
+          fetchTestDashboardGroup(projectId, groupId),
+          fetchProjectTestSummaryList(projectId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+            return [];
+          }),
+        ]);
         if (cancelled) return;
 
-        setData(getTEDashBoardData({ group }));
+        const filteredResults = filterResultsByGroupName(results, group.groupName);
+
+        console.log('[TEDashBoard] 그룹 응답:', group);
+        console.log('[TEDashBoard] 테스트 코드 목록 응답:', results);
+        console.log('[TEDashBoard] 그룹명 필터링 결과:', filteredResults);
+        setData(getTEDashBoardData({ group, results: filteredResults }));
       } catch (error) {
         if (cancelled) return;
 
