@@ -98,11 +98,9 @@ export const fetchTestDashboardBasicList = async <T = TestDashboardBasicListResp
   projectId: IdParam,
   groupId?: IdParam
 ): Promise<T> => {
-  console.log('[test basic request]', { projectId, groupId });
   const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`, {
     params: groupId === undefined ? undefined : { groupId },
   });
-  console.log('[test basic response]', response.data);
   return response.data;
 };
 
@@ -169,11 +167,9 @@ export const fetchProjectTestSummaryList = async <T = ProjectTestSummaryListResp
   projectId: IdParam,
   groupId?: IdParam
 ): Promise<T> => {
-  console.log('[test summary request]', { projectId, groupId });
   const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/summary`, {
     params: groupId === undefined ? undefined : { groupId },
   });
-  console.log('[test summary response]', response.data);
   return response.data;
 };
 
@@ -188,4 +184,15 @@ export const fetchProjectGlobalTestStats = async <T = ProjectGlobalTestStatsResp
     `/api/projects/${projectId}/tests/stats/project-global`
   );
   return response.data;
+};
+
+// ==========================================
+// 2. 테스트 그룹 삭제 (DELETE)
+// ==========================================
+
+export const deleteTestDashboardGroup = async (
+  projectId: IdParam,
+  groupId: IdParam
+): Promise<void> => {
+  await axiosInstance.delete(`/api/projects/${projectId}/tests/groups/${groupId}`);
 };

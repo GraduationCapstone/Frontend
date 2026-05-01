@@ -36,6 +36,7 @@ type Props = {
   onOpenDeleteModal: (id: string) => void;
   onCloseModals: () => void;
   onSaveTestCodeTitle: (id: string, title: string) => void | Promise<void>;
+  onDeleteTestCode: (id: string) => void | Promise<void>;
 };
 
 const toStatusBadgeType = (
@@ -76,6 +77,7 @@ export default function TestCodeSection({
   onOpenDeleteModal,
   onCloseModals,
   onSaveTestCodeTitle,
+  onDeleteTestCode,
 }: Props) {
   const isSimple = variant === 'simple';
   const safeSelect = (id: string | null) => {
@@ -170,7 +172,19 @@ export default function TestCodeSection({
           open
           title={deletingItem?.title ?? ''}
           onClose={onCloseModals}
-          onConfirm={onCloseModals}
+          onConfirm={() => {
+            const id = deleteModalId;
+            if (!id) return;
+
+            Promise.resolve(onDeleteTestCode(id))
+              .then(() => {
+                onSelect(null);
+                onCloseModals();
+              })
+              .catch((error) => {
+                console.error('[TEDashBoard] 테스트 코드 삭제 실패:', error);
+              });
+          }}
         />
       )}
     </section>

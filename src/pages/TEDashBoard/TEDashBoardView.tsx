@@ -10,6 +10,7 @@ type Props = {
   data: TEDashBoardData;
   state: TEDashBoardState;
   onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
+  onDeleteTestCode: (id: string) => Promise<void>;
   onDownloadTestPlan: () => void;
   onDownloadTestReport: () => void;
 };
@@ -18,6 +19,7 @@ export default function TEDashBoardView({
   data,
   state,
   onSaveTestCodeTitle,
+  onDeleteTestCode,
   onDownloadTestPlan,
   onDownloadTestReport,
 }: Props) {
@@ -85,6 +87,7 @@ export default function TEDashBoardView({
             onOpenDeleteModal={state.openDeleteModal}
             onCloseModals={state.closeModals}
             onSaveTestCodeTitle={onSaveTestCodeTitle}
+            onDeleteTestCode={onDeleteTestCode}
           />
         </div>
         {isSplit && selectedItem && (

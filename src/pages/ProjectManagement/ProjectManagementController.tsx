@@ -58,6 +58,7 @@ export default function ProjectManagementController() {
         onBackToList={goList}
         onOpenTestDashboard={(test) => goTestDashboard(id, test)}
         onRenameTestGroup={(testId, title) => model.renameTestGroup(id, testId, title)}
+        onDeleteTestGroup={(testId) => model.deleteTestGroup(id, testId)}
       />
     );
   };

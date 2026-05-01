@@ -21,6 +21,7 @@ import type {
   TestDashboardBasicListItem,
 } from "../../api/testDashboard";
 import {
+  deleteTestDashboardGroup,
   fetchProjectGlobalTestStats,
   fetchProjectTestSummaryList,
   fetchTestDashboardBasicList,
@@ -503,6 +504,34 @@ export default function useProjectManagementModel() {
     console.log("[ProjectManagement] 테스트 그룹명 수정 API 연결 완료");
   };
 
+  const deleteTestGroup = async (projectId: string, testId: string) => {
+    const detail = detailsById[projectId];
+    const target = detail?.tests.find((test) => test.id === testId);
+    const groupId = target?.groupId;
+
+    if (!detail || !target || !groupId) {
+      const message =
+        "[ProjectManagement] 테스트 그룹 삭제에 필요한 숫자 groupId가 없습니다. /tests/list/basic 응답에 groupId를 내려줘야 합니다.";
+      console.error(message, { projectId, testId, target });
+      throw new Error(message);
+    }
+
+    await deleteTestDashboardGroup(projectId, groupId);
+    setDetailsById((prev) => {
+      const cur = prev[projectId];
+      if (!cur) return prev;
+
+      return {
+        ...prev,
+        [projectId]: {
+          ...cur,
+          tests: cur.tests.filter((test) => test.id !== testId),
+        },
+      };
+    });
+    console.log("[ProjectManagement] 테스트 그룹 삭제 API 연결 완료");
+  };
+
   const allGithubCandidates: Member[] = [];
 
   return {
@@ -513,6 +542,7 @@ export default function useProjectManagementModel() {
     removeProjectLocally,
     saveSettings,
     renameTestGroup,
+    deleteTestGroup,
     allGithubCandidates,
   };
 }

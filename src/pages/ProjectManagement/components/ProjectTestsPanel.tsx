@@ -14,6 +14,7 @@ type Props = {
   tests: TestCodeItem[];
   onOpenDashboard?: (test: TestCodeItem) => void;
   onRenameTestGroup?: (testId: string, title: string) => void | Promise<void>;
+  onDeleteTestGroup?: (testId: string) => void | Promise<void>;
 };
 
 export default function ProjectTestsPanel({
@@ -21,6 +22,7 @@ export default function ProjectTestsPanel({
   tests,
   onOpenDashboard,
   onRenameTestGroup,
+  onDeleteTestGroup,
 }: Props) {
   const [list, setList] = useState<TestCodeItem[]>(tests);
 
@@ -104,9 +106,14 @@ export default function ProjectTestsPanel({
           const id = table.deleteModalId;
           if (!id) return;
 
-          setList((prev) => prev.filter((it) => it.id !== id));
-
-          table.closeModals();
+          Promise.resolve(onDeleteTestGroup?.(id))
+            .then(() => {
+              setList((prev) => prev.filter((it) => it.id !== id));
+              table.closeModals();
+            })
+            .catch((error) => {
+              console.error("[ProjectManagement] 테스트 그룹 삭제 실패:", error);
+            });
         }}
       />
     </div>

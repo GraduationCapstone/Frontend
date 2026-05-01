@@ -23,6 +23,7 @@ type Props = {
   onOpenSettings?: () => void;
   onOpenTestDashboard?: (test: TestCodeItem) => void;
   onRenameTestGroup?: (testId: string, title: string) => void | Promise<void>;
+  onDeleteTestGroup?: (testId: string) => void | Promise<void>;
   onBackToList?: () => void;
   onCancelSettings?: () => void;
   onSaveSettings?: (nextName: string, nextMembers: Member[]) => void;
@@ -52,6 +53,7 @@ export default function ProjectManagementView(props: Props) {
     onOpenSettings,
     onOpenTestDashboard,
     onRenameTestGroup,
+    onDeleteTestGroup,
     onCancelSettings,
     onSaveSettings,
     onLeaveProject,
@@ -92,6 +94,7 @@ export default function ProjectManagementView(props: Props) {
             tests={detail.tests}
             onOpenDashboard={(test) => onOpenTestDashboard?.(test)}
             onRenameTestGroup={(testId, title) => onRenameTestGroup?.(testId, title)}
+            onDeleteTestGroup={(testId) => onDeleteTestGroup?.(testId)}
           />
         </>
       )}

@@ -2,6 +2,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { getTEDashBoardData } from './TEDashBoardModel';
 import {
+  deleteTestDashboardCode,
   downloadTestDashboardReport,
   fetchProjectTestSummaryList,
   fetchTestDashboardGroup,
@@ -47,6 +48,7 @@ type TEDashBoardContentProps = {
   data: TEDashBoardData;
   onSaveTitle: (title: string) => Promise<void>;
   onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
+  onDeleteTestCode: (id: string) => Promise<void>;
   onDownloadTestPlan: () => void;
   onDownloadTestReport: () => void;
 };
@@ -55,6 +57,7 @@ function TEDashBoardContent({
   data,
   onSaveTitle,
   onSaveTestCodeTitle,
+  onDeleteTestCode,
   onDownloadTestPlan,
   onDownloadTestReport,
 }: TEDashBoardContentProps) {
@@ -65,6 +68,7 @@ function TEDashBoardContent({
       data={data}
       state={state}
       onSaveTestCodeTitle={onSaveTestCodeTitle}
+      onDeleteTestCode={onDeleteTestCode}
       onDownloadTestPlan={onDownloadTestPlan}
       onDownloadTestReport={onDownloadTestReport}
     />
@@ -216,6 +220,27 @@ export default function TEDashBoardController() {
     console.log('[TEDashBoard] 테스트 코드명 수정 API 연결 완료');
   };
 
+  const handleDeleteTestCode = async (id: string) => {
+    const { projectId } = dashboardParams;
+    if (!projectId) return;
+
+    const target = data.list.find((item) => item.id === id);
+    const resultId = target?.resultId;
+    if (!resultId) {
+      const message =
+        '[TEDashBoard] 테스트 코드 삭제에 필요한 숫자 resultId가 없습니다. /tests/list/summary 응답에 resultId를 내려줘야 합니다.';
+      console.error(message, { projectId, id, target });
+      throw new Error(message);
+    }
+
+    await deleteTestDashboardCode(projectId, resultId);
+    setData((prev) => ({
+      ...prev,
+      list: prev.list.filter((item) => item.id !== id),
+    }));
+    console.log('[TEDashBoard] 테스트 코드 삭제 API 연결 완료');
+  };
+
   const handleDownloadTestPlan = async () => {
     const { projectId, executionId } = dashboardParams;
     if (!projectId || !executionId) return;
@@ -239,6 +264,7 @@ export default function TEDashBoardController() {
       data={data}
       onSaveTitle={handleSaveTitle}
       onSaveTestCodeTitle={handleSaveTestCodeTitle}
+      onDeleteTestCode={handleDeleteTestCode}
       onDownloadTestPlan={handleDownloadTestPlan}
       onDownloadTestReport={handleDownloadTestReport}
     />
