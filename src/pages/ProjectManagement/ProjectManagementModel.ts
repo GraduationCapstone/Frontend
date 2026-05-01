@@ -5,6 +5,7 @@ import type {
   Member,
   AvgTestTimePoint,
   ProjectRolePreview,
+  ProjectSummary,
   TestCodeItem,
 } from "./types";
 import type { ProjectMemberResponse, ProjectRepoResponse, ProjectResponse } from "../../api/project";
@@ -38,6 +39,7 @@ type ProjectListMetadata = {
   myUserId: string;
   myRole: ProjectRolePreview;
   tests: TestCodeItem[];
+  summary: ProjectSummary;
 };
 
 const formatProjectCode = (projectId: number): string =>
@@ -120,6 +122,28 @@ const mapProjectTest = (
   };
 };
 
+const formatTestedText = (countString: string | undefined, passCount: number, totalCount: number) => {
+  const text = countString?.trim();
+  if (!text) return `${passCount} / ${totalCount} Tested`;
+  return text.toLowerCase().includes("tested") ? text : `${text} Tested`;
+};
+
+const createSummary = (
+  passCount = 0,
+  totalCount = 0,
+  countString?: string,
+  passRatio?: string
+): ProjectSummary => ({
+  passRateText: `${passRatio ?? "0%"} Pass`,
+  testedText: formatTestedText(countString, passCount, totalCount),
+  counts: {
+    pass: passCount,
+    block: 0,
+    fail: 0,
+    untest: Math.max(totalCount - passCount, 0),
+  },
+});
+
 const resolveCurrentMembership = (
   projectId: number,
   members: ProjectMemberResponse[],
@@ -169,15 +193,12 @@ const buildDefaultDetail = (
   members: Member[],
   myUserId: string,
   myRole: ProjectRolePreview,
-  tests: TestCodeItem[]
+  tests: TestCodeItem[],
+  summary: ProjectSummary = createSummary()
 ): ProjectDetail => ({
   id,
   name,
-  summary: {
-    passRateText: "0% Pass",
-    testedText: "0 / 0 Tested",
-    counts: { pass: 0, block: 0, fail: 0, untest: 0 },
-  },
+  summary,
   avgTestTime: [] as AvgTestTimePoint[],
   tests,
   members,
@@ -207,12 +228,14 @@ const resolveProjectMetadata = async (
   }
 
   let tests: TestCodeItem[] = [];
+  let summary = createSummary();
   try {
     const [testResponses, stats] = await Promise.all([
       fetchProjectTestBasicList(project.id),
       fetchProjectGlobalTestStats(project.id),
     ]);
     tests = testResponses.map((test, index) => mapProjectTest(test, index, stats.passRatio));
+    summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
   } catch (error) {
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);
   }
@@ -238,6 +261,7 @@ const resolveProjectMetadata = async (
     myUserId: myMembership.myUserId,
     myRole: myMembership.myRole,
     tests,
+    summary,
   };
 };
 
@@ -276,6 +300,7 @@ export default function useProjectManagementModel() {
               myUserId: currentUserId !== undefined ? String(currentUserId) : "",
               myRole: "member",
               tests: [],
+              summary: createSummary(),
             }
           )
         );
@@ -293,6 +318,7 @@ export default function useProjectManagementModel() {
                   myUserId: metadata?.myUserId ?? "",
                   myRole: metadata?.myRole ?? "member",
                   tests: metadata?.tests ?? prev[project.id].tests,
+                  summary: metadata?.summary ?? prev[project.id].summary,
                 }
               : buildDefaultDetail(
                   project.id,
@@ -300,7 +326,8 @@ export default function useProjectManagementModel() {
                   metadata?.members ?? [],
                   metadata?.myUserId ?? "",
                   metadata?.myRole ?? "member",
-                  metadata?.tests ?? []
+                  metadata?.tests ?? [],
+                  metadata?.summary ?? createSummary()
                 );
           });
           return next;
