@@ -26,6 +26,13 @@ export interface TestDashboardBasicListItem {
 
 export type TestDashboardBasicListResponse = TestDashboardBasicListItem[];
 
+export interface ProjectGlobalTestStatsResponse {
+  passCount: number;
+  totalCount: number;
+  countString: string;
+  passRatio: string;
+}
+
 export interface UpdateTestDashboardGroupNameRequest {
   newGroupName: string;
 }
@@ -45,20 +52,6 @@ export const fetchTestDashboardGroup = async <T = TestDashboardGroupResponse>(
   groupId: IdParam
 ): Promise<T> => {
   const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/groups/${groupId}`);
-  return response.data;
-};
-
-// ==========================================
-// 1.2 테스트 그룹 내 테스트 코드 목록 조회 (GET)
-// ==========================================
-
-export const fetchTestDashboardBasicList = async <T = TestDashboardBasicListResponse>(
-  projectId: IdParam,
-  groupId: IdParam
-): Promise<T> => {
-  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`, {
-    params: { groupId },
-  });
   return response.data;
 };
 
@@ -109,6 +102,34 @@ export const downloadTestDashboardReport = async (
 ): Promise<TestDashboardReportDownloadResponse> => {
   const response = await axiosInstance.get<TestDashboardReportDownloadResponse>(
     `/api/projects/${projectId}/tests/executions/${executionId}/download/report`
+  );
+  return response.data;
+};
+
+// ============================================================
+// ProjectManagement 페이지에서 사용할 API 
+// ============================================================
+
+// ==========================================
+// 1. 프로젝트 내 테스트 코드 목록 조회 (GET)
+// ==========================================
+
+export const fetchProjectTestBasicList = async <T = TestDashboardBasicListResponse>(
+  projectId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`);
+  return response.data;
+};
+
+// ==========================================
+// 1-2. 프로젝트 내 테스트 코드 목록 중 비율 조회 (GET)
+// ==========================================
+
+export const fetchProjectGlobalTestStats = async <T = ProjectGlobalTestStatsResponse>(
+  projectId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/stats/project-global`
   );
   return response.data;
 };

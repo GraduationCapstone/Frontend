@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { getTEDashBoardData } from './TEDashBoardModel';
 import {
   downloadTestDashboardReport,
-  fetchTestDashboardBasicList,
   fetchTestDashboardGroup,
   updateTestDashboardGroupName,
 } from '../../api/testDashboard';
@@ -105,16 +104,10 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        const [group, results] = await Promise.all([
-          fetchTestDashboardGroup(projectId, groupId),
-          fetchTestDashboardBasicList(projectId, groupId).catch((error) => {
-            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
-            return [];
-          }),
-        ]);
+        const group = await fetchTestDashboardGroup(projectId, groupId);
         if (cancelled) return;
 
-        setData(getTEDashBoardData({ group, results }));
+        setData(getTEDashBoardData({ group }));
       } catch (error) {
         if (cancelled) return;
 

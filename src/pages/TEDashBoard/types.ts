@@ -7,6 +7,7 @@ export type TestCodeItem = {
   codeId: string;
   title: string;
   status: TestStatus;
+  passRatio?: string;
   duration?: string;
   user?: string;
   date?: string;

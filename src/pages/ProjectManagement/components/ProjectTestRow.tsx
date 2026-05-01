@@ -13,7 +13,7 @@ export default function ProjectTestRow({ item, onOpenRowMenu }: Props) {
     <TestListItem
       testId={item.codeId}
       title={item.title}
-      coverage={item.status}
+      coverage={item.passRatio}
       duration={item.duration}
       user={item.user}
       date={item.date}

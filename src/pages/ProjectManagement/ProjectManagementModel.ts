@@ -5,6 +5,7 @@ import type {
   Member,
   AvgTestTimePoint,
   ProjectRolePreview,
+  TestCodeItem,
 } from "./types";
 import type { ProjectMemberResponse, ProjectRepoResponse, ProjectResponse } from "../../api/project";
 import {
@@ -14,6 +15,11 @@ import {
   fetchProjects,
   leaveProjectAsMember,
 } from "../../api/project";
+import type { TestDashboardBasicListItem } from "../../api/testDashboard";
+import {
+  fetchProjectGlobalTestStats,
+  fetchProjectTestBasicList,
+} from "../../api/testDashboard";
 import { fetchUserMe } from "../../api/user";
 
 type ProjectApiItem = ProjectResponse;
@@ -31,6 +37,7 @@ type ProjectListMetadata = {
   members: Member[];
   myUserId: string;
   myRole: ProjectRolePreview;
+  tests: TestCodeItem[];
 };
 
 const formatProjectCode = (projectId: number): string =>
@@ -84,6 +91,35 @@ const getCurrentUserId = (currentUser: CurrentUserIdentity): number | undefined 
   return undefined;
 };
 
+const toOptionalText = (value: string | null | undefined): string | undefined => {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : undefined;
+};
+
+const formatCompletedAt = (completedAt: string | null): string | undefined => {
+  const text = toOptionalText(completedAt);
+  return text?.replace("T", " ").slice(0, 16);
+};
+
+const mapProjectTest = (
+  test: TestDashboardBasicListItem,
+  index: number,
+  passRatio?: string
+): TestCodeItem => {
+  const id = toOptionalText(test.testCaseId) ?? `test-${index + 1}`;
+
+  return {
+    id,
+    codeId: id,
+    title: toOptionalText(test.testCodeName) ?? id,
+    status: "Untest",
+    passRatio,
+    duration: toOptionalText(test.duration),
+    user: toOptionalText(test.tester),
+    date: formatCompletedAt(test.completedAt),
+  };
+};
+
 const resolveCurrentMembership = (
   projectId: number,
   members: ProjectMemberResponse[],
@@ -132,7 +168,8 @@ const buildDefaultDetail = (
   name: string,
   members: Member[],
   myUserId: string,
-  myRole: ProjectRolePreview
+  myRole: ProjectRolePreview,
+  tests: TestCodeItem[]
 ): ProjectDetail => ({
   id,
   name,
@@ -142,7 +179,7 @@ const buildDefaultDetail = (
     counts: { pass: 0, block: 0, fail: 0, untest: 0 },
   },
   avgTestTime: [] as AvgTestTimePoint[],
-  tests: [],
+  tests,
   members,
   myUserId,
   myRole,
@@ -169,6 +206,17 @@ const resolveProjectMetadata = async (
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 레포 조회 실패:`, error);
   }
 
+  let tests: TestCodeItem[] = [];
+  try {
+    const [testResponses, stats] = await Promise.all([
+      fetchProjectTestBasicList(project.id),
+      fetchProjectGlobalTestStats(project.id),
+    ]);
+    tests = testResponses.map((test, index) => mapProjectTest(test, index, stats.passRatio));
+  } catch (error) {
+    console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);
+  }
+
   const mappedMembers = mapProjectMembers(members);
   const ownerFromMembers =
     members.find((member) => normalizeMemberRole(member.role) === "OWNER") ?? members[0];
@@ -189,6 +237,7 @@ const resolveProjectMetadata = async (
     members: mappedMembers,
     myUserId: myMembership.myUserId,
     myRole: myMembership.myRole,
+    tests,
   };
 };
 
@@ -226,6 +275,7 @@ export default function useProjectManagementModel() {
               members: [],
               myUserId: currentUserId !== undefined ? String(currentUserId) : "",
               myRole: "member",
+              tests: [],
             }
           )
         );
@@ -242,13 +292,15 @@ export default function useProjectManagementModel() {
                   members: metadata?.members ?? [],
                   myUserId: metadata?.myUserId ?? "",
                   myRole: metadata?.myRole ?? "member",
+                  tests: metadata?.tests ?? prev[project.id].tests,
                 }
               : buildDefaultDetail(
                   project.id,
                   project.name,
                   metadata?.members ?? [],
                   metadata?.myUserId ?? "",
-                  metadata?.myRole ?? "member"
+                  metadata?.myRole ?? "member",
+                  metadata?.tests ?? []
                 );
           });
           return next;
