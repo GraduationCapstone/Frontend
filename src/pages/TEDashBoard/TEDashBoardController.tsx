@@ -18,6 +18,8 @@ type DashboardRouteState = {
   targetProjectId?: string | number;
   groupId?: string | number;
   testGroupId?: string | number;
+  groupName?: string;
+  testGroupName?: string;
   executionId?: string | number;
 };
 
@@ -94,6 +96,11 @@ export default function TEDashBoardController() {
         toParam(routeState.testGroupId) ??
         toParam(searchParams.get('groupId')) ??
         toParam(searchParams.get('testGroupId')),
+      groupName:
+        toParam(routeState.groupName) ??
+        toParam(routeState.testGroupName) ??
+        toParam(searchParams.get('groupName')) ??
+        toParam(searchParams.get('testGroupName')),
       executionId:
         toParam(routeState.executionId) ??
         toParam(searchParams.get('executionId')) ??
@@ -107,8 +114,8 @@ export default function TEDashBoardController() {
   const [data, setData] = useState<TEDashBoardData>(() => getTEDashBoardData());
 
   useEffect(() => {
-    const { projectId, groupId } = dashboardParams;
-    if (!projectId || !groupId) {
+    const { projectId, groupId, groupName } = dashboardParams;
+    if (!projectId || (!groupId && !groupName)) {
       setData(getTEDashBoardData());
       return;
     }
@@ -119,13 +126,34 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        console.log('[TEDashBoard] 조회 파라미터:', { projectId, groupId });
+        console.log('[TEDashBoard] 조회 파라미터:', { projectId, groupId, groupName });
+
+        const resultsPromise = fetchProjectTestSummaryList(projectId).catch((error) => {
+          console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+          return [];
+        });
+
+        if (!groupId) {
+          const results = await resultsPromise;
+          if (cancelled) return;
+
+          const resolvedGroupName = String(groupName ?? '');
+          const filteredResults = filterResultsByGroupName(results, resolvedGroupName);
+
+          console.log('[TEDashBoard] 테스트 코드 목록 응답:', results);
+          console.log('[TEDashBoard] 그룹명 필터링 결과:', filteredResults);
+          setData(
+            getTEDashBoardData({
+              group: { groupId: '', projectId, groupName: resolvedGroupName },
+              results: filteredResults,
+            })
+          );
+          return;
+        }
+
         const [group, results] = await Promise.all([
           fetchTestDashboardGroup(projectId, groupId),
-          fetchProjectTestSummaryList(projectId).catch((error) => {
-            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
-            return [];
-          }),
+          resultsPromise,
         ]);
         if (cancelled) return;
 
@@ -150,8 +178,8 @@ export default function TEDashBoardController() {
   }, [dashboardParams]);
 
   const dashboardKey = useMemo(() => {
-    const { projectId, groupId } = dashboardParams;
-    return `${projectId ?? 'none'}-${groupId ?? 'none'}-${data.projectTitle}-${data.totalCount}`;
+    const { projectId, groupId, groupName } = dashboardParams;
+    return `${projectId ?? 'none'}-${groupId ?? groupName ?? 'none'}-${data.projectTitle}-${data.totalCount}`;
   }, [dashboardParams, data.projectTitle, data.totalCount]);
 
   const handleSaveTitle = async (title: string) => {

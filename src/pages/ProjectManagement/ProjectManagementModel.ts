@@ -102,6 +102,11 @@ const toOptionalText = (value: string | null | undefined): string | undefined =>
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
+const toOptionalIdText = (value: string | number | null | undefined): string | undefined => {
+  if (typeof value === "number") return Number.isFinite(value) ? String(value) : undefined;
+  return toOptionalText(value);
+};
+
 const formatCompletedAt = (completedAt: string | null | undefined): string | undefined => {
   const text = toOptionalText(completedAt);
   return text?.replace("T", " ").slice(0, 16);
@@ -158,6 +163,7 @@ const getUniqueProjectTestGroups = (
 };
 
 const mapProjectTest = (
+  projectId: number,
   test: TestDashboardBasicListItem,
   index: number,
   fallbackPassRatio?: string
@@ -165,12 +171,16 @@ const mapProjectTest = (
   const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
   const title = getProjectTestName(test) ?? '';
   const key = id ?? `${index}`;
+  const groupId = toOptionalIdText(test.groupId ?? test.testGroupId ?? test.executionId);
 
   return {
     id: key,
     codeId: id ? formatCodeId(id) : '',
     title,
     status: "Untest",
+    projectId: String(projectId),
+    groupId,
+    executionId: toOptionalIdText(test.executionId) ?? groupId,
     passRatio: toOptionalText(test.passRatio) ?? fallbackPassRatio,
     duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
     user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
@@ -294,7 +304,12 @@ const resolveProjectMetadata = async (
     const passRatioByTestName = createPassRatioByTestName(summaryResponses);
     tests = getUniqueProjectTestGroups(testResponses).map((test, index) => {
       const testName = getNormalizedProjectTestName(test);
-      return mapProjectTest(test, index, testName ? passRatioByTestName.get(testName) : undefined);
+      return mapProjectTest(
+        project.id,
+        test,
+        index,
+        testName ? passRatioByTestName.get(testName) : undefined
+      );
     });
     summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
   } catch (error) {

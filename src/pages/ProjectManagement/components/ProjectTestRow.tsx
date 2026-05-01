@@ -5,10 +5,11 @@ import TestListItem from "../../../components/common/ListItem/TestListItem";
 
 type Props = {
   item: TestCodeItem;
+  onOpenDashboard?: (item: TestCodeItem) => void;
   onOpenRowMenu: (id: string, e: React.MouseEvent<HTMLElement>) => void;
 };
 
-export default function ProjectTestRow({ item, onOpenRowMenu }: Props) {
+export default function ProjectTestRow({ item, onOpenDashboard, onOpenRowMenu }: Props) {
   return (
     <TestListItem
       testId={item.codeId}
@@ -19,6 +20,7 @@ export default function ProjectTestRow({ item, onOpenRowMenu }: Props) {
       date={item.date}
       status="Default"
       selected={false}
+      onClick={() => onOpenDashboard?.(item)}
       onMenuClick={(e) => onOpenRowMenu(item.id, e as unknown as React.MouseEvent<HTMLElement>)}
       className="gap-5"
     />

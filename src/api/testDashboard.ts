@@ -18,6 +18,9 @@ export interface TestDashboardGroupResponse {
 export interface TestDashboardBasicListItem {
   testCaseId: string | null;
   id?: string | null;
+  groupId?: IdParam | null;
+  testGroupId?: IdParam | null;
+  executionId?: IdParam | null;
   testCodeName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
@@ -36,6 +39,9 @@ export type TestDashboardBasicListResponse = TestDashboardBasicListItem[];
 export interface ProjectTestSummaryListItem {
   testCaseId: string | null;
   id?: string | null;
+  groupId?: IdParam | null;
+  testGroupId?: IdParam | null;
+  executionId?: IdParam | null;
   testCodeName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
