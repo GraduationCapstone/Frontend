@@ -24,6 +24,7 @@ import {
   fetchProjectGlobalTestStats,
   fetchProjectTestSummaryList,
   fetchTestDashboardBasicList,
+  updateTestDashboardGroupName,
 } from "../../api/testDashboard";
 import { fetchUserMe } from "../../api/user";
 
@@ -107,6 +108,13 @@ const toOptionalIdText = (value: string | number | null | undefined): string | u
   return toOptionalText(value);
 };
 
+const toNumericIdText = (value: string | number | null | undefined): string | undefined => {
+  if (typeof value === "number") return Number.isInteger(value) ? String(value) : undefined;
+
+  const text = toOptionalText(value);
+  return text && /^\d+$/.test(text) ? text : undefined;
+};
+
 const formatCompletedAt = (completedAt: string | null | undefined): string | undefined => {
   const text = toOptionalText(completedAt);
   return text?.replace("T", " ").slice(0, 16);
@@ -171,7 +179,7 @@ const mapProjectTest = (
   const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
   const title = getProjectTestName(test) ?? '';
   const key = id ?? `${index}`;
-  const groupId = toOptionalIdText(test.groupId ?? test.testGroupId ?? test.executionId);
+  const groupId = toNumericIdText(test.groupId ?? test.testGroupId);
 
   return {
     id: key,
@@ -180,7 +188,7 @@ const mapProjectTest = (
     status: "Untest",
     projectId: String(projectId),
     groupId,
-    executionId: toOptionalIdText(test.executionId) ?? groupId,
+    executionId: toOptionalIdText(test.executionId),
     passRatio: toOptionalText(test.passRatio) ?? fallbackPassRatio,
     duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
     user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
@@ -465,6 +473,36 @@ export default function useProjectManagementModel() {
     });
   };
 
+  const renameTestGroup = async (projectId: string, testId: string, nextTitle: string) => {
+    const detail = detailsById[projectId];
+    const target = detail?.tests.find((test) => test.id === testId);
+    const groupId = target?.groupId;
+
+    if (!detail || !target || !groupId) {
+      const message =
+        "[ProjectManagement] 테스트 그룹명 수정에 필요한 숫자 groupId가 없습니다. /tests/list/basic 응답에 groupId를 내려줘야 합니다.";
+      console.error(message, { projectId, testId, target });
+      throw new Error(message);
+    }
+
+    await updateTestDashboardGroupName(projectId, groupId, nextTitle);
+    setDetailsById((prev) => {
+      const cur = prev[projectId];
+      if (!cur) return prev;
+
+      return {
+        ...prev,
+        [projectId]: {
+          ...cur,
+          tests: cur.tests.map((test) =>
+            test.id === testId ? { ...test, title: nextTitle } : test
+          ),
+        },
+      };
+    });
+    console.log("[ProjectManagement] 테스트 그룹명 수정 API 연결 완료");
+  };
+
   const allGithubCandidates: Member[] = [];
 
   return {
@@ -474,6 +512,7 @@ export default function useProjectManagementModel() {
     leaveOrDeleteProject,
     removeProjectLocally,
     saveSettings,
+    renameTestGroup,
     allGithubCandidates,
   };
 }

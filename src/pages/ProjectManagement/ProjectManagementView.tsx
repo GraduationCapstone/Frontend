@@ -22,6 +22,7 @@ type Props = {
   onCreateProject?: () => void;
   onOpenSettings?: () => void;
   onOpenTestDashboard?: (test: TestCodeItem) => void;
+  onRenameTestGroup?: (testId: string, title: string) => void | Promise<void>;
   onBackToList?: () => void;
   onCancelSettings?: () => void;
   onSaveSettings?: (nextName: string, nextMembers: Member[]) => void;
@@ -50,6 +51,7 @@ export default function ProjectManagementView(props: Props) {
     onCreateProject,
     onOpenSettings,
     onOpenTestDashboard,
+    onRenameTestGroup,
     onCancelSettings,
     onSaveSettings,
     onLeaveProject,
@@ -89,6 +91,7 @@ export default function ProjectManagementView(props: Props) {
             title={`${detail.tests.length} 테스트`}
             tests={detail.tests}
             onOpenDashboard={(test) => onOpenTestDashboard?.(test)}
+            onRenameTestGroup={(testId, title) => onRenameTestGroup?.(testId, title)}
           />
         </>
       )}

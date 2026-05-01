@@ -36,6 +36,13 @@ const toOptionalText = (value: string | null | undefined): string | undefined =>
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
+const toNumericIdText = (value: string | number | null | undefined): string | undefined => {
+  if (typeof value === 'number') return Number.isInteger(value) ? String(value) : undefined;
+
+  const text = toOptionalText(value);
+  return text && /^\d+$/.test(text) ? text : undefined;
+};
+
 const formatDate = (completedAt: string | null | undefined): string | undefined => {
   const text = toOptionalText(completedAt);
   return text?.replace('T', ' ').slice(0, 16);
@@ -60,6 +67,7 @@ const mapResultToTestCodeItem = (
     codeId: id ? formatCodeId(id) : '',
     title,
     status: normalizeStatus(result.status),
+    resultId: toNumericIdText(result.resultId ?? result.testResultId ?? result.id),
     passRatio: toOptionalText(result.passRatio),
     duration: toOptionalText(result.duration) ?? toOptionalText(result.testDuration),
     user: toOptionalText(result.tester) ?? toOptionalText(result.testerName),

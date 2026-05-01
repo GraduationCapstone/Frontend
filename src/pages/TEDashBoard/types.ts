@@ -7,6 +7,7 @@ export type TestCodeItem = {
   codeId: string;
   title: string;
   status: TestStatus;
+  resultId?: string;
   projectId?: string;
   groupId?: string;
   executionId?: string;

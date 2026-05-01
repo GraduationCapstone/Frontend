@@ -5,6 +5,7 @@ import {
   downloadTestDashboardReport,
   fetchProjectTestSummaryList,
   fetchTestDashboardGroup,
+  updateTestDashboardCodeName,
   updateTestDashboardGroupName,
 } from '../../api/testDashboard';
 import { downloadTestPlan } from '../../api/test';
@@ -45,6 +46,7 @@ const filterResultsByGroupName = (
 type TEDashBoardContentProps = {
   data: TEDashBoardData;
   onSaveTitle: (title: string) => Promise<void>;
+  onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
   onDownloadTestPlan: () => void;
   onDownloadTestReport: () => void;
 };
@@ -52,6 +54,7 @@ type TEDashBoardContentProps = {
 function TEDashBoardContent({
   data,
   onSaveTitle,
+  onSaveTestCodeTitle,
   onDownloadTestPlan,
   onDownloadTestReport,
 }: TEDashBoardContentProps) {
@@ -61,6 +64,7 @@ function TEDashBoardContent({
     <TEDashBoardView
       data={data}
       state={state}
+      onSaveTestCodeTitle={onSaveTestCodeTitle}
       onDownloadTestPlan={onDownloadTestPlan}
       onDownloadTestReport={onDownloadTestReport}
     />
@@ -191,6 +195,27 @@ export default function TEDashBoardController() {
     console.log('[TEDashBoard] 테스트 그룹명 수정 API 연결 완료');
   };
 
+  const handleSaveTestCodeTitle = async (id: string, title: string) => {
+    const { projectId } = dashboardParams;
+    if (!projectId) return;
+
+    const target = data.list.find((item) => item.id === id);
+    const resultId = target?.resultId;
+    if (!resultId) {
+      const message =
+        '[TEDashBoard] 테스트 코드명 수정에 필요한 숫자 resultId가 없습니다. /tests/list/summary 응답에 resultId를 내려줘야 합니다.';
+      console.error(message, { projectId, id, target });
+      throw new Error(message);
+    }
+
+    await updateTestDashboardCodeName(projectId, resultId, title);
+    setData((prev) => ({
+      ...prev,
+      list: prev.list.map((item) => (item.id === id ? { ...item, title } : item)),
+    }));
+    console.log('[TEDashBoard] 테스트 코드명 수정 API 연결 완료');
+  };
+
   const handleDownloadTestPlan = async () => {
     const { projectId, executionId } = dashboardParams;
     if (!projectId || !executionId) return;
@@ -213,6 +238,7 @@ export default function TEDashBoardController() {
       key={dashboardKey}
       data={data}
       onSaveTitle={handleSaveTitle}
+      onSaveTestCodeTitle={handleSaveTestCodeTitle}
       onDownloadTestPlan={handleDownloadTestPlan}
       onDownloadTestReport={handleDownloadTestReport}
     />

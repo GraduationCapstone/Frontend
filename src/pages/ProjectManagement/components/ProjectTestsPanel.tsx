@@ -13,9 +13,15 @@ type Props = {
   title: string;
   tests: TestCodeItem[];
   onOpenDashboard?: (test: TestCodeItem) => void;
+  onRenameTestGroup?: (testId: string, title: string) => void | Promise<void>;
 };
 
-export default function ProjectTestsPanel({ title, tests, onOpenDashboard }: Props) {
+export default function ProjectTestsPanel({
+  title,
+  tests,
+  onOpenDashboard,
+  onRenameTestGroup,
+}: Props) {
   const [list, setList] = useState<TestCodeItem[]>(tests);
 
   // 상위에서 tests가 바뀌면 동기화
@@ -79,9 +85,14 @@ export default function ProjectTestsPanel({ title, tests, onOpenDashboard }: Pro
           const t = (nextTitle ?? "").trim();
           if (t.length === 0) return;
 
-          setList((prev) => prev.map((it) => (it.id === id ? { ...it, title: t } : it)));
-
-          table.closeModals();
+          Promise.resolve(onRenameTestGroup?.(id, t))
+            .then(() => {
+              setList((prev) => prev.map((it) => (it.id === id ? { ...it, title: t } : it)));
+              table.closeModals();
+            })
+            .catch((error) => {
+              console.error("[ProjectManagement] 테스트 그룹명 수정 실패:", error);
+            });
         }}
       />
 

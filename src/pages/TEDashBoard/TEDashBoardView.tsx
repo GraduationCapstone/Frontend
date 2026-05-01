@@ -9,6 +9,7 @@ import DetailSection from './components/DetailSection';
 type Props = {
   data: TEDashBoardData;
   state: TEDashBoardState;
+  onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
   onDownloadTestPlan: () => void;
   onDownloadTestReport: () => void;
 };
@@ -16,6 +17,7 @@ type Props = {
 export default function TEDashBoardView({
   data,
   state,
+  onSaveTestCodeTitle,
   onDownloadTestPlan,
   onDownloadTestReport,
 }: Props) {
@@ -82,6 +84,7 @@ export default function TEDashBoardView({
             onOpenEditModal={state.openEditModal}
             onOpenDeleteModal={state.openDeleteModal}
             onCloseModals={state.closeModals}
+            onSaveTestCodeTitle={onSaveTestCodeTitle}
           />
         </div>
         {isSplit && selectedItem && (
