@@ -15,13 +15,6 @@ export default function UserRqInputController() {
     model.setIsTestProcessModalOpen(false);
   };
 
-  // '테스트 결과 보고서 생성' 버튼 클릭 시 -> 보고서 생성 단계로 진입
-  const handleGenerateReport = () => {
-    model.setTestProcessStage("report_generating");
-    model.setReportGenTime(0);
-    model.setIsTestPaused(false);
-  };
-
   // '대시보드로 이동' 버튼 클릭 시
   const handleGoToDashboard = () => {
     console.log("대시보드로 이동");
@@ -34,7 +27,6 @@ export default function UserRqInputController() {
       {...model}
       handleCloseTestModal={handleCloseTestModal}
       handleTogglePause={handleTogglePause}
-      handleGenerateReport={handleGenerateReport}
       handleGoToDashboard={handleGoToDashboard}
     />
   );
