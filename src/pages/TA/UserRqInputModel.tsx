@@ -87,6 +87,7 @@ export const useUserRqInputModel = () => {
     testName?: string;
     targetProjectId?: string;
     selectedRepoIds?: string[];
+    serverUrl?: string;
   };
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [testName] = useState(state?.testName || 'Test A');

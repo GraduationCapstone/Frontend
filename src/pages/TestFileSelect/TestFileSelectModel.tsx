@@ -74,6 +74,7 @@ export const useTestFileSelectModel = () => {
   const [isEditingProjectName, setIsEditingProjectName] = useState(false);
   // [추가] 프로젝트명 중복 에러 상태
   const [projectNameError, setProjectNameError] = useState('');
+  const [serverUrl, setServerUrl] = useState('');
 
   // [추가] 정렬 관련 상태
   const [sortOption, setSortOption] = useState<SortOptionType>('Last pushed');
@@ -264,7 +265,8 @@ export const useTestFileSelectModel = () => {
           state: {
             testName: projectName,
             targetProjectId: state?.targetProjectId, // Home에서 받아온 프로젝트 ID
-            selectedRepoIds: Array.from(selectedRepoIds)
+            selectedRepoIds: Array.from(selectedRepoIds),
+            serverUrl: serverUrl
            }
         });
       } else {
@@ -376,5 +378,7 @@ export const useTestFileSelectModel = () => {
     handleNextClick,
     handleCompleteConfirm,
     handleCloseModal,
+    serverUrl,
+    setServerUrl,
   };
 };
