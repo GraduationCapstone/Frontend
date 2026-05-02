@@ -79,7 +79,7 @@ const SCENARIO_DATA: ScenarioCategory[] = [
   },
 ];
 
-export type TestProcessStage = "idle" | "generating" | "testing" | "complete" | "report_generating" | "report_complete";
+export type TestProcessStage = "idle" | "generating" | "testing" | "complete";
 
 export const useUserRqInputModel = () => {
   const location = useLocation();
@@ -101,8 +101,6 @@ export const useUserRqInputModel = () => {
   const [codeGenTime, setCodeGenTime] = useState(0); // 코드 생성 타이머
   const [testRunTime, setTestRunTime] = useState(0); // 테스트 진행 타이머
   const [isTestPaused, setIsTestPaused] = useState(false); // 일시정지 여부
-
-  const [reportGenTime, setReportGenTime] = useState(0);
 
   const toggleScenario = (id: string) => {
     const newSet = new Set(selectedIds);
@@ -157,7 +155,7 @@ export const useUserRqInputModel = () => {
       const ids = responses.flat();
       setExecutionIds(ids);
 
-      // ✨ 1단계 폴링: AI가 계획서를 다 만들었는지 3초마다 물어봄
+      // ✨ 1단계 폴링: AI가 계획서를 다 만들었는지 10초마다 물어봄
       const pollPlanStatus = async () => {
         try {
           const statuses = await Promise.all(ids.map(id => fetchExecutionStatus(projectId, id)));
@@ -171,8 +169,8 @@ export const useUserRqInputModel = () => {
             if (timerRef.current) clearInterval(timerRef.current);
             setPlanStatus("complete"); // ⬅️ 여기서 드디어 완료 화면으로 넘어감!
           } else {
-            // 아직 생성 중(PLAN_GENERATING)이면 3초 뒤에 다시 확인
-            setTimeout(pollPlanStatus, 3000);
+            // 아직 생성 중(PLAN_GENERATING)이면 10초 뒤에 다시 확인
+            setTimeout(pollPlanStatus, 10000);
           }
         } catch (error: any) {
           console.error("계획서 상태 폴링 중 에러:", error);
@@ -233,13 +231,11 @@ export const useUserRqInputModel = () => {
       // 2. 모달 교체 및 프론트 UI 연출용 타이머 초기화
       handleCloseModal(); 
       setIsTestProcessModalOpen(true);
-      setTestProcessStage("generating");
-      setCodeGenTime(0);
+      setTestProcessStage("testing");
       setTestRunTime(0);
-      setReportGenTime(0);
       setIsTestPaused(false);
 
-      // ✨ 2단계 폴링: AI 테스트가 끝났는지 3초마다 물어봄
+      // ✨ 2단계 폴링: AI 테스트가 끝났는지 10초마다 물어봄
       const pollTestStatus = async () => {
         try {
           const statuses = await Promise.all(executionIds.map(id => fetchExecutionStatus(projectId, id)));
@@ -251,15 +247,11 @@ export const useUserRqInputModel = () => {
           }
 
           if (statuses.every(s => s === 'COMPLETED')) {
-            // 실제 서버 작업이 완료되면 강제로 UI를 '완료' 상태로 점프시킴
-            setTestProcessStage("report_complete");
-            setCodeGenTime(5);
-            setTestRunTime(5);
-            setReportGenTime(5);
+            // ✨ API가 완료를 반환하면 상태를 'complete'로 변경 (이때 타이머 정지됨)
+            setTestProcessStage("complete");
           } else {
-            // TESTING 상태일 때는 3초 뒤 다시 확인 (그동안 프론트엔드 UI 타이머는 계속 돌아감)
             if (!isTestPaused) {
-              setTimeout(pollTestStatus, 3000);
+              setTimeout(pollTestStatus, 10000);
             }
           }
         } catch (error) {
@@ -280,35 +272,9 @@ export const useUserRqInputModel = () => {
 
     if (isTestProcessModalOpen && !isTestPaused) {
       timer = window.setInterval(() => {
-        // 1단계: 코드 생성 (5초)
-        if (testProcessStage === "generating") {
-          setCodeGenTime((prev) => {
-            if (prev >= 4) {
-              setTestProcessStage("testing");
-              return 5;
-            }
-            return prev + 1;
-          });
-        }
-        // 2단계: 테스트 진행 (5초)
-        else if (testProcessStage === "testing") {
-          setTestRunTime((prev) => {
-            if (prev >= 4) {
-              setTestProcessStage("complete");
-              return 5;
-            }
-            return prev + 1;
-          });
-        }
-        // 3단계: 보고서 생성 (5초)
-        else if (testProcessStage === "report_generating") {
-          setReportGenTime((prev) => {
-            if (prev >= 4) {
-              setTestProcessStage("report_complete");
-              return 5;
-            }
-            return prev + 1;
-          });
+        if (testProcessStage === "testing") {
+          // ✨ 5초 제한 하드코딩 제거. API 완료 응답이 올 때까지 실제 소요 시간만큼 1초씩 계속 증가
+          setTestRunTime((prev) => prev + 1);
         }
       }, 1000);
     }
@@ -345,6 +311,5 @@ export const useUserRqInputModel = () => {
     setTestRunTime,
     isTestPaused,
     setIsTestPaused,
-    reportGenTime, setReportGenTime,
   };
 };
