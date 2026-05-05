@@ -36,9 +36,6 @@ interface Props {
   testRunTime: number;
   isTestPaused: boolean;
   handleTogglePause: () => void;
-  handleGenerateReport: () => void;
-
-  reportGenTime: number;
   handleGoToDashboard: () => void;
 }
 
@@ -72,9 +69,6 @@ export default function UserRqInputView({
   testRunTime,
   isTestPaused,
   handleTogglePause,
-  handleGenerateReport,
-
-  reportGenTime,
   handleGoToDashboard,
 }: Props) {
 
@@ -180,8 +174,6 @@ export default function UserRqInputView({
         testRunTime={testRunTime}
         isPaused={isTestPaused}
         onTogglePause={handleTogglePause}
-        onGenerateReport={handleGenerateReport}
-        reportGenTime={reportGenTime}
         onGoToDashboard={handleGoToDashboard}
       />
     </div>

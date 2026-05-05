@@ -62,6 +62,8 @@ export default function TestFileSelectView({
   handleNextClick,
   handleCompleteConfirm,
   handleCloseModal,
+  serverUrl,
+  setServerUrl,
 }: Props) {
 
   const isNextButtonEnabled = selectedRepoIds.size > 0;
@@ -302,6 +304,23 @@ export default function TestFileSelectView({
             )}
           </div>
         </div>
+
+        {/* ✨ [추가] 서버 URL 입력 영역 (테스트 모드일 때만 표시) */}
+        {isTestMode && (
+          <div className="w-full shrink-0 flex flex-col justify-start items-start gap-gap-m mt-[min(3.9vh,2.5rem)] mb-[min(9.9vh,6.25rem)]">
+            <div className="self-stretch text-h2-ko text-grayscale-black">
+              서버 URL
+            </div>
+            <InputField
+              value={serverUrl}
+              onChange={(e) => setServerUrl(e.target.value)}
+              showIcon={false}
+              placeholder="테스트할 서버의 URL을 입력해주세요."
+              className="bg-grayscale-white"
+            />
+          </div>
+        )}
+
       </div>
 
       {/* 3. Floating Action Button */}

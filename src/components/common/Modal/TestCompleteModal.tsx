@@ -8,10 +8,8 @@ interface TestCompleteModalProps {
   stage: TestProcessStage;
   codeGenTime: number;
   testRunTime: number;
-  reportGenTime: number;
   isPaused: boolean;
   onTogglePause: () => void;
-  onGenerateReport: () => void;
   onGoToDashboard: () => void;
 }
 
@@ -19,12 +17,9 @@ export default function TestCompleteModal({
   isOpen,
   onClose,
   stage,
-  codeGenTime,
   testRunTime,
-  reportGenTime,
   isPaused,
   onTogglePause,
-  onGenerateReport,
   onGoToDashboard,
 }: TestCompleteModalProps) {
   if (!isOpen) return null;
@@ -37,35 +32,19 @@ export default function TestCompleteModal({
     return `${s}s`;
   };
 
-  const title = (stage === "report_generating" || stage === "report_complete")
-    ? "테스트 결과 보고서"
-    : "테스트";
+  const title = stage === "complete" ? "테스트 완료!" : "테스트 진행 중";
 
   // 2. 단계(stage)에 따라 보여줄 텍스트 데이터 생성
   const getItems = () => {
     const items = [];
-
-    // 보고서 생성 단계: 기존 내용은 숨기고 보고서 상태만 표시
-    if (stage === "report_generating" || stage === "report_complete") {
-      const label = stage === "report_generating" ? "생성 중.." : "생성 완료!";
-      items.push({ label: label, value: formatTime(reportGenTime) });
-      return items;
-    }
     
-    // 첫 번째 줄: 코드 생성 상태
-    if (stage === "generating") {
-      items.push({ label: "테스트 코드 생성 중..", value: formatTime(codeGenTime) });
-    } else {
-      items.push({ label: "테스트 코드 생성 완료!", value: formatTime(codeGenTime) });
-    }
-
-    // 두 번째 줄: 테스트 진행 상태 (생성 완료 후부터 표시)
+    // ✨ 통합된 테스트 진행 단계 (generating 조건문 삭제)
     if (stage === "testing" || stage === "complete") {
-      if (stage === "complete") {
-        items.push({ label: "테스트 완료!", value: formatTime(testRunTime) });
-      } else {
-        items.push({ label: "테스트 중..", value: formatTime(testRunTime) });
-      }
+      const label = stage === "complete" 
+        ? "테스트 코드 생성 및 테스트 완료!" 
+        : "테스트 코드 생성 및 테스트 중..";
+        
+      items.push({ label: label, value: formatTime(testRunTime) });
     }
     return items;
   };
@@ -74,17 +53,13 @@ export default function TestCompleteModal({
   let buttonLabel = "";
   let handleButtonClick = () => {};
 
-  if (stage === "report_complete") {
-    // 보고서 완료 -> 대시보드 이동
-    buttonLabel = "대시보드로 이동";
+  if (stage === "complete") {
+    // 테스트가 완료되면 바로 대시보드로 이동하도록 수정
+    buttonLabel = "테스트 대시보드로 이동"; 
     handleButtonClick = onGoToDashboard;
-  } else if (stage === "complete") {
-    // 테스트 완료 -> 보고서 생성
-    buttonLabel = "테스트 결과 보고서 생성";
-    handleButtonClick = onGenerateReport;
   } else {
-    // 그 외(진행 중) -> 일시정지/재개
-    buttonLabel = isPaused ? "재개" : "일시정지";
+    // 테스트 진행 중 상태
+    buttonLabel = isPaused ? "재개" : "일시정지"; // (기존 설정된 텍스트에 맞게 유지)
     handleButtonClick = onTogglePause;
   }
 
