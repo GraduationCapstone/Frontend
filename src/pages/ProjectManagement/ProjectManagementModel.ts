@@ -501,7 +501,6 @@ export default function useProjectManagementModel() {
         },
       };
     });
-    console.log("[ProjectManagement] 테스트 그룹명 수정 API 연결 완료");
   };
 
   const deleteTestGroup = async (projectId: string, testId: string) => {
@@ -529,7 +528,6 @@ export default function useProjectManagementModel() {
         },
       };
     });
-    console.log("[ProjectManagement] 테스트 그룹 삭제 API 연결 완료");
   };
 
   const allGithubCandidates: Member[] = [];

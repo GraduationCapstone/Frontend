@@ -134,8 +134,6 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        console.log('[TEDashBoard] 조회 파라미터:', { projectId, groupId, groupName });
-
         const resultsPromise = fetchProjectTestSummaryList(projectId).catch((error) => {
           console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
           return [];
@@ -148,8 +146,6 @@ export default function TEDashBoardController() {
           const resolvedGroupName = String(groupName ?? '');
           const filteredResults = filterResultsByGroupName(results, resolvedGroupName);
 
-          console.log('[TEDashBoard] 테스트 코드 목록 응답:', results);
-          console.log('[TEDashBoard] 그룹명 필터링 결과:', filteredResults);
           setData(
             getTEDashBoardData({
               group: { groupId: '', projectId, groupName: resolvedGroupName },
@@ -167,9 +163,6 @@ export default function TEDashBoardController() {
 
         const filteredResults = filterResultsByGroupName(results, group.groupName);
 
-        console.log('[TEDashBoard] 그룹 응답:', group);
-        console.log('[TEDashBoard] 테스트 코드 목록 응답:', results);
-        console.log('[TEDashBoard] 그룹명 필터링 결과:', filteredResults);
         setData(getTEDashBoardData({ group, results: filteredResults }));
       } catch (error) {
         if (cancelled) return;
@@ -196,7 +189,6 @@ export default function TEDashBoardController() {
 
     await updateTestDashboardGroupName(projectId, groupId, title);
     setData((prev) => ({ ...prev, projectTitle: title }));
-    console.log('[TEDashBoard] 테스트 그룹명 수정 API 연결 완료');
   };
 
   const handleSaveTestCodeTitle = async (id: string, title: string) => {
@@ -217,7 +209,6 @@ export default function TEDashBoardController() {
       ...prev,
       list: prev.list.map((item) => (item.id === id ? { ...item, title } : item)),
     }));
-    console.log('[TEDashBoard] 테스트 코드명 수정 API 연결 완료');
   };
 
   const handleDeleteTestCode = async (id: string) => {
@@ -238,7 +229,6 @@ export default function TEDashBoardController() {
       ...prev,
       list: prev.list.filter((item) => item.id !== id),
     }));
-    console.log('[TEDashBoard] 테스트 코드 삭제 API 연결 완료');
   };
 
   const handleDownloadTestPlan = async () => {
@@ -246,7 +236,6 @@ export default function TEDashBoardController() {
     if (!projectId || !executionId) return;
 
     await downloadTestPlan(projectId, executionId);
-    console.log('[TEDashBoard] 테스트 계획서 다운로드 API 연결 완료');
   };
 
   const handleDownloadTestReport = async () => {
@@ -255,7 +244,6 @@ export default function TEDashBoardController() {
 
     const downloadData = await downloadTestDashboardReport(projectId, executionId);
     openDownloadUrl(downloadData);
-    console.log('[TEDashBoard] 테스트 결과 보고서 다운로드 API 연결 완료', downloadData);
   };
 
   return (
