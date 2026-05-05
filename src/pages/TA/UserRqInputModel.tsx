@@ -316,8 +316,6 @@ export const useUserRqInputModel = () => {
     setTestRunTime,
     isTestPaused,
     setIsTestPaused,
-    reportGenTime,
-    setReportGenTime,
     targetProjectId,
     dashboardGroupId,
   };
