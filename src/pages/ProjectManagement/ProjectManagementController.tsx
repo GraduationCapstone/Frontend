@@ -2,7 +2,7 @@ import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
 import useProjectManagementModel from "./ProjectManagementModel";
 import ProjectManagementView from "./ProjectManagementView";
-import type { Member } from "./types";
+import type { Member, TestCodeItem } from "./types";
 
 export default function ProjectManagementController() {
   const nav = useNavigate();
@@ -12,6 +12,24 @@ export default function ProjectManagementController() {
   const goCreateProject = () => nav("/new-project");
   const goDetail = (projectId: string) => nav(`/project-management/${projectId}`);
   const goSettings = (projectId: string) => nav(`/project-management/${projectId}/settings`);
+  const goTestDashboard = (projectId: string, test: TestCodeItem) => {
+    const groupId = test.groupId;
+    const executionId = test.executionId ?? groupId;
+    const params = new URLSearchParams({ projectId });
+
+    if (groupId) params.set("groupId", groupId);
+    if (executionId) params.set("executionId", executionId);
+    if (test.title) params.set("groupName", test.title);
+
+    nav(`/test-dashboard?${params.toString()}`, {
+      state: {
+        projectId,
+        groupId,
+        executionId,
+        groupName: test.title,
+      },
+    });
+  };
 
   const ListRoute = () => (
     <ProjectManagementView
@@ -38,6 +56,9 @@ export default function ProjectManagementController() {
         detail={detail}
         onOpenSettings={() => goSettings(id)}
         onBackToList={goList}
+        onOpenTestDashboard={(test) => goTestDashboard(id, test)}
+        onRenameTestGroup={(testId, title) => model.renameTestGroup(id, testId, title)}
+        onDeleteTestGroup={(testId) => model.deleteTestGroup(id, testId)}
       />
     );
   };

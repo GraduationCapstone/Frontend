@@ -1,4 +1,10 @@
-import type { Member, ProjectDetail, ProjectListItem, ProjectManagementMode } from "./types";
+import type {
+  Member,
+  ProjectDetail,
+  ProjectListItem,
+  ProjectManagementMode,
+  TestCodeItem,
+} from "./types";
 
 import ProjectListSection from "./components/ProjectListSection";
 import ProjectDetailHeader from "./components/ProjectDetailHeader";
@@ -15,6 +21,9 @@ type Props = {
   onOpenProject?: (projectId: string) => void;
   onCreateProject?: () => void;
   onOpenSettings?: () => void;
+  onOpenTestDashboard?: (test: TestCodeItem) => void;
+  onRenameTestGroup?: (testId: string, title: string) => void | Promise<void>;
+  onDeleteTestGroup?: (testId: string) => void | Promise<void>;
   onBackToList?: () => void;
   onCancelSettings?: () => void;
   onSaveSettings?: (nextName: string, nextMembers: Member[]) => void;
@@ -42,6 +51,9 @@ export default function ProjectManagementView(props: Props) {
     onOpenProject,
     onCreateProject,
     onOpenSettings,
+    onOpenTestDashboard,
+    onRenameTestGroup,
+    onDeleteTestGroup,
     onCancelSettings,
     onSaveSettings,
     onLeaveProject,
@@ -77,7 +89,13 @@ export default function ProjectManagementView(props: Props) {
             <AvgTestTimeChart data={detail.avgTestTime} title="평균 테스트 시간" />
           </div>
 
-          <ProjectTestsPanel title={`${detail.tests.length} 테스트`} tests={detail.tests} />
+          <ProjectTestsPanel
+            title={`${detail.tests.length} 테스트`}
+            tests={detail.tests}
+            onOpenDashboard={(test) => onOpenTestDashboard?.(test)}
+            onRenameTestGroup={(testId, title) => onRenameTestGroup?.(testId, title)}
+            onDeleteTestGroup={(testId) => onDeleteTestGroup?.(testId)}
+          />
         </>
       )}
       

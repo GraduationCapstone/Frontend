@@ -1,37 +1,48 @@
-import type { TEDashBoardData } from "./types";
-import type { TEDashBoardState } from "../../hooks/useTEDashBoard";
+import type { TEDashBoardData } from './types';
+import type { TEDashBoardState } from '../../hooks/useTEDashBoard';
 
-import HeaderFrame from "./components/HeaderFrame";
-import GraphFrame from "./components/GraphFrame";
-import TestCodeSection from "./components/TestCodeSection";
-import DetailSection from "./components/DetailSection";
+import HeaderFrame from './components/HeaderFrame';
+import GraphFrame from './components/GraphFrame';
+import TestCodeSection from './components/TestCodeSection';
+import DetailSection from './components/DetailSection';
 
 type Props = {
   data: TEDashBoardData;
   state: TEDashBoardState;
+  onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
+  onDeleteTestCode: (id: string) => Promise<void>;
+  onDownloadTestPlan: () => void;
+  onDownloadTestReport: () => void;
 };
 
-export default function TEDashBoardView({ data, state }: Props) {
+export default function TEDashBoardView({
+  data,
+  state,
+  onSaveTestCodeTitle,
+  onDeleteTestCode,
+  onDownloadTestPlan,
+  onDownloadTestReport,
+}: Props) {
   const isSplit = state.selectedId !== null;
 
   const selectedItem = isSplit
-    ? state.sortedList.find((it) => it.id === state.selectedId) ?? null
+    ? (state.sortedList.find((it) => it.id === state.selectedId) ?? null)
     : null;
 
   return (
-    <main className="self-stretch inline-flex flex-col items-center justify-start pt-20">
+    <main className="inline-flex flex-col items-center justify-start self-stretch pt-20">
       {/* split 컨테이너 */}
       <div
         className={[
-          "w-full min-h-[63rem]",
-          isSplit ? "flex items-start gap-10" : "px-layout-margin flex flex-col items-center ",
-        ].join(" ")}
+          'min-h-[63rem] w-full',
+          isSplit ? 'flex items-start gap-10' : 'px-layout-margin flex flex-col items-center',
+        ].join(' ')}
       >
         <div
           className={[
-            "flex flex-col items-center",
-            isSplit ? "flex-1 min-w-0 self-stretch px-layout-margin gap-10" : " w-full",
-          ].join(" ")}
+            'flex flex-col items-center',
+            isSplit ? 'px-layout-margin min-w-0 flex-1 gap-10 self-stretch' : 'w-full',
+          ].join(' ')}
         >
           <HeaderFrame
             title={state.title}
@@ -41,6 +52,8 @@ export default function TEDashBoardView({ data, state }: Props) {
             onStartEditTitle={state.startEditTitle}
             onSaveTitle={state.saveTitle}
             onCancelTitle={state.cancelTitle}
+            onDownloadTestPlan={onDownloadTestPlan}
+            onDownloadTestReport={onDownloadTestReport}
           />
 
           <GraphFrame
@@ -50,7 +63,7 @@ export default function TEDashBoardView({ data, state }: Props) {
           />
 
           <TestCodeSection
-          variant={isSplit ? "simple" : "full"}
+            variant={isSplit ? 'simple' : 'full'}
             totalCount={data.totalCount}
             selectedId={state.selectedId}
             list={state.sortedList}
@@ -58,11 +71,11 @@ export default function TEDashBoardView({ data, state }: Props) {
             sortKey={state.sortKey}
             sortOrder={state.sortOrder}
             onSelect={(id) => {
-              if (typeof state.selectItem === "function") {
+              if (typeof state.selectItem === 'function') {
                 state.selectItem(id);
                 return;
               }
-              console.error("state.selectItem이 함수가 아님:", state.selectItem, state);
+              console.error('state.selectItem이 함수가 아님:', state.selectItem, state);
             }}
             onOpenSortMenu={state.openSortMenu}
             onApplySort={state.applySort}
@@ -73,13 +86,12 @@ export default function TEDashBoardView({ data, state }: Props) {
             onOpenEditModal={state.openEditModal}
             onOpenDeleteModal={state.openDeleteModal}
             onCloseModals={state.closeModals}
+            onSaveTestCodeTitle={onSaveTestCodeTitle}
+            onDeleteTestCode={onDeleteTestCode}
           />
         </div>
         {isSplit && selectedItem && (
-          <DetailSection
-            item={selectedItem}
-            onClose={() => state.selectItem(null)}
-          />
+          <DetailSection item={selectedItem} onClose={() => state.selectItem(null)} />
         )}
       </div>
     </main>

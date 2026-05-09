@@ -1,37 +1,27 @@
 import type { ProjectDetail, Summary } from "../types";
 import DonutChart from "../../TEDashBoard/components/DonutChart";
 import Dot from "../../../assets/icons/dot.svg?react";
-import Tooltip from "../../../components/common/Tooptip";
 
 type Props = {
   summary: ProjectDetail["summary"];
 };
 
 const normalizeSummary = (s: ProjectDetail["summary"] | null | undefined): Summary => ({
-  pass: Number((s as any)?.pass ?? 0) || 0,
-  block: Number((s as any)?.block ?? 0) || 0,
-  fail: Number((s as any)?.fail ?? 0) || 0,
-  untest: Number((s as any)?.untest ?? 0) || 0,
+  pass: Number(s?.counts.pass ?? 0) || 0,
+  block: Number(s?.counts.block ?? 0) || 0,
+  fail: Number(s?.counts.fail ?? 0) || 0,
+  untest: Number(s?.counts.untest ?? 0) || 0,
 });
-
-const getTotal = (s: Summary) => s.pass + s.block + s.fail + s.untest;
 
 const DotItem = (props: {
   label: "Pass" | "Block" | "Fail" | "Untest";
   count: number;
-  totalCount: number;
   colorClass: string;
 }) => {
-  const { label, count, totalCount, colorClass } = props;
-
-  const percent = totalCount > 0 ? (count / totalCount) * 100 : 0;
+  const { label, count, colorClass } = props;
 
   return (
     <div className="relative group inline-flex items-center gap-1">
-      <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 z-10 hidden group-hover:block">
-        <Tooltip value={percent} digits={2} />
-      </div>
-
       <Dot className={["w-8 h-8", colorClass].join(" ")} />
       <span className="text-h4-ko text-grayscale-black">{count}</span>
       <span className="text-h4-ko text-grayscale-black">{label}</span>
@@ -43,19 +33,14 @@ export default function ProjectSummarySection({ summary }: Props) {
   const apiSummary = normalizeSummary(summary);
   const effectiveSummary = apiSummary;
 
-  const totalCount = getTotal(effectiveSummary);
-  const testedCount = effectiveSummary.pass + effectiveSummary.block + effectiveSummary.fail;
-  const passRate =
-    testedCount === 0 ? 0 : Math.round((effectiveSummary.pass / testedCount) * 1000) / 10;
-
   return (
     <section className="w-l py-10 inline-flex justify-center items-center gap-14">
       <DonutChart summary={effectiveSummary} />
 
       <div className="inline-flex flex-col justify-start items-center gap-1">
-        <div className="text-h2-ko text-grayscale-black">{passRate}% Pass</div>
+        <div className="text-h2-ko text-grayscale-black">{summary.passRateText}</div>
         <div className="text-medium500-ko text-grayscale-gy700">
-          {testedCount} / {totalCount} Tested
+          {summary.testedText}
         </div>
       </div>
 
@@ -63,25 +48,21 @@ export default function ProjectSummarySection({ summary }: Props) {
         <DotItem
           label="Pass"
           count={effectiveSummary.pass}
-          totalCount={totalCount}
           colorClass="text-chip-pass fill-current [&_*]:fill-current"
         />
         <DotItem
           label="Block"
           count={effectiveSummary.block}
-          totalCount={totalCount}
           colorClass="text-chip-block fill-current [&_*]:fill-current"
         />
         <DotItem
           label="Fail"
           count={effectiveSummary.fail}
-          totalCount={totalCount}
           colorClass="text-chip-fail fill-current [&_*]:fill-current"
         />
         <DotItem
           label="Untest"
           count={effectiveSummary.untest}
-          totalCount={totalCount}
           colorClass="text-chip-untest fill-current [&_*]:fill-current"
         />
       </div>

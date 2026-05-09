@@ -12,9 +12,18 @@ import DeleteTestCodeModal from "../../../components/common/Modal/DeleteTestCode
 type Props = {
   title: string;
   tests: TestCodeItem[];
+  onOpenDashboard?: (test: TestCodeItem) => void;
+  onRenameTestGroup?: (testId: string, title: string) => void | Promise<void>;
+  onDeleteTestGroup?: (testId: string) => void | Promise<void>;
 };
 
-export default function ProjectTestsPanel({ title, tests }: Props) {
+export default function ProjectTestsPanel({
+  title,
+  tests,
+  onOpenDashboard,
+  onRenameTestGroup,
+  onDeleteTestGroup,
+}: Props) {
   const [list, setList] = useState<TestCodeItem[]>(tests);
 
   // 상위에서 tests가 바뀌면 동기화
@@ -47,7 +56,12 @@ export default function ProjectTestsPanel({ title, tests }: Props) {
 
         <div className="flex flex-col">
           {table.sortedList.map((it) => (
-            <ProjectTestRow key={it.id} item={it} onOpenRowMenu={table.openRowMenu} />
+            <ProjectTestRow
+              key={it.id}
+              item={it}
+              onOpenDashboard={onOpenDashboard}
+              onOpenRowMenu={table.openRowMenu}
+            />
           ))}
         </div>
       </div>
@@ -73,9 +87,14 @@ export default function ProjectTestsPanel({ title, tests }: Props) {
           const t = (nextTitle ?? "").trim();
           if (t.length === 0) return;
 
-          setList((prev) => prev.map((it) => (it.id === id ? { ...it, title: t } : it)));
-
-          table.closeModals();
+          Promise.resolve(onRenameTestGroup?.(id, t))
+            .then(() => {
+              setList((prev) => prev.map((it) => (it.id === id ? { ...it, title: t } : it)));
+              table.closeModals();
+            })
+            .catch((error) => {
+              console.error("[ProjectManagement] 테스트 그룹명 수정 실패:", error);
+            });
         }}
       />
 
@@ -87,9 +106,14 @@ export default function ProjectTestsPanel({ title, tests }: Props) {
           const id = table.deleteModalId;
           if (!id) return;
 
-          setList((prev) => prev.filter((it) => it.id !== id));
-
-          table.closeModals();
+          Promise.resolve(onDeleteTestGroup?.(id))
+            .then(() => {
+              setList((prev) => prev.filter((it) => it.id !== id));
+              table.closeModals();
+            })
+            .catch((error) => {
+              console.error("[ProjectManagement] 테스트 그룹 삭제 실패:", error);
+            });
         }}
       />
     </div>
