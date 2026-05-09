@@ -90,6 +90,22 @@ export interface TestDashboardResultFullViewResponse {
   result: string;
 }
 
+export type TestDashboardResultDetailType = 'basic' | 'code' | 'visual';
+
+export interface TestDashboardResultDetailsResponse {
+  tester?: string;
+  status?: string;
+  completedAt?: string;
+  errorLog?: string;
+  result?: string;
+  testCode?: string;
+  failTestCode?: string;
+  proofImageUrl?: string;
+  imageUrl?: string;
+  visualUrl?: string;
+  screenshotS3Urls?: string[];
+}
+
 export type TestDashboardReportDownloadResponse = Record<string, string>;
 
 // ==========================================
@@ -126,24 +142,28 @@ export const fetchTestDashboardResultFullView = async <T = TestDashboardResultFu
   projectId: IdParam,
   resultId: IdParam
 ): Promise<T> => {
-  const url = `/api/projects/${projectId}/tests/results/${resultId}/view-full`;
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/results/${resultId}/view-full`
+  );
+  return response.data;
+};
 
-  console.log('[fetchTestDashboardResultFullView] 요청 시작');
-  console.log('[fetchTestDashboardResultFullView] projectId:', projectId);
-  console.log('[fetchTestDashboardResultFullView] resultId:', resultId);
-  console.log('[fetchTestDashboardResultFullView] url:', url);
+// ==========================================
+// 1.4 테스트 결과 상세 조회 (GET)
+// ==========================================
 
-  try {
-    const response = await axiosInstance.get<T>(url);
-
-    console.log('[fetchTestDashboardResultFullView] 응답 성공:', response.data);
-
-    return response.data;
-  } catch (error) {
-    console.error('[fetchTestDashboardResultFullView] 요청 실패:', error);
-
-    throw error;
-  }
+export const fetchTestDashboardResultDetails = async <T = TestDashboardResultDetailsResponse>(
+  projectId: IdParam,
+  resultId: IdParam,
+  type: TestDashboardResultDetailType
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/results/${resultId}/details`,
+    {
+      params: { type },
+    }
+  );
+  return response.data;
 };
 
 // ==========================================

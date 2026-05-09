@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import type { TestCodeItem } from "../types";
 import {
+  fetchTestDashboardResultDetails,
   fetchTestDashboardResultFullView,
+  type TestDashboardResultDetailsResponse,
+  type TestDashboardResultDetailType,
   type TestDashboardResultFullViewResponse,
 } from "../../../api/testDashboard";
 
@@ -12,7 +15,6 @@ import StatusBadge, {
 import Tabs from "../../../components/common/Tabs";
 
 import CloseIcon from "../../../assets/icons/close.svg?react";
-import proofImg from "../../../assets/bg/proofImg.png";
 
 type TabKey = "result" | "failCode" | "scenario" | "proof";
 
@@ -39,6 +41,16 @@ const getBadgeType = (status: TestCodeItem["status"]): StatusBadgeType => {
 const toText = (value: string | null | undefined): string => {
   const text = value?.trim() ?? "";
   return text.length > 0 ? text : "-";
+};
+
+const hasText = (value: string | null | undefined): boolean => {
+  const text = value?.trim() ?? "";
+  return text.length > 0;
+};
+
+const stripAnsi = (value: string | null | undefined): string | undefined => {
+  if (!value) return undefined;
+  return value.replace(/\u001b\[[0-9;]*m/g, "");
 };
 
 const toTestStatus = (status: string | null | undefined): TestCodeItem["status"] => {
@@ -69,17 +81,21 @@ const formatCompletedAt = (value: string | null | undefined): { datePart: string
 };
 
 export default function DetailSection({ projectId, item, onClose }: Props) {
-  const [detail, setDetail] = useState<TestDashboardResultFullViewResponse | null>(null);
+  const [scenarioDetail, setScenarioDetail] = useState<TestDashboardResultFullViewResponse | null>(null);
+  const [basicDetail, setBasicDetail] = useState<TestDashboardResultDetailsResponse | null>(null);
+  const [codeDetail, setCodeDetail] = useState<TestDashboardResultDetailsResponse | null>(null);
+  const [visualDetail, setVisualDetail] = useState<TestDashboardResultDetailsResponse | null>(null);
   const [tab, setTab] = useState<TabKey>("result");
-  const resolvedStatus = detail?.status ? toTestStatus(detail.status) : item.status;
+  const resolvedStatus = toTestStatus(basicDetail?.status ?? scenarioDetail?.status ?? item.status);
   const isFail = resolvedStatus === "Fail";
 
   const { datePart, timePart } = useMemo(() => {
-    if (detail?.completedAt) return formatCompletedAt(detail.completedAt);
+    if (basicDetail?.completedAt) return formatCompletedAt(basicDetail.completedAt);
+    if (scenarioDetail?.completedAt) return formatCompletedAt(scenarioDetail.completedAt);
     const raw = item.date ?? "";
     const [d, t] = raw.split(" ");
     return { datePart: d || "-", timePart: t || "" };
-  }, [detail?.completedAt, item.date]);
+  }, [basicDetail?.completedAt, scenarioDetail?.completedAt, item.date]);
 
   const tabItems = useMemo(() => {
     if (isFail) {
@@ -105,32 +121,99 @@ export default function DetailSection({ projectId, item, onClose }: Props) {
   useEffect(() => {
     let cancelled = false;
 
-    const loadDetail = async () => {
+    const loadScenarioDetail = async () => {
       if (!projectId || !item.resultId) {
-        setDetail(null);
+        setScenarioDetail(null);
         return;
       }
 
       try {
         const response = await fetchTestDashboardResultFullView(projectId, item.resultId);
         if (cancelled) return;
-        setDetail(response);
+        setScenarioDetail(response);
       } catch (error) {
         if (cancelled) return;
-        setDetail(null);
-        console.error("[TEDashBoard] 상세 조회 실패:", error);
+        setScenarioDetail(null);
+        console.error("[TEDashBoard] 시나리오 상세 조회 실패:", error);
       }
     };
 
-    loadDetail();
+    if (tab === "scenario" && !scenarioDetail) {
+      loadScenarioDetail();
+    }
 
     return () => {
       cancelled = true;
     };
-  }, [projectId, item.resultId]);
+  }, [projectId, item.resultId, tab, scenarioDetail]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadTypedDetail = async (type: TestDashboardResultDetailType) => {
+      if (!projectId || !item.resultId) return;
+
+      try {
+        const response = await fetchTestDashboardResultDetails(projectId, item.resultId, type);
+        if (cancelled) return;
+
+        if (type === "basic") setBasicDetail(response);
+        if (type === "code") setCodeDetail(response);
+        if (type === "visual") setVisualDetail(response);
+      } catch (error) {
+        if (cancelled) return;
+        if (type === "basic") setBasicDetail(null);
+        if (type === "code") setCodeDetail(null);
+        if (type === "visual") setVisualDetail(null);
+        console.error(`[TEDashBoard] ${type} 상세 조회 실패:`, error);
+      }
+    };
+
+    if (tab === "result" && !basicDetail) {
+      loadTypedDetail("basic");
+    }
+    if (tab === "failCode" && !codeDetail) {
+      loadTypedDetail("code");
+    }
+    if (tab === "proof" && !visualDetail) {
+      loadTypedDetail("visual");
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, item.resultId, tab, basicDetail, codeDetail, visualDetail]);
+
+  useEffect(() => {
+    setScenarioDetail(null);
+    setBasicDetail(null);
+    setCodeDetail(null);
+    setVisualDetail(null);
+  }, [item.id]);
+
+  const resolvedProofImageUrl = useMemo(() => {
+    const visual = visualDetail;
+    if (!visual) return undefined;
+    const screenshotUrl =
+      visual.screenshotS3Urls?.find((url) => typeof url === "string" && url.trim().length > 0) ??
+      undefined;
+    return (
+      screenshotUrl?.trim() ||
+      visual.proofImageUrl?.trim() ||
+      visual.imageUrl?.trim() ||
+      visual.visualUrl?.trim() ||
+      undefined
+    );
+  }, [visualDetail]);
+
+  const resultContentRaw = stripAnsi(basicDetail?.errorLog) ?? basicDetail?.result;
+  const failCodeContentRaw = codeDetail?.testCode ?? codeDetail?.failTestCode;
+  const resultContent = toText(resultContentRaw);
+  const failCodeContent = toText(failCodeContentRaw);
   const showOutputBox =
-    isFail && (tab === "result" || tab === "failCode");
+    isFail &&
+    ((tab === "result" && hasText(resultContentRaw)) ||
+      (tab === "failCode" && hasText(failCodeContentRaw)));
 
   return (
     <aside className="w-layout-split self-stretch bg-grayscale-gy50 shadow-[inset_0px_0px_32px_0px_rgba(31,35,40,0.10)] inline-flex flex-col justify-start items-start px-layout-margin py-8 gap-10 ">
@@ -162,13 +245,6 @@ export default function DetailSection({ projectId, item, onClose }: Props) {
           </div>
         </div>
 
-        {/* output frame */}
-        <div className="self-stretch min-h-28 px-3 py-2 bg-grayscale-white rounded-lg outline outline-1 outline-offset-[-1px] outline-grayscale-gy400 inline-flex flex-col justify-start items-start">
-          <div className="self-stretch justify-center text-grayscale-black text-medium500-ko">
-            Test Code Generation Basis
-          </div>
-          {/* TODO: 실제 데이터 바인딩 */}
-        </div>
       </div>
 
       {/* Tab + Content */}
@@ -203,25 +279,25 @@ export default function DetailSection({ projectId, item, onClose }: Props) {
             <OutputBox
               title={tab === "result" ? "Error Message" : "Fail Test Code"}
               content={
-                tab === "result" ? toText(detail?.result) : toText(detail?.executionSteps)
+                tab === "result" ? resultContent : failCodeContent
               }
             />
           )}
 
           {tab === "scenario" && (
             <ScenarioTable
-              scenarioName={toText(detail?.scenarioName)}
-              description={toText(detail?.description)}
-              testCaseId={toText(detail?.testCodeId)}
-              testCaseName={toText(detail?.testCaseName)}
-              precondition={toText(detail?.precondition)}
-              testData={toText(detail?.testData)}
-              steps={toText(detail?.executionSteps)}
-              result={toText(detail?.result)}
+              scenarioName={toText(scenarioDetail?.scenarioName)}
+              description={toText(scenarioDetail?.description)}
+              testCaseId={toText(scenarioDetail?.testCodeId)}
+              testCaseName={toText(scenarioDetail?.testCaseName)}
+              precondition={toText(scenarioDetail?.precondition)}
+              testData={toText(scenarioDetail?.testData)}
+              steps={toText(scenarioDetail?.executionSteps)}
+              result={toText(scenarioDetail?.result)}
             />
           )}
 
-          {tab === "proof" && <ProofPanel proofImageUrl={proofImg} />}
+          {tab === "proof" && <ProofPanel proofImageUrl={resolvedProofImageUrl} />}
         </div>
       </div>
     </aside>
@@ -246,6 +322,14 @@ function OutputBox(props: { title: string; content: string }) {
 // 증명 탭
 function ProofPanel(props: { proofImageUrl?: string }) {
   const { proofImageUrl } = props;
+  if (!proofImageUrl) {
+    return (
+      <div className="self-stretch min-h-80 rounded-lg bg-grayscale-white flex items-center justify-center text-medium500-ko text-grayscale-gy500">
+        -
+      </div>
+    );
+  }
+
   return (
     <div className="self-stretch bg-grayscale-white">
       <img
