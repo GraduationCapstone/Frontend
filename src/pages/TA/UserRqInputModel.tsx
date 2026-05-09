@@ -83,7 +83,7 @@ export type TestProcessStage = "idle" | "generating" | "testing" | "complete";
 
 export const useUserRqInputModel = () => {
   const location = useLocation();
-  const state = location.state as { 
+  const state = location.state as {
     testName?: string;
     targetProjectId?: string;
     selectedRepoIds?: string[];
@@ -93,12 +93,12 @@ export const useUserRqInputModel = () => {
   const [testName] = useState(state?.testName || 'Test A');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [planStatus, setPlanStatus] = useState<"generating" | "complete">("generating");
+  const [planStatus, setPlanStatus] = useState<'generating' | 'complete'>('generating');
   const [elapsedTime, setElapsedTime] = useState(0);
   const timerRef = useRef<number | null>(null);
 
   const [isTestProcessModalOpen, setIsTestProcessModalOpen] = useState(false);
-  const [testProcessStage, setTestProcessStage] = useState<TestProcessStage>("idle");
+  const [testProcessStage, setTestProcessStage] = useState<TestProcessStage>('idle');
   const [codeGenTime, setCodeGenTime] = useState(0); // 코드 생성 타이머
   const [testRunTime, setTestRunTime] = useState(0); // 테스트 진행 타이머
   const [isTestPaused, setIsTestPaused] = useState(false); // 일시정지 여부
@@ -114,12 +114,14 @@ export const useUserRqInputModel = () => {
 
   // ✨ 생성된 executionId들을 저장할 상태 추가 (레포지토리가 2개면 2개 저장)
   const [executionIds, setExecutionIds] = useState<number[]>([]);
+  const targetProjectId = state?.targetProjectId;
+  const dashboardGroupId = executionIds[0];
 
   const handleNext = async () => {
     if (!canProceed) return;
     // 1. 모달 열기 및 초기화
     setIsModalOpen(true);
-    setPlanStatus("generating");
+    setPlanStatus('generating');
     setElapsedTime(0);
 
     // 2. 타이머 시작 (1초마다 증가)
@@ -132,19 +134,19 @@ export const useUserRqInputModel = () => {
       const projectId = state?.targetProjectId;
       const repoIds = state?.selectedRepoIds || [];
 
-      if (!projectId) throw new Error("프로젝트 ID를 찾을 수 없습니다.");
-      if (repoIds.length === 0) throw new Error("선택된 타겟 레포지토리가 없습니다.");
+      if (!projectId) throw new Error('프로젝트 ID를 찾을 수 없습니다.');
+      if (repoIds.length === 0) throw new Error('선택된 타겟 레포지토리가 없습니다.');
 
       // Request Body에 맞춰 Set에 저장된 시나리오 문자열 ID들을 배열로 변환
       const scenarioIdsAsStrings = Array.from(selectedIds);
 
       // 3. 선택된 타겟 레포지토리 수만큼 병렬로 API (POST) 반복 호출
-          const promises = repoIds.map((repoId) => {
-            return setupTest(projectId, {
-              baseTestGroupName: testName,
-              targetRepoId: Number(repoId), 
-              scenarioSerials: scenarioIdsAsStrings,
-              targetBranch: "main", // 하드코딩 반영
+      const promises = repoIds.map((repoId) => {
+        return setupTest(projectId, {
+          baseTestGroupName: testName,
+          targetRepoId: Number(repoId),
+          scenarioSerials: scenarioIdsAsStrings,
+          targetBranch: 'main', // 하드코딩 반영
         });
       });
 
@@ -159,35 +161,36 @@ export const useUserRqInputModel = () => {
       // ✨ 1단계 폴링: AI가 계획서를 다 만들었는지 10초마다 물어봄
       const pollPlanStatus = async () => {
         try {
-          const statuses = await Promise.all(ids.map(id => fetchExecutionStatus(projectId, id)));
-          
-          if (statuses.some(s => s === 'FAILED')) {
-            throw new Error("AI 테스트 계획서 생성 중 오류가 발생했습니다. (FAILED)");
+          const statuses = await Promise.all(ids.map((id) => fetchExecutionStatus(projectId, id)));
+
+          if (statuses.some((s) => s === 'FAILED')) {
+            throw new Error('AI 테스트 계획서 생성 중 오류가 발생했습니다. (FAILED)');
           }
-          
+
           // 모든 실행 ID가 PLAN_COMPLETED (또는 그 이후 상태)라면 대기 종료
-          if (statuses.every(s => s === 'PLAN_COMPLETED' || s === 'TESTING' || s === 'COMPLETED')) {
+          if (
+            statuses.every((s) => s === 'PLAN_COMPLETED' || s === 'TESTING' || s === 'COMPLETED')
+          ) {
             if (timerRef.current) clearInterval(timerRef.current);
-            setPlanStatus("complete"); // ⬅️ 여기서 드디어 완료 화면으로 넘어감!
+            setPlanStatus('complete'); // ⬅️ 여기서 드디어 완료 화면으로 넘어감!
           } else {
             // 아직 생성 중(PLAN_GENERATING)이면 10초 뒤에 다시 확인
             setTimeout(pollPlanStatus, 10000);
           }
         } catch (error: any) {
-          console.error("계획서 상태 폴링 중 에러:", error);
+          console.error('계획서 상태 폴링 중 에러:', error);
           if (timerRef.current) clearInterval(timerRef.current);
-          alert(error.message || "상태 조회 중 오류가 발생했습니다.");
+          alert(error.message || '상태 조회 중 오류가 발생했습니다.');
           setIsModalOpen(false);
         }
       };
 
       pollPlanStatus(); // 폴링 시작
-
     } catch (error: any) {
-      console.error("테스트 설정 API 호출 실패:", error);
+      console.error('테스트 설정 API 호출 실패:', error);
       setIsModalOpen(false);
       if (timerRef.current) clearInterval(timerRef.current);
-      alert(error.message || "테스트를 생성하는 중 오류가 발생했습니다.");
+      alert(error.message || '테스트를 생성하는 중 오류가 발생했습니다.');
     }
   };
 
@@ -201,9 +204,9 @@ export const useUserRqInputModel = () => {
 
   const handleDownload = async () => {
     const projectId = state?.targetProjectId;
-    
+
     if (!projectId || executionIds.length === 0) {
-      alert("다운로드할 테스트 계획서 정보가 없습니다.");
+      alert('다운로드할 테스트 계획서 정보가 없습니다.');
       return;
     }
 
@@ -213,8 +216,8 @@ export const useUserRqInputModel = () => {
         await downloadTestPlan(projectId, exId);
       }
     } catch (error) {
-      console.error("테스트 계획서 다운로드 실패:", error);
-      alert("테스트 계획서 다운로드 중 오류가 발생했습니다.");
+      console.error('테스트 계획서 다운로드 실패:', error);
+      alert('테스트 계획서 다운로드 중 오류가 발생했습니다.');
     }
   };
 
@@ -230,7 +233,7 @@ export const useUserRqInputModel = () => {
       await Promise.all(promises);
 
       // 2. 모달 교체 및 프론트 UI 연출용 타이머 초기화
-      handleCloseModal(); 
+      handleCloseModal();
       setIsTestProcessModalOpen(true);
       setTestProcessStage("testing");
       setTestRunTime(0);
@@ -239,11 +242,13 @@ export const useUserRqInputModel = () => {
       // ✨ 2단계 폴링: AI 테스트가 끝났는지 10초마다 물어봄
       const pollTestStatus = async () => {
         try {
-          const statuses = await Promise.all(executionIds.map(id => fetchExecutionStatus(projectId, id)));
-          
-          if (statuses.some(s => s === 'FAILED')) {
+          const statuses = await Promise.all(
+            executionIds.map((id) => fetchExecutionStatus(projectId, id))
+          );
+
+          if (statuses.some((s) => s === 'FAILED')) {
             setIsTestPaused(true); // 에러 발생 시 진행 중이던 UI 애니메이션 일시정지
-            alert("테스트 실행 중 오류가 발생했습니다. (FAILED)");
+            alert('테스트 실행 중 오류가 발생했습니다. (FAILED)');
             return;
           }
 
@@ -256,14 +261,13 @@ export const useUserRqInputModel = () => {
             }
           }
         } catch (error) {
-          console.error("테스트 실행 상태 폴링 에러:", error);
+          console.error('테스트 실행 상태 폴링 에러:', error);
         }
       };
 
       pollTestStatus(); // 폴링 시작
-
     } catch (error: any) {
-      alert("테스트 실행을 시작할 수 없습니다.");
+      alert('테스트 실행을 시작할 수 없습니다.');
     }
   };
 
@@ -312,5 +316,7 @@ export const useUserRqInputModel = () => {
     setTestRunTime,
     isTestPaused,
     setIsTestPaused,
+    targetProjectId,
+    dashboardGroupId,
   };
 };

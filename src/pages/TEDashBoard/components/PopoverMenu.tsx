@@ -40,10 +40,8 @@ export default function PopoverMenu({
   onEdit,
   onDelete,
 }: Props) {
-  if (menu.kind === "none") return null;
-
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, onClose);
+  useClickOutside(ref, onClose, menu.kind !== "none");
 
   const [pos, setPos] = useState<Pos>({
     left: 0,
@@ -53,6 +51,8 @@ export default function PopoverMenu({
   });
 
   useLayoutEffect(() => {
+    if (menu.kind === "none") return;
+
     const anchor = menu.anchorEl;
     const gap = 8;
     const margin = 8;
@@ -96,6 +96,8 @@ export default function PopoverMenu({
     transformOrigin: pos.origin,
     zIndex: 9999,
   };
+
+  if (menu.kind === "none") return null;
 
   if (menu.kind === "sort") {
     const isAscSelected = activeSortKey === menu.key && activeSortOrder === "asc";

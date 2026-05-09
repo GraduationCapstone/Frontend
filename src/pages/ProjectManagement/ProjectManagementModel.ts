@@ -5,6 +5,8 @@ import type {
   Member,
   AvgTestTimePoint,
   ProjectRolePreview,
+  ProjectSummary,
+  TestCodeItem,
 } from "./types";
 import type { ProjectMemberResponse, ProjectRepoResponse, ProjectResponse } from "../../api/project";
 import {
@@ -14,6 +16,17 @@ import {
   fetchProjects,
   leaveProjectAsMember,
 } from "../../api/project";
+import type {
+  ProjectTestSummaryListItem,
+  TestDashboardBasicListItem,
+} from "../../api/testDashboard";
+import {
+  deleteTestDashboardGroup,
+  fetchProjectGlobalTestStats,
+  fetchProjectTestSummaryList,
+  fetchTestDashboardBasicList,
+  updateTestDashboardGroupName,
+} from "../../api/testDashboard";
 import { fetchUserMe } from "../../api/user";
 
 type ProjectApiItem = ProjectResponse;
@@ -31,6 +44,8 @@ type ProjectListMetadata = {
   members: Member[];
   myUserId: string;
   myRole: ProjectRolePreview;
+  tests: TestCodeItem[];
+  summary: ProjectSummary;
 };
 
 const formatProjectCode = (projectId: number): string =>
@@ -84,6 +99,126 @@ const getCurrentUserId = (currentUser: CurrentUserIdentity): number | undefined 
   return undefined;
 };
 
+const toOptionalText = (value: string | null | undefined): string | undefined => {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : undefined;
+};
+
+const toOptionalIdText = (value: string | number | null | undefined): string | undefined => {
+  if (typeof value === "number") return Number.isFinite(value) ? String(value) : undefined;
+  return toOptionalText(value);
+};
+
+const toNumericIdText = (value: string | number | null | undefined): string | undefined => {
+  if (typeof value === "number") return Number.isInteger(value) ? String(value) : undefined;
+
+  const text = toOptionalText(value);
+  return text && /^\d+$/.test(text) ? text : undefined;
+};
+
+const formatCompletedAt = (completedAt: string | null | undefined): string | undefined => {
+  const text = toOptionalText(completedAt);
+  return text?.replace("T", " ").slice(0, 16);
+};
+
+const formatCodeId = (id: string): string => {
+  const parts = id.split("_");
+  if (parts.length !== 3 || parts[0] !== parts[1]) return id;
+  return `${parts[0]}_${parts[2]}`;
+};
+
+type ProjectTestNameSource = Pick<
+  TestDashboardBasicListItem | ProjectTestSummaryListItem,
+  "testCodeName" | "testGroupName"
+>;
+
+const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
+  toOptionalText(test.testGroupName) ?? toOptionalText(test.testCodeName);
+
+const getNormalizedProjectTestName = (test: ProjectTestNameSource): string | undefined =>
+  getProjectTestName(test)?.replace(/\s+/g, "").toLowerCase();
+
+const createPassRatioByTestName = (
+  summaries: ProjectTestSummaryListItem[]
+): Map<string, string> => {
+  const passRatioByTestName = new Map<string, string>();
+
+  summaries.forEach((summary) => {
+    const testName = getNormalizedProjectTestName(summary);
+    const passRatio = toOptionalText(summary.passRatio);
+    if (!testName || !passRatio || passRatioByTestName.has(testName)) return;
+    passRatioByTestName.set(testName, passRatio);
+  });
+
+  return passRatioByTestName;
+};
+
+const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string =>
+  getProjectTestName(test) ??
+  toOptionalText(test.testCaseId) ??
+  `test-${index + 1}`;
+
+const getUniqueProjectTestGroups = (
+  tests: TestDashboardBasicListItem[]
+): TestDashboardBasicListItem[] => {
+  const seen = new Set<string>();
+
+  return tests.filter((test, index) => {
+    const key = getProjectTestGroupKey(test, index);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const mapProjectTest = (
+  projectId: number,
+  test: TestDashboardBasicListItem,
+  index: number,
+  fallbackPassRatio?: string
+): TestCodeItem => {
+  const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
+  const title = getProjectTestName(test) ?? '';
+  const key = id ?? `${index}`;
+  const groupId = toNumericIdText(test.groupId ?? test.testGroupId);
+
+  return {
+    id: key,
+    codeId: id ? formatCodeId(id) : '',
+    title,
+    status: "Untest",
+    projectId: String(projectId),
+    groupId,
+    executionId: toOptionalIdText(test.executionId),
+    passRatio: toOptionalText(test.passRatio) ?? fallbackPassRatio,
+    duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
+    user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
+    date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
+  };
+};
+
+const formatTestedText = (countString: string | undefined, passCount: number, totalCount: number) => {
+  const text = countString?.trim();
+  if (!text) return `${passCount} / ${totalCount} Tested`;
+  return text.toLowerCase().includes("tested") ? text : `${text} Tested`;
+};
+
+const createSummary = (
+  passCount = 0,
+  totalCount = 0,
+  countString?: string,
+  passRatio?: string
+): ProjectSummary => ({
+  passRateText: `${passRatio ?? "0%"} Pass`,
+  testedText: formatTestedText(countString, passCount, totalCount),
+  counts: {
+    pass: passCount,
+    block: 0,
+    fail: 0,
+    untest: Math.max(totalCount - passCount, 0),
+  },
+});
+
 const resolveCurrentMembership = (
   projectId: number,
   members: ProjectMemberResponse[],
@@ -132,17 +267,15 @@ const buildDefaultDetail = (
   name: string,
   members: Member[],
   myUserId: string,
-  myRole: ProjectRolePreview
+  myRole: ProjectRolePreview,
+  tests: TestCodeItem[],
+  summary: ProjectSummary = createSummary()
 ): ProjectDetail => ({
   id,
   name,
-  summary: {
-    passRateText: "0% Pass",
-    testedText: "0 / 0 Tested",
-    counts: { pass: 0, block: 0, fail: 0, untest: 0 },
-  },
+  summary,
   avgTestTime: [] as AvgTestTimePoint[],
-  tests: [],
+  tests,
   members,
   myUserId,
   myRole,
@@ -169,6 +302,29 @@ const resolveProjectMetadata = async (
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 레포 조회 실패:`, error);
   }
 
+  let tests: TestCodeItem[] = [];
+  let summary = createSummary();
+  try {
+    const [testResponses, summaryResponses, stats] = await Promise.all([
+      fetchTestDashboardBasicList(project.id),
+      fetchProjectTestSummaryList(project.id),
+      fetchProjectGlobalTestStats(project.id),
+    ]);
+    const passRatioByTestName = createPassRatioByTestName(summaryResponses);
+    tests = getUniqueProjectTestGroups(testResponses).map((test, index) => {
+      const testName = getNormalizedProjectTestName(test);
+      return mapProjectTest(
+        project.id,
+        test,
+        index,
+        testName ? passRatioByTestName.get(testName) : undefined
+      );
+    });
+    summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
+  } catch (error) {
+    console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);
+  }
+
   const mappedMembers = mapProjectMembers(members);
   const ownerFromMembers =
     members.find((member) => normalizeMemberRole(member.role) === "OWNER") ?? members[0];
@@ -189,6 +345,8 @@ const resolveProjectMetadata = async (
     members: mappedMembers,
     myUserId: myMembership.myUserId,
     myRole: myMembership.myRole,
+    tests,
+    summary,
   };
 };
 
@@ -226,6 +384,8 @@ export default function useProjectManagementModel() {
               members: [],
               myUserId: currentUserId !== undefined ? String(currentUserId) : "",
               myRole: "member",
+              tests: [],
+              summary: createSummary(),
             }
           )
         );
@@ -242,13 +402,17 @@ export default function useProjectManagementModel() {
                   members: metadata?.members ?? [],
                   myUserId: metadata?.myUserId ?? "",
                   myRole: metadata?.myRole ?? "member",
+                  tests: metadata?.tests ?? prev[project.id].tests,
+                  summary: metadata?.summary ?? prev[project.id].summary,
                 }
               : buildDefaultDetail(
                   project.id,
                   project.name,
                   metadata?.members ?? [],
                   metadata?.myUserId ?? "",
-                  metadata?.myRole ?? "member"
+                  metadata?.myRole ?? "member",
+                  metadata?.tests ?? [],
+                  metadata?.summary ?? createSummary()
                 );
           });
           return next;
@@ -310,6 +474,62 @@ export default function useProjectManagementModel() {
     });
   };
 
+  const renameTestGroup = async (projectId: string, testId: string, nextTitle: string) => {
+    const detail = detailsById[projectId];
+    const target = detail?.tests.find((test) => test.id === testId);
+    const groupId = target?.groupId;
+
+    if (!detail || !target || !groupId) {
+      const message =
+        "[ProjectManagement] 테스트 그룹명 수정에 필요한 숫자 groupId가 없습니다. /tests/list/basic 응답에 groupId를 내려줘야 합니다.";
+      console.error(message, { projectId, testId, target });
+      throw new Error(message);
+    }
+
+    await updateTestDashboardGroupName(projectId, groupId, nextTitle);
+    setDetailsById((prev) => {
+      const cur = prev[projectId];
+      if (!cur) return prev;
+
+      return {
+        ...prev,
+        [projectId]: {
+          ...cur,
+          tests: cur.tests.map((test) =>
+            test.id === testId ? { ...test, title: nextTitle } : test
+          ),
+        },
+      };
+    });
+  };
+
+  const deleteTestGroup = async (projectId: string, testId: string) => {
+    const detail = detailsById[projectId];
+    const target = detail?.tests.find((test) => test.id === testId);
+    const groupId = target?.groupId;
+
+    if (!detail || !target || !groupId) {
+      const message =
+        "[ProjectManagement] 테스트 그룹 삭제에 필요한 숫자 groupId가 없습니다. /tests/list/basic 응답에 groupId를 내려줘야 합니다.";
+      console.error(message, { projectId, testId, target });
+      throw new Error(message);
+    }
+
+    await deleteTestDashboardGroup(projectId, groupId);
+    setDetailsById((prev) => {
+      const cur = prev[projectId];
+      if (!cur) return prev;
+
+      return {
+        ...prev,
+        [projectId]: {
+          ...cur,
+          tests: cur.tests.filter((test) => test.id !== testId),
+        },
+      };
+    });
+  };
+
   const allGithubCandidates: Member[] = [];
 
   return {
@@ -319,6 +539,8 @@ export default function useProjectManagementModel() {
     leaveOrDeleteProject,
     removeProjectLocally,
     saveSettings,
+    renameTestGroup,
+    deleteTestGroup,
     allGithubCandidates,
   };
 }
