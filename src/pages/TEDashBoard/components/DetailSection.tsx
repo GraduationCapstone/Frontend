@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { TestCodeItem } from "../types";
+import {
+  fetchTestDashboardResultFullView,
+  type TestDashboardResultFullViewResponse,
+} from "../../../api/testDashboard";
 
 import { Button } from "../../../components/common/Button";
 import StatusBadge, {
@@ -13,6 +17,7 @@ import proofImg from "../../../assets/bg/proofImg.png";
 type TabKey = "result" | "failCode" | "scenario" | "proof";
 
 type Props = {
+  projectId?: string | number;
   item: TestCodeItem;
   onClose: () => void;
 };
@@ -31,60 +36,50 @@ const getBadgeType = (status: TestCodeItem["status"]): StatusBadgeType => {
   }
 };
 
-// ‼️목업 데이터 -> 나중에 api 연동
-const getDetailData = (item: TestCodeItem) => {
-  const anyItem = item as any;
+const toText = (value: string | null | undefined): string => {
+  const text = value?.trim() ?? "";
+  return text.length > 0 ? text : "-";
+};
+
+const toTestStatus = (status: string | null | undefined): TestCodeItem["status"] => {
+  const normalized = status?.replace(/[\s_-]/g, "").toUpperCase() ?? "";
+  if (["PASS", "PASSED", "SUCCESS", "COMPLETED"].includes(normalized)) return "Pass";
+  if (["FAIL", "FAILED", "ERROR"].includes(normalized)) return "Fail";
+  if (["BLOCK", "BLOCKED"].includes(normalized)) return "Block";
+  return "Untest";
+};
+
+const formatCompletedAt = (value: string | null | undefined): { datePart: string; timePart: string } => {
+  const text = value?.trim() ?? "";
+  if (!text) return { datePart: "-", timePart: "" };
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return { datePart: "-", timePart: "" };
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return {
-    // Fail - 결과
-    errorMessage:
-      anyItem?.errorMessage ??
-      "Lorem ipsum dolor sit amet consectetur. (Error Message Placeholder)",
-
-    // Fail - Fail 테스트 코드 탭
-    failTestCode:
-      anyItem?.failTestCode ??
-      "Lorem ipsum dolor sit amet consectetur. (Fail Test Code Placeholder)",
-
-    // 공통 - 증명
-    proofImageUrl: anyItem?.proofImageUrl ?? proofImg,
-
-    // 공통 - 테스트 시나리오 탭
-    scenarioData: {
-      scenarioName:
-        anyItem?.scenarioData?.scenarioName ??
-        "Lorem ipsum dolor sit amet consectetur.",
-      description:
-        anyItem?.scenarioData?.description ??
-        "Lorem ipsum dolor sit amet consectetur. Amet velit risus tortor amet facilisi habitasse. Auctor cursus lacus aenean urna quam congue consectetur lorem malesuada.",
-      testCaseId: anyItem?.scenarioData?.testCaseId ?? "T1234",
-      testCaseName:
-        anyItem?.scenarioData?.testCaseName ??
-        "Lorem ipsum dolor sit amet consectetur.",
-      precondition:
-        anyItem?.scenarioData?.precondition ??
-        "Lorem ipsum dolor sit amet consectetur. Amet velit risus tortor amet facilisi habitasse.",
-      testData:
-        anyItem?.scenarioData?.testData ??
-        "Lorem ipsum dolor sit amet consectetur. Amet velit risus tortor amet facilisi habitasse.",
-      steps:
-        anyItem?.scenarioData?.steps ??
-        "Lorem ipsum dolor sit amet consectetur. Amet velit risus tortor amet facilisi habitasse.",
-      result:
-        anyItem?.scenarioData?.result ?? "Lorem ipsum dolor sit amet consectetur.",
-    },
+    datePart: `${year}-${month}-${day}`,
+    timePart: `${hours}:${minutes}`,
   };
 };
 
-export default function DetailSection({ item, onClose }: Props) {
-  const isFail = item.status === "Fail";
+export default function DetailSection({ projectId, item, onClose }: Props) {
+  const [detail, setDetail] = useState<TestDashboardResultFullViewResponse | null>(null);
   const [tab, setTab] = useState<TabKey>("result");
+  const resolvedStatus = detail?.status ? toTestStatus(detail.status) : item.status;
+  const isFail = resolvedStatus === "Fail";
 
   const { datePart, timePart } = useMemo(() => {
+    if (detail?.completedAt) return formatCompletedAt(detail.completedAt);
     const raw = item.date ?? "";
     const [d, t] = raw.split(" ");
     return { datePart: d || "-", timePart: t || "" };
-  }, [item.date]);
+  }, [detail?.completedAt, item.date]);
 
   const tabItems = useMemo(() => {
     if (isFail) {
@@ -107,7 +102,32 @@ export default function DetailSection({ item, onClose }: Props) {
     if (!exists) setTab("result");
   }, [tabItems, tab]);
 
-  const detail = useMemo(() => getDetailData(item), [item]);
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDetail = async () => {
+      if (!projectId || !item.resultId) {
+        setDetail(null);
+        return;
+      }
+
+      try {
+        const response = await fetchTestDashboardResultFullView(projectId, item.resultId);
+        if (cancelled) return;
+        setDetail(response);
+      } catch (error) {
+        if (cancelled) return;
+        setDetail(null);
+        console.error("[TEDashBoard] 상세 조회 실패:", error);
+      }
+    };
+
+    loadDetail();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, item.resultId]);
 
   const showOutputBox =
     isFail && (tab === "result" || tab === "failCode");
@@ -164,7 +184,7 @@ export default function DetailSection({ item, onClose }: Props) {
           <div className="self-stretch inline-flex justify-between items-center">
             <div className="flex justify-start items-center gap-3">
               <div className="text-grayscale-black text-medium500-ko">상태</div>
-              <StatusBadge type={getBadgeType(item.status)} />
+              <StatusBadge type={getBadgeType(resolvedStatus)} />
             </div>
 
             <div className="px-2 inline-flex justify-start items-center gap-2 overflow-hidden">
@@ -183,25 +203,25 @@ export default function DetailSection({ item, onClose }: Props) {
             <OutputBox
               title={tab === "result" ? "Error Message" : "Fail Test Code"}
               content={
-                tab === "result" ? detail.errorMessage : detail.failTestCode
+                tab === "result" ? toText(detail?.result) : toText(detail?.executionSteps)
               }
             />
           )}
 
           {tab === "scenario" && (
             <ScenarioTable
-              scenarioName={detail.scenarioData.scenarioName}
-              description={detail.scenarioData.description}
-              testCaseId={detail.scenarioData.testCaseId}
-              testCaseName={detail.scenarioData.testCaseName}
-              precondition={detail.scenarioData.precondition}
-              testData={detail.scenarioData.testData}
-              steps={detail.scenarioData.steps}
-              result={detail.scenarioData.result}
+              scenarioName={toText(detail?.scenarioName)}
+              description={toText(detail?.description)}
+              testCaseId={toText(detail?.testCodeId)}
+              testCaseName={toText(detail?.testCaseName)}
+              precondition={toText(detail?.precondition)}
+              testData={toText(detail?.testData)}
+              steps={toText(detail?.executionSteps)}
+              result={toText(detail?.result)}
             />
           )}
 
-          {tab === "proof" && <ProofPanel proofImageUrl={detail.proofImageUrl} />}
+          {tab === "proof" && <ProofPanel proofImageUrl={proofImg} />}
         </div>
       </div>
     </aside>
@@ -210,11 +230,14 @@ export default function DetailSection({ item, onClose }: Props) {
 
 // 
 function OutputBox(props: { title: string; content: string }) {
-  const { title } = props;
+  const { title, content } = props;
   return (
     <div className="self-stretch min-h-80 px-3 py-2 bg-grayscale-white rounded-lg outline outline-1 outline-offset-[-1px] outline-grayscale-gy400 inline-flex flex-col justify-start items-start gap-2">
       <div className="self-stretch justify-center text-grayscale-black text-medium500-ko">
         {title}
+      </div>
+      <div className="self-stretch whitespace-pre-wrap text-grayscale-black text-medium400-ko">
+        {content}
       </div>
     </div>
   );

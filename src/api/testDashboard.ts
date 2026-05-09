@@ -76,6 +76,20 @@ export interface UpdateTestDashboardCodeNameRequest {
   newTestCodeName: string;
 }
 
+export interface TestDashboardResultFullViewResponse {
+  tester: string;
+  status: string;
+  completedAt: string;
+  scenarioName: string;
+  description: string;
+  testCodeId: string;
+  testCaseName: string;
+  precondition: string;
+  testData: string;
+  executionSteps: string;
+  result: string;
+}
+
 export type TestDashboardReportDownloadResponse = Record<string, string>;
 
 // ==========================================
@@ -102,6 +116,34 @@ export const fetchTestDashboardBasicList = async <T = TestDashboardBasicListResp
     params: groupId === undefined ? undefined : { groupId },
   });
   return response.data;
+};
+
+// ==========================================
+// 1.3 테스트 시나리오 조회 (GET)
+// ==========================================
+
+export const fetchTestDashboardResultFullView = async <T = TestDashboardResultFullViewResponse>(
+  projectId: IdParam,
+  resultId: IdParam
+): Promise<T> => {
+  const url = `/api/projects/${projectId}/tests/results/${resultId}/view-full`;
+
+  console.log('[fetchTestDashboardResultFullView] 요청 시작');
+  console.log('[fetchTestDashboardResultFullView] projectId:', projectId);
+  console.log('[fetchTestDashboardResultFullView] resultId:', resultId);
+  console.log('[fetchTestDashboardResultFullView] url:', url);
+
+  try {
+    const response = await axiosInstance.get<T>(url);
+
+    console.log('[fetchTestDashboardResultFullView] 응답 성공:', response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error('[fetchTestDashboardResultFullView] 요청 실패:', error);
+
+    throw error;
+  }
 };
 
 // ==========================================

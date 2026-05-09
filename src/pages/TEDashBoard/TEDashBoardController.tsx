@@ -46,6 +46,7 @@ const filterResultsByGroupName = (
 
 type TEDashBoardContentProps = {
   data: TEDashBoardData;
+  projectId?: string | number;
   onSaveTitle: (title: string) => Promise<void>;
   onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
   onDeleteTestCode: (id: string) => Promise<void>;
@@ -55,6 +56,7 @@ type TEDashBoardContentProps = {
 
 function TEDashBoardContent({
   data,
+  projectId,
   onSaveTitle,
   onSaveTestCodeTitle,
   onDeleteTestCode,
@@ -66,6 +68,7 @@ function TEDashBoardContent({
   return (
     <TEDashBoardView
       data={data}
+      projectId={projectId}
       state={state}
       onSaveTestCodeTitle={onSaveTestCodeTitle}
       onDeleteTestCode={onDeleteTestCode}
@@ -250,6 +253,7 @@ export default function TEDashBoardController() {
     <TEDashBoardContent
       key={dashboardKey}
       data={data}
+      projectId={dashboardParams.projectId}
       onSaveTitle={handleSaveTitle}
       onSaveTestCodeTitle={handleSaveTestCodeTitle}
       onDeleteTestCode={handleDeleteTestCode}
