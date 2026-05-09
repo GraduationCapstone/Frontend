@@ -145,6 +145,7 @@ export const useUserRqInputModel = () => {
               targetRepoId: Number(repoId), 
               scenarioSerials: scenarioIdsAsStrings,
               targetBranch: "main", // 하드코딩 반영
+              optionalServerUrl: state?.serverUrl, // 선택적으로 서버 URL 전달
         });
       });
 
