@@ -144,9 +144,10 @@ export const useUserRqInputModel = () => {
       const promises = repoIds.map((repoId) => {
         return setupTest(projectId, {
           baseTestGroupName: testName,
-          targetRepoId: Number(repoId),
+          targetRepoId: Number(repoId), 
           scenarioSerials: scenarioIdsAsStrings,
-          targetBranch: 'main', // 하드코딩 반영
+          targetBranch: "main", // 하드코딩 반영
+          optionalServerUrl: state?.serverUrl, // 선택적으로 서버 URL 전달
         });
       });
 

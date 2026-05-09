@@ -6,6 +6,7 @@ export interface TestSetupRequest {
   targetRepoId: number;
   scenarioSerials: string[];
   targetBranch: string;
+  optionalServerUrl?: string;
 }
 
 // ✨ setup API의 응답 DTO 추가
