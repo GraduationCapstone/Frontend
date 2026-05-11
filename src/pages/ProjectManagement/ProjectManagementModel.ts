@@ -17,11 +17,13 @@ import {
   leaveProjectAsMember,
 } from "../../api/project";
 import type {
+  ProjectDailyAvgTestStatsItem,
   ProjectTestSummaryListItem,
   TestDashboardBasicListItem,
 } from "../../api/testDashboard";
 import {
   deleteTestDashboardGroup,
+  fetchProjectDailyAvgTestStats,
   fetchProjectGlobalTestStats,
   fetchProjectTestSummaryList,
   fetchTestDashboardBasicList,
@@ -46,6 +48,7 @@ type ProjectListMetadata = {
   myRole: ProjectRolePreview;
   tests: TestCodeItem[];
   summary: ProjectSummary;
+  avgTestTime: AvgTestTimePoint[];
 };
 
 const formatProjectCode = (projectId: number): string =>
@@ -219,6 +222,52 @@ const createSummary = (
   },
 });
 
+const parseDurationToSeconds = (duration: string | null | undefined): number | null => {
+  const text = duration?.trim();
+  if (!text) return null;
+
+  const colonParts = text.split(":").map((part) => Number(part));
+  if (colonParts.length === 3 && colonParts.every((value) => Number.isFinite(value))) {
+    const [hours, minutes, seconds] = colonParts;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  if (colonParts.length === 2 && colonParts.every((value) => Number.isFinite(value))) {
+    const [minutes, seconds] = colonParts;
+    return minutes * 60 + seconds;
+  }
+
+  const normalized = text.toLowerCase().replace(/\s+/g, "");
+  const minuteMatch = normalized.match(/(\d+)m/);
+  const secondMatch = normalized.match(/(\d+)s/);
+  if (minuteMatch || secondMatch) {
+    const minutes = minuteMatch ? Number(minuteMatch[1]) : 0;
+    const seconds = secondMatch ? Number(secondMatch[1]) : 0;
+    return minutes * 60 + seconds;
+  }
+
+  const asNumber = Number(normalized);
+  return Number.isFinite(asNumber) ? asNumber : null;
+};
+
+const toDateTime = (date: string): number => {
+  const time = Date.parse(date);
+  return Number.isFinite(time) ? time : 0;
+};
+
+const mapDailyAvgTestTime = (stats: ProjectDailyAvgTestStatsItem[]): AvgTestTimePoint[] =>
+  stats
+    .map((item) => {
+      const seconds = parseDurationToSeconds(item.averageDuration);
+      if (seconds === null) return null;
+      return {
+        date: item.date,
+        seconds,
+      };
+    })
+    .filter((item): item is AvgTestTimePoint => item !== null)
+    .sort((a, b) => toDateTime(a.date) - toDateTime(b.date))
+    .slice(-6);
+
 const resolveCurrentMembership = (
   projectId: number,
   members: ProjectMemberResponse[],
@@ -269,12 +318,13 @@ const buildDefaultDetail = (
   myUserId: string,
   myRole: ProjectRolePreview,
   tests: TestCodeItem[],
+  avgTestTime: AvgTestTimePoint[],
   summary: ProjectSummary = createSummary()
 ): ProjectDetail => ({
   id,
   name,
   summary,
-  avgTestTime: [] as AvgTestTimePoint[],
+  avgTestTime,
   tests,
   members,
   myUserId,
@@ -304,11 +354,13 @@ const resolveProjectMetadata = async (
 
   let tests: TestCodeItem[] = [];
   let summary = createSummary();
+  let avgTestTime: AvgTestTimePoint[] = [];
   try {
-    const [testResponses, summaryResponses, stats] = await Promise.all([
+    const [testResponses, summaryResponses, stats, dailyAvgStats] = await Promise.all([
       fetchTestDashboardBasicList(project.id),
       fetchProjectTestSummaryList(project.id),
       fetchProjectGlobalTestStats(project.id),
+      fetchProjectDailyAvgTestStats(project.id),
     ]);
     const passRatioByTestName = createPassRatioByTestName(summaryResponses);
     tests = getUniqueProjectTestGroups(testResponses).map((test, index) => {
@@ -321,6 +373,7 @@ const resolveProjectMetadata = async (
       );
     });
     summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
+    avgTestTime = mapDailyAvgTestTime(dailyAvgStats);
   } catch (error) {
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);
   }
@@ -347,6 +400,7 @@ const resolveProjectMetadata = async (
     myRole: myMembership.myRole,
     tests,
     summary,
+    avgTestTime,
   };
 };
 
@@ -386,6 +440,7 @@ export default function useProjectManagementModel() {
               myRole: "member",
               tests: [],
               summary: createSummary(),
+              avgTestTime: [],
             }
           )
         );
@@ -404,6 +459,7 @@ export default function useProjectManagementModel() {
                   myRole: metadata?.myRole ?? "member",
                   tests: metadata?.tests ?? prev[project.id].tests,
                   summary: metadata?.summary ?? prev[project.id].summary,
+                  avgTestTime: metadata?.avgTestTime ?? prev[project.id].avgTestTime,
                 }
               : buildDefaultDetail(
                   project.id,
@@ -412,6 +468,7 @@ export default function useProjectManagementModel() {
                   metadata?.myUserId ?? "",
                   metadata?.myRole ?? "member",
                   metadata?.tests ?? [],
+                  metadata?.avgTestTime ?? [],
                   metadata?.summary ?? createSummary()
                 );
           });

@@ -68,6 +68,13 @@ export interface ProjectGlobalTestStatsResponse {
   passRatio: string;
 }
 
+export interface ProjectDailyAvgTestStatsItem {
+  date: string;
+  averageDuration: string;
+}
+
+export type ProjectDailyAvgTestStatsResponse = ProjectDailyAvgTestStatsItem[];
+
 export interface UpdateTestDashboardGroupNameRequest {
   newGroupName: string;
 }
@@ -244,6 +251,19 @@ export const fetchProjectGlobalTestStats = async <T = ProjectGlobalTestStatsResp
 ): Promise<T> => {
   const response = await axiosInstance.get<T>(
     `/api/projects/${projectId}/tests/stats/project-global`
+  );
+  return response.data;
+};
+
+// ==========================================
+// 1-3. 프로젝트 내 일자별 평균 테스트 시간 조회 (GET)
+// ==========================================
+
+export const fetchProjectDailyAvgTestStats = async <T = ProjectDailyAvgTestStatsResponse>(
+  projectId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/stats/daily-avg`
   );
   return response.data;
 };
