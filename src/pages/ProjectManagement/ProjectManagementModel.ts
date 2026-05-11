@@ -18,14 +18,12 @@ import {
 } from "../../api/project";
 import type {
   ProjectDailyAvgTestStatsItem,
-  ProjectTestSummaryListItem,
   TestDashboardBasicListItem,
 } from "../../api/testDashboard";
 import {
   deleteTestDashboardGroup,
   fetchProjectDailyAvgTestStats,
   fetchProjectGlobalTestStats,
-  fetchProjectTestSummaryList,
   fetchTestDashboardBasicList,
   updateTestDashboardGroupName,
 } from "../../api/testDashboard";
@@ -131,30 +129,12 @@ const formatCodeId = (id: string): string => {
 };
 
 type ProjectTestNameSource = Pick<
-  TestDashboardBasicListItem | ProjectTestSummaryListItem,
+  TestDashboardBasicListItem,
   "testCodeName" | "testGroupName"
 >;
 
 const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
   toOptionalText(test.testGroupName) ?? toOptionalText(test.testCodeName);
-
-const getNormalizedProjectTestName = (test: ProjectTestNameSource): string | undefined =>
-  getProjectTestName(test)?.replace(/\s+/g, "").toLowerCase();
-
-const createPassRatioByTestName = (
-  summaries: ProjectTestSummaryListItem[]
-): Map<string, string> => {
-  const passRatioByTestName = new Map<string, string>();
-
-  summaries.forEach((summary) => {
-    const testName = getNormalizedProjectTestName(summary);
-    const passRatio = toOptionalText(summary.passRatio);
-    if (!testName || !passRatio || passRatioByTestName.has(testName)) return;
-    passRatioByTestName.set(testName, passRatio);
-  });
-
-  return passRatioByTestName;
-};
 
 const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string =>
   getProjectTestName(test) ??
@@ -177,8 +157,7 @@ const getUniqueProjectTestGroups = (
 const mapProjectTest = (
   projectId: number,
   test: TestDashboardBasicListItem,
-  index: number,
-  fallbackPassRatio?: string
+  index: number
 ): TestCodeItem => {
   const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
   const title = getProjectTestName(test) ?? '';
@@ -193,7 +172,7 @@ const mapProjectTest = (
     projectId: String(projectId),
     groupId,
     executionId: toOptionalIdText(test.executionId),
-    passRatio: toOptionalText(test.passRatio) ?? fallbackPassRatio,
+    passRatio: toOptionalText(test.passRatio),
     duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
     user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
     date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
@@ -356,22 +335,14 @@ const resolveProjectMetadata = async (
   let summary = createSummary();
   let avgTestTime: AvgTestTimePoint[] = [];
   try {
-    const [testResponses, summaryResponses, stats, dailyAvgStats] = await Promise.all([
+    const [testResponses, stats, dailyAvgStats] = await Promise.all([
       fetchTestDashboardBasicList(project.id),
-      fetchProjectTestSummaryList(project.id),
       fetchProjectGlobalTestStats(project.id),
       fetchProjectDailyAvgTestStats(project.id),
     ]);
-    const passRatioByTestName = createPassRatioByTestName(summaryResponses);
-    tests = getUniqueProjectTestGroups(testResponses).map((test, index) => {
-      const testName = getNormalizedProjectTestName(test);
-      return mapProjectTest(
-        project.id,
-        test,
-        index,
-        testName ? passRatioByTestName.get(testName) : undefined
-      );
-    });
+    tests = getUniqueProjectTestGroups(testResponses).map((test, index) =>
+      mapProjectTest(project.id, test, index)
+    );
     summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
     avgTestTime = mapDailyAvgTestTime(dailyAvgStats);
   } catch (error) {

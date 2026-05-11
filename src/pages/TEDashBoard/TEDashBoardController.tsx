@@ -137,13 +137,11 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        const resultsPromise = fetchProjectTestSummaryList(projectId).catch((error) => {
-          console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
-          return [];
-        });
-
         if (!groupId) {
-          const results = await resultsPromise;
+          const results = await fetchProjectTestSummaryList(projectId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+            return [];
+          });
           if (cancelled) return;
 
           const resolvedGroupName = String(groupName ?? '');
@@ -160,13 +158,14 @@ export default function TEDashBoardController() {
 
         const [group, results] = await Promise.all([
           fetchTestDashboardGroup(projectId, groupId),
-          resultsPromise,
+          fetchProjectTestSummaryList(projectId, groupId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+            return [];
+          }),
         ]);
         if (cancelled) return;
 
-        const filteredResults = filterResultsByGroupName(results, group.groupName);
-
-        setData(getTEDashBoardData({ group, results: filteredResults }));
+        setData(getTEDashBoardData({ group, results }));
       } catch (error) {
         if (cancelled) return;
 
