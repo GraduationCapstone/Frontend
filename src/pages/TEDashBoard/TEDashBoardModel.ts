@@ -48,12 +48,6 @@ const formatDate = (completedAt: string | null | undefined): string | undefined 
   return text?.replace('T', ' ').slice(0, 16);
 };
 
-const formatCodeId = (id: string): string => {
-  const parts = id.split('_');
-  if (parts.length !== 3 || parts[0] !== parts[1]) return id;
-  return `${parts[0]}_${parts[2]}`;
-};
-
 const mapResultToTestCodeItem = (
   result: TestDashboardBasicListItem | ProjectTestSummaryListItem,
   index: number
@@ -64,7 +58,7 @@ const mapResultToTestCodeItem = (
 
   return {
     id: key,
-    codeId: id ? formatCodeId(id) : '',
+    codeId: id ?? '',
     title,
     status: normalizeStatus(result.status),
     resultId: toNumericIdText(result.resultId ?? result.testResultId ?? result.id),
