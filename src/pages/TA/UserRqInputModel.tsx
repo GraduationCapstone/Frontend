@@ -117,6 +117,15 @@ export const useUserRqInputModel = () => {
   const targetProjectId = state?.targetProjectId;
   const dashboardGroupId = executionIds[0];
 
+  // ID를 통해 시나리오 라벨(예: '로그인')을 찾아주는 함수
+  const getScenarioLabel = (id: string) => {
+    for (const category of SCENARIO_DATA) {
+      const item = category.items.find((it) => it.id === id);
+      if (item) return item.label;
+    }
+    return '';
+  };
+
   const handleNext = async () => {
     if (!canProceed) return;
     // 1. 모달 열기 및 초기화
@@ -140,14 +149,23 @@ export const useUserRqInputModel = () => {
       // Request Body에 맞춰 Set에 저장된 시나리오 문자열 ID들을 배열로 변환
       const scenarioIdsAsStrings = Array.from(selectedIds);
 
-      // 3. 선택된 타겟 레포지토리 수만큼 병렬로 API (POST) 반복 호출
-      const promises = repoIds.map((repoId) => {
-        return setupTest(projectId, {
-          baseTestGroupName: testName,
-          targetRepoId: Number(repoId), 
-          scenarioSerials: scenarioIdsAsStrings,
-          targetBranch: "main", // 하드코딩 반영
-          optionalServerUrl: state?.serverUrl, // 선택적으로 서버 URL 전달
+      // 2. 조건부 테스트명 조합 및 API 호출 로직 변경
+      const promises = repoIds.flatMap((repoId) => {
+        return Array.from(selectedIds).map((scenarioId) => {
+          const scenarioLabel = getScenarioLabel(scenarioId);
+          
+          // ✨ 핵심 변경 사항: 선택된 시나리오가 2개 이상일 때만 (라벨) 추가
+          const customizedTestName = selectedIds.size > 1 
+            ? `${testName} (${scenarioLabel})` 
+            : testName;
+
+          return setupTest(projectId, {
+            baseTestGroupName: customizedTestName,
+            targetRepoId: Number(repoId),
+            scenarioSerials: [scenarioId], // 단일 시나리오 ID 전송
+            targetBranch: "main",
+            optionalServerUrl: state?.serverUrl,
+          });
         });
       });
 
