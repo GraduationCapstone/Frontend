@@ -6,6 +6,7 @@ import {
   downloadTestDashboardReport,
   fetchProjectTestSummaryList,
   fetchTestDashboardGroup,
+  fetchTestExecutionStats,
   updateTestDashboardCodeName,
   updateTestDashboardGroupName,
 } from '../../api/testDashboard';
@@ -125,7 +126,7 @@ export default function TEDashBoardController() {
   const [data, setData] = useState<TEDashBoardData>(() => getTEDashBoardData());
 
   useEffect(() => {
-    const { projectId, groupId, groupName } = dashboardParams;
+    const { projectId, groupId, groupName, executionId } = dashboardParams;
     if (!projectId || (!groupId && !groupName)) {
       setData(getTEDashBoardData());
       return;
@@ -138,10 +139,18 @@ export default function TEDashBoardController() {
 
       try {
         if (!groupId) {
-          const results = await fetchProjectTestSummaryList(projectId).catch((error) => {
-            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
-            return [];
-          });
+          const [results, stats] = await Promise.all([
+            fetchProjectTestSummaryList(projectId).catch((error) => {
+              console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+              return [];
+            }),
+            executionId
+              ? fetchTestExecutionStats(projectId, executionId).catch((error) => {
+                  console.error('[TEDashBoard] 테스트 통계 조회 실패:', error);
+                  return null;
+                })
+              : Promise.resolve(null),
+          ]);
           if (cancelled) return;
 
           const resolvedGroupName = String(groupName ?? '');
@@ -151,21 +160,27 @@ export default function TEDashBoardController() {
             getTEDashBoardData({
               group: { groupId: '', projectId, groupName: resolvedGroupName },
               results: filteredResults,
+              stats,
             })
           );
           return;
         }
 
-        const [group, results] = await Promise.all([
+        const statsExecutionId = executionId ?? groupId;
+        const [group, results, stats] = await Promise.all([
           fetchTestDashboardGroup(projectId, groupId),
           fetchProjectTestSummaryList(projectId, groupId).catch((error) => {
             console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
             return [];
           }),
+          fetchTestExecutionStats(projectId, statsExecutionId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 통계 조회 실패:', error);
+            return null;
+          }),
         ]);
         if (cancelled) return;
 
-        setData(getTEDashBoardData({ group, results }));
+        setData(getTEDashBoardData({ group, results, stats }));
       } catch (error) {
         if (cancelled) return;
 

@@ -3,11 +3,13 @@ import type {
   ProjectTestSummaryListItem,
   TestDashboardBasicListItem,
   TestDashboardGroupResponse,
+  TestExecutionStatsResponse,
 } from '../../api/testDashboard';
 
 type GetTEDashBoardDataOptions = {
   group?: TestDashboardGroupResponse | null;
   results?: Array<TestDashboardBasicListItem | ProjectTestSummaryListItem> | null;
+  stats?: TestExecutionStatsResponse | null;
 };
 
 const normalizeStatus = (status: string | null | undefined): TestStatus => {
@@ -86,12 +88,32 @@ const getSummary = (list: TestCodeItem[]) =>
     { pass: 0, block: 0, fail: 0, untest: 0 }
   );
 
+const applyStatsSummary = (
+  listSummary: ReturnType<typeof getSummary>,
+  stats?: TestExecutionStatsResponse | null
+) => {
+  if (!stats) return listSummary;
+
+  const pass = Number(stats.passCount) || 0;
+  const total = Number(stats.totalCount) || 0;
+  const block = listSummary.block;
+  const fail = listSummary.fail;
+  const untest = Math.max(total - pass - block - fail, 0);
+
+  return {
+    pass,
+    block,
+    fail,
+    untest,
+  };
+};
+
 export const getTEDashBoardData = (options: GetTEDashBoardDataOptions = {}): TEDashBoardData => {
   const group = options.group;
   const list = getList(options.results);
-  const summary = getSummary(list);
+  const summary = applyStatsSummary(getSummary(list), options.stats);
 
-  const totalCount = list.length;
+  const totalCount = options.stats?.totalCount ?? list.length;
   const testedCount = totalCount - summary.untest;
 
   return {

@@ -68,6 +68,13 @@ export interface ProjectGlobalTestStatsResponse {
   passRatio: string;
 }
 
+export interface TestExecutionStatsResponse {
+  passCount: number;
+  totalCount: number;
+  countString: string;
+  passRatio: string;
+}
+
 export interface ProjectDailyAvgTestStatsItem {
   date: string;
   averageDuration: string;
@@ -169,6 +176,20 @@ export const fetchTestDashboardResultDetails = async <T = TestDashboardResultDet
     {
       params: { type },
     }
+  );
+  return response.data;
+};
+
+// ==========================================
+// 1.5 테스트 케이스 통계 조회 (GET)
+// ==========================================
+
+export const fetchTestExecutionStats = async <T = TestExecutionStatsResponse>(
+  projectId: IdParam,
+  executionId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/${executionId}/stats`
   );
   return response.data;
 };

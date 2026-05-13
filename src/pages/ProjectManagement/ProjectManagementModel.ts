@@ -122,6 +122,27 @@ const formatCompletedAt = (completedAt: string | null | undefined): string | und
   return text?.replace("T", " ").slice(0, 16);
 };
 
+const normalizeStatus = (status: string | null | undefined): TestCodeItem["status"] => {
+  const normalized = status?.replace(/[\s_-]/g, "").toUpperCase() ?? "";
+
+  if (
+    normalized === "PASS" ||
+    normalized === "PASSED" ||
+    normalized === "SUCCESS" ||
+    normalized === "COMPLETED"
+  ) {
+    return "Pass";
+  }
+  if (normalized === "FAIL" || normalized === "FAILED" || normalized === "ERROR") {
+    return "Fail";
+  }
+  if (normalized === "BLOCK" || normalized === "BLOCKED") {
+    return "Block";
+  }
+
+  return "Untest";
+};
+
 const formatCodeId = (id: string): string => {
   const parts = id.split("_");
   if (parts.length !== 3 || parts[0] !== parts[1]) return id;
@@ -168,7 +189,7 @@ const mapProjectTest = (
     id: key,
     codeId: id ? formatCodeId(id) : '',
     title,
-    status: "Untest",
+    status: normalizeStatus(test.status),
     projectId: String(projectId),
     groupId,
     executionId: toOptionalIdText(test.executionId),
@@ -179,25 +200,29 @@ const mapProjectTest = (
   };
 };
 
-const formatTestedText = (countString: string | undefined, passCount: number, totalCount: number) => {
+const formatTestedText = (
+  countString: string | undefined,
+  passCount: number,
+  testTotalCount: number
+) => {
   const text = countString?.trim();
-  if (!text) return `${passCount} / ${totalCount} Tested`;
+  if (!text) return `${passCount} / ${testTotalCount} Tested`;
   return text.toLowerCase().includes("tested") ? text : `${text} Tested`;
 };
 
 const createSummary = (
   passCount = 0,
-  totalCount = 0,
+  testTotalCount = 0,
   countString?: string,
   passRatio?: string
 ): ProjectSummary => ({
   passRateText: `${passRatio ?? "0%"} Pass`,
-  testedText: formatTestedText(countString, passCount, totalCount),
+  testedText: formatTestedText(countString, passCount, testTotalCount),
   counts: {
     pass: passCount,
     block: 0,
-    fail: 0,
-    untest: Math.max(totalCount - passCount, 0),
+    fail: Math.max(testTotalCount - passCount, 0),
+    untest: 0,
   },
 });
 
@@ -343,7 +368,13 @@ const resolveProjectMetadata = async (
     tests = getUniqueProjectTestGroups(testResponses).map((test, index) =>
       mapProjectTest(project.id, test, index)
     );
-    summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
+    const {
+      passCount,
+      totalCount: testTotalCount,
+      countString,
+      passRatio,
+    } = stats;
+    summary = createSummary(passCount, testTotalCount, countString, passRatio);
     avgTestTime = mapDailyAvgTestTime(dailyAvgStats);
   } catch (error) {
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);
