@@ -1,7 +1,7 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus } from '../../api/test';
+import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus, checkTestNameDuplicate } from '../../api/test';
 
 export interface ScenarioItem {
   id: string;
@@ -90,7 +90,9 @@ export const useUserRqInputModel = () => {
     serverUrl?: string;
   };
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [testName] = useState(state?.testName || 'Test A');
+  const [testName, setTestName] = useState(state?.testName || 'Test A'); // setTestName 추가
+  const [isEditingTestName, setIsEditingTestName] = useState(false); // 편집 모드 상태
+  const [testNameError, setTestNameError] = useState(''); // 에러 메시지 상태
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [planStatus, setPlanStatus] = useState<'generating' | 'complete'>('generating');
@@ -124,6 +126,34 @@ export const useUserRqInputModel = () => {
       if (item) return item.label;
     }
     return '';
+  };
+
+  // [추가] 테스트명 저장 로직 (TFSelect와 동일)
+  const handleSaveTestName = async () => {
+    const trimmedName = testName.trim();
+    
+    if (trimmedName === '') {
+      setTestNameError('테스트명을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const projectId = state?.targetProjectId;
+      if (!projectId) throw new Error("프로젝트 ID가 없습니다.");
+
+      // API를 통한 중복 체크
+      const isDuplicated = await checkTestNameDuplicate(projectId, trimmedName);
+      
+      if (isDuplicated) {
+        setTestNameError('해당 프로젝트에 이미 존재하는 테스트명입니다.');
+      } else {
+        setTestNameError('');
+        setIsEditingTestName(false); // 성공 시 편집 모드 종료
+      }
+    } catch (error) {
+      console.error("테스트명 중복 체크 실패:", error);
+      setTestNameError('중복 체크 중 오류가 발생했습니다.');
+    }
   };
 
   const handleNext = async () => {
@@ -314,6 +344,11 @@ export const useUserRqInputModel = () => {
 
   return {
     testName,
+    setTestName,
+    isEditingTestName,
+    setIsEditingTestName,
+    testNameError,
+    handleSaveTestName,
     scenarios: SCENARIO_DATA,
     selectedIds,
     toggleScenario,
