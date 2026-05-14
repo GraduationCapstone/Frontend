@@ -181,7 +181,7 @@ export const useUserRqInputModel = () => {
 
       // 2. 조건부 테스트명 조합 및 API 호출 로직 변경
       const promises = repoIds.flatMap((repoId) => {
-        return Array.from(selectedIds).map((scenarioId) => {
+        return scenarioIdsAsStrings.map((scenarioId) => {
           const scenarioLabel = getScenarioLabel(scenarioId);
           
           // ✨ 핵심 변경 사항: 선택된 시나리오가 2개 이상일 때만 (라벨) 추가
