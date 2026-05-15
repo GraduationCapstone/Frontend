@@ -1,7 +1,7 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus } from '../../api/test';
+import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus, checkTestNameDuplicate } from '../../api/test';
 
 export interface ScenarioItem {
   id: string;
@@ -90,7 +90,9 @@ export const useUserRqInputModel = () => {
     serverUrl?: string;
   };
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [testName] = useState(state?.testName || 'Test A');
+  const [testName, setTestName] = useState(state?.testName || 'Test A'); // setTestName 추가
+  const [isEditingTestName, setIsEditingTestName] = useState(false); // 편집 모드 상태
+  const [testNameError, setTestNameError] = useState(''); // 에러 메시지 상태
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [planStatus, setPlanStatus] = useState<'generating' | 'complete'>('generating');
@@ -117,6 +119,43 @@ export const useUserRqInputModel = () => {
   const targetProjectId = state?.targetProjectId;
   const dashboardGroupId = executionIds[0];
 
+  // ID를 통해 시나리오 라벨(예: '로그인')을 찾아주는 함수
+  const getScenarioLabel = (id: string) => {
+    for (const category of SCENARIO_DATA) {
+      const item = category.items.find((it) => it.id === id);
+      if (item) return item.label;
+    }
+    return '';
+  };
+
+  // [추가] 테스트명 저장 로직 (TFSelect와 동일)
+  const handleSaveTestName = async () => {
+    const trimmedName = testName.trim();
+    
+    if (trimmedName === '') {
+      setTestNameError('테스트명을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const projectId = state?.targetProjectId;
+      if (!projectId) throw new Error("프로젝트 ID가 없습니다.");
+
+      // API를 통한 중복 체크
+      const isDuplicated = await checkTestNameDuplicate(projectId, trimmedName);
+      
+      if (isDuplicated) {
+        setTestNameError('해당 프로젝트에 이미 존재하는 테스트명입니다.');
+      } else {
+        setTestNameError('');
+        setIsEditingTestName(false); // 성공 시 편집 모드 종료
+      }
+    } catch (error) {
+      console.error("테스트명 중복 체크 실패:", error);
+      setTestNameError('중복 체크 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleNext = async () => {
     if (!canProceed) return;
     // 1. 모달 열기 및 초기화
@@ -140,14 +179,23 @@ export const useUserRqInputModel = () => {
       // Request Body에 맞춰 Set에 저장된 시나리오 문자열 ID들을 배열로 변환
       const scenarioIdsAsStrings = Array.from(selectedIds);
 
-      // 3. 선택된 타겟 레포지토리 수만큼 병렬로 API (POST) 반복 호출
-      const promises = repoIds.map((repoId) => {
-        return setupTest(projectId, {
-          baseTestGroupName: testName,
-          targetRepoId: Number(repoId), 
-          scenarioSerials: scenarioIdsAsStrings,
-          targetBranch: "main", // 하드코딩 반영
-          optionalServerUrl: state?.serverUrl, // 선택적으로 서버 URL 전달
+      // 2. 조건부 테스트명 조합 및 API 호출 로직 변경
+      const promises = repoIds.flatMap((repoId) => {
+        return scenarioIdsAsStrings.map((scenarioId) => {
+          const scenarioLabel = getScenarioLabel(scenarioId);
+          
+          // ✨ 핵심 변경 사항: 선택된 시나리오가 2개 이상일 때만 (라벨) 추가
+          const customizedTestName = selectedIds.size > 1 
+            ? `${testName} (${scenarioLabel})` 
+            : testName;
+
+          return setupTest(projectId, {
+            baseTestGroupName: customizedTestName,
+            targetRepoId: Number(repoId),
+            scenarioSerials: [scenarioId], // 단일 시나리오 ID 전송
+            targetBranch: "main",
+            optionalServerUrl: state?.serverUrl,
+          });
         });
       });
 
@@ -296,6 +344,11 @@ export const useUserRqInputModel = () => {
 
   return {
     testName,
+    setTestName,
+    isEditingTestName,
+    setIsEditingTestName,
+    testNameError,
+    handleSaveTestName,
     scenarios: SCENARIO_DATA,
     selectedIds,
     toggleScenario,
