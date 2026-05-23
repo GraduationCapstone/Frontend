@@ -15,11 +15,13 @@ export default function ProjectManagementController() {
   const goTestDashboard = (projectId: string, test: TestCodeItem) => {
     const groupId = test.groupId;
     const executionId = test.executionId ?? groupId;
+    const testCaseId = test.id || test.codeId;
     const params = new URLSearchParams({ projectId });
 
     if (groupId) params.set("groupId", groupId);
     if (executionId) params.set("executionId", executionId);
     if (test.title) params.set("groupName", test.title);
+    if (testCaseId) params.set("testCaseId", testCaseId);
 
     nav(`/test-dashboard?${params.toString()}`, {
       state: {
@@ -27,6 +29,7 @@ export default function ProjectManagementController() {
         groupId,
         executionId,
         groupName: test.title,
+        testCaseId,
       },
     });
   };
