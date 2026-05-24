@@ -6,6 +6,9 @@ import TestDownloadModal from "../../components/common/Modal/TestDownloadModal";
 import TestCompleteModal from "../../components/common/Modal/TestCompleteModal";
 import type { TestProcessStage } from "./UserRqInputModel";
 
+import InputField from "../../components/common/InputField";
+import { Button } from "../../components/common/Button";
+
 import PencilIcon from "../../assets/icons/pencil.svg?react";
 import PersonIcon from "../../assets/icons/person.svg?react";
 import KeyIcon from "../../assets/icons/key.svg?react";
@@ -16,6 +19,11 @@ import EtcIcon from "../../assets/icons/etc.svg?react";
 
 interface Props {
   testName: string;
+  setTestName: (val: string) => void;
+  isEditingTestName: boolean;
+  setIsEditingTestName: (val: boolean) => void;
+  testNameError: string;
+  handleSaveTestName: () => void;
   scenarios: ScenarioCategory[];
   selectedIds: Set<string>;
   toggleScenario: (id: string) => void;
@@ -50,6 +58,11 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 export default function UserRqInputView({
   testName,
+  setTestName,
+  isEditingTestName,
+  setIsEditingTestName,
+  testNameError,
+  handleSaveTestName,
   scenarios,
   selectedIds,
   toggleScenario,
@@ -82,15 +95,41 @@ export default function UserRqInputView({
   const isGenerating = planStatus === "generating";
 
   return (
-    <div className="flex w-full min-h-screen bg-grayscale-white">
+    <div className="w-full h-[calc(100vh-5rem)] mt-20 flex bg-grayscale-white relative">
       {/* 1. Sidebar */}
       <aside className="w-overlay-side-sheet self-stretch px-gap-xl py-16 bg-grayscale-white flex flex-col gap-14 border-r border-grayscale-gy200/50">
-        <div className="self-stretch pl-2 py-2 flex justify-between items-center">
-          <span className="text-h3-ko text-grayscale-black">{testName}</span>
-          <button className="p-1 rounded-lg hover:bg-grayscale-gy100">
-            <PencilIcon className="w-6 h-6 [&_*]:fill-grayscale-black" />
-          </button>
-        </div>
+        {isEditingTestName ? (
+          // [편집 모드] InputField + 저장 버튼 (TFSelect와 동일 로직)
+          <div className="self-stretch flex flex-col justify-start items-center gap-3">
+            <InputField
+              value={testName}
+              onChange={(e) => setTestName(e.target.value)}
+              showIcon={false}
+              placeholder="Test Name"
+              widthClass="w-full"
+              isError={testNameError.length > 0}
+              errorMessage={testNameError}
+            />
+            <Button 
+              variant="dynamicSg500SText" 
+              onClick={handleSaveTestName}
+              disabled={testName.trim() === ''}
+            >
+              저장
+            </Button>
+          </div>
+        ) : (
+          // [기본 모드] 테스트명 표시 + 연필 아이콘
+          <div className="self-stretch pl-2 py-2 flex justify-between items-center">
+            <span className="text-h3-ko text-grayscale-black truncate">{testName}</span>
+            <button 
+              className="p-1 rounded-lg hover:bg-grayscale-gy100"
+              onClick={() => setIsEditingTestName(true)}
+            >
+              <PencilIcon className="w-6 h-6 [&_*]:fill-grayscale-black" />
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* 2. Main Content */}
