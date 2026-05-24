@@ -55,7 +55,11 @@ const mapResultToTestCodeItem = (
   index: number
 ): TestCodeItem => {
   const id = toOptionalText(result.testCaseId) ?? toOptionalText(result.id);
-  const title = toOptionalText(result.testCodeName) ?? toOptionalText(result.testGroupName) ?? '';
+  const title =
+    toOptionalText(result.testCodeName) ??
+    toOptionalText(result.testCaseName) ??
+    toOptionalText(result.testGroupName) ??
+    '';
   const key = id ?? `${index}`;
 
   return {

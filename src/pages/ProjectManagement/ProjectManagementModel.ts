@@ -151,11 +151,13 @@ const formatCodeId = (id: string): string => {
 
 type ProjectTestNameSource = Pick<
   TestDashboardBasicListItem,
-  "testCodeName" | "testGroupName"
+  "testCaseName" | "testCodeName" | "testGroupName"
 >;
 
 const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
-  toOptionalText(test.testGroupName) ?? toOptionalText(test.testCodeName);
+  toOptionalText(test.testGroupName) ??
+  toOptionalText(test.testCodeName) ??
+  toOptionalText(test.testCaseName);
 
 const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string =>
   getProjectTestName(test) ??

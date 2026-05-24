@@ -23,6 +23,7 @@ export interface TestDashboardBasicListItem {
   groupId?: IdParam | null;
   testGroupId?: IdParam | null;
   executionId?: IdParam | null;
+  testCaseName?: string | null;
   testCodeName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
@@ -46,6 +47,7 @@ export interface ProjectTestSummaryListItem {
   groupId?: IdParam | null;
   testGroupId?: IdParam | null;
   executionId?: IdParam | null;
+  testCaseName?: string | null;
   testCodeName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
