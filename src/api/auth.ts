@@ -1,5 +1,11 @@
-import { axiosInstance, publicAxiosInstance } from "./axios";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
+
+import { axiosInstance, publicAxiosInstance } from "./axios";
+
+type AccessTokenResponse = {
+  access_token?: string;
+  accessToken?: string;
+};
 
 export function extractAccessTokenFromUrl(search: string) {
   const params = new URLSearchParams(search);
@@ -20,16 +26,19 @@ export function clearAuthStorage() {
   localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
 }
 
-export async function reissueAccessToken() {
-  const response = await publicAxiosInstance.post("/api/auth/reissue", {});
-  const accessToken =
-    response.data?.access_token ?? response.data?.accessToken;
-
-  if (!accessToken) {
-    throw new Error("No access_token from reissue");
+function extractAccessTokenFromResponse(data: unknown) {
+  if (!data || typeof data !== "object") {
+    return null;
   }
 
-  return accessToken;
+  const tokenResponse = data as AccessTokenResponse;
+  return tokenResponse.access_token ?? tokenResponse.accessToken ?? null;
+}
+
+export async function reissueAccessToken() {
+  const response = await publicAxiosInstance.post("/api/auth/reissue", {});
+
+  return extractAccessTokenFromResponse(response.data);
 }
 
 // 로그아웃 (서버가 Set-Cookie로 refresh/access/JSESSIONID 만료 처리해줘야 함)

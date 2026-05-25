@@ -34,7 +34,11 @@ export default function OAuthRedirect() {
 
       try {
         const newAccessToken = await reissueAccessToken();
-        saveAccessToken(newAccessToken);
+        if (newAccessToken) {
+          saveAccessToken(newAccessToken);
+        } else {
+          clearAccessToken();
+        }
         setMessage("토큰 재발급 성공, 홈으로 이동 중...");
         navigate("/home", { replace: true });
       } catch (e) {
