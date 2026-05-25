@@ -23,6 +23,7 @@ export interface TestDashboardBasicListItem {
   groupId?: IdParam | null;
   testGroupId?: IdParam | null;
   executionId?: IdParam | null;
+  testCaseName?: string | null;
   testCodeName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
@@ -46,6 +47,7 @@ export interface ProjectTestSummaryListItem {
   groupId?: IdParam | null;
   testGroupId?: IdParam | null;
   executionId?: IdParam | null;
+  testCaseName?: string | null;
   testCodeName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
@@ -68,12 +70,56 @@ export interface ProjectGlobalTestStatsResponse {
   passRatio: string;
 }
 
+export interface TestExecutionStatsResponse {
+  passCount: number;
+  totalCount: number;
+  countString: string;
+  passRatio: string;
+}
+
+export interface ProjectDailyAvgTestStatsItem {
+  date: string;
+  averageDuration: string;
+}
+
+export type ProjectDailyAvgTestStatsResponse = ProjectDailyAvgTestStatsItem[];
+
 export interface UpdateTestDashboardGroupNameRequest {
   newGroupName: string;
 }
 
 export interface UpdateTestDashboardCodeNameRequest {
   newTestCodeName: string;
+}
+
+export interface TestDashboardResultFullViewResponse {
+  tester: string;
+  status: string;
+  completedAt: string;
+  scenarioName: string;
+  description: string;
+  testCodeId: string;
+  testCaseName: string;
+  precondition: string;
+  testData: string;
+  executionSteps: string;
+  result: string;
+}
+
+export type TestDashboardResultDetailType = 'basic' | 'code' | 'visual';
+
+export interface TestDashboardResultDetailsResponse {
+  tester?: string;
+  status?: string;
+  completedAt?: string;
+  errorLog?: string;
+  result?: string;
+  testCode?: string;
+  failTestCode?: string;
+  proofImageUrl?: string;
+  imageUrl?: string;
+  visualUrl?: string;
+  screenshotS3Urls?: string[];
 }
 
 export type TestDashboardReportDownloadResponse = Record<string, string>;
@@ -101,6 +147,52 @@ export const fetchTestDashboardBasicList = async <T = TestDashboardBasicListResp
   const response = await axiosInstance.get<T>(`/api/projects/${projectId}/tests/list/basic`, {
     params: groupId === undefined ? undefined : { groupId },
   });
+  return response.data;
+};
+
+// ==========================================
+// 1.3 테스트 시나리오 조회 (GET)
+// ==========================================
+
+export const fetchTestDashboardResultFullView = async <T = TestDashboardResultFullViewResponse>(
+  projectId: IdParam,
+  resultId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/results/${resultId}/view-full`
+  );
+  return response.data;
+};
+
+// ==========================================
+// 1.4 테스트 결과 상세 조회 (GET)
+// ==========================================
+
+export const fetchTestDashboardResultDetails = async <T = TestDashboardResultDetailsResponse>(
+  projectId: IdParam,
+  resultId: IdParam,
+  type: TestDashboardResultDetailType
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/results/${resultId}/details`,
+    {
+      params: { type },
+    }
+  );
+  return response.data;
+};
+
+// ==========================================
+// 1.5 테스트 케이스 통계 조회 (GET)
+// ==========================================
+
+export const fetchTestExecutionStats = async <T = TestExecutionStatsResponse>(
+  projectId: IdParam,
+  executionId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/${executionId}/stats`
+  );
   return response.data;
 };
 
@@ -182,6 +274,19 @@ export const fetchProjectGlobalTestStats = async <T = ProjectGlobalTestStatsResp
 ): Promise<T> => {
   const response = await axiosInstance.get<T>(
     `/api/projects/${projectId}/tests/stats/project-global`
+  );
+  return response.data;
+};
+
+// ==========================================
+// 1-3. 프로젝트 내 일자별 평균 테스트 시간 조회 (GET)
+// ==========================================
+
+export const fetchProjectDailyAvgTestStats = async <T = ProjectDailyAvgTestStatsResponse>(
+  projectId: IdParam
+): Promise<T> => {
+  const response = await axiosInstance.get<T>(
+    `/api/projects/${projectId}/tests/stats/daily-avg`
   );
   return response.data;
 };
