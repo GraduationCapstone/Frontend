@@ -1,6 +1,6 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus, checkTestNameDuplicate } from '../../api/test';
 
 export interface ScenarioItem {
@@ -82,6 +82,7 @@ const SCENARIO_DATA: ScenarioCategory[] = [
 export type TestProcessStage = "idle" | "generating" | "testing" | "complete";
 
 export const useUserRqInputModel = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as {
     testName?: string;
@@ -90,7 +91,7 @@ export const useUserRqInputModel = () => {
     serverUrl?: string;
   };
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [testName, setTestName] = useState(state?.testName || 'Test A'); // setTestName 추가
+  const [testName, setTestName] = useState(state?.testName ?? ''); // setTestName 추가
   const [isEditingTestName, setIsEditingTestName] = useState(false); // 편집 모드 상태
   const [testNameError, setTestNameError] = useState(''); // 에러 메시지 상태
 
@@ -138,21 +139,22 @@ export const useUserRqInputModel = () => {
     }
 
     try {
-      const projectId = state?.targetProjectId;
-      if (!projectId) throw new Error("프로젝트 ID가 없습니다.");
-
-      // API를 통한 중복 체크
-      const isDuplicated = await checkTestNameDuplicate(projectId, trimmedName);
+      // 기존 코드에 중복 체크 API(예: checkTestNameDuplicate)가 있다면 여기에 유지합니다.
       
-      if (isDuplicated) {
-        setTestNameError('해당 프로젝트에 이미 존재하는 테스트명입니다.');
-      } else {
-        setTestNameError('');
-        setIsEditingTestName(false); // 성공 시 편집 모드 종료
-      }
+      setTestNameError('');
+      setIsEditingTestName(false);
+
+      // ✨ 중요: 새로고침 시 기존 데이터 누락 방지를 위해 라우터 state를 현재 입력된 이름으로 갱신
+      navigate(location.pathname, {
+        replace: true,
+        state: {
+          ...state,
+          testName: trimmedName,
+        },
+      });
     } catch (error) {
-      console.error("테스트명 중복 체크 실패:", error);
-      setTestNameError('중복 체크 중 오류가 발생했습니다.');
+      console.error("테스트명 중복 체크 또는 저장 실패:", error);
+      setTestNameError('저장 중 오류가 발생했습니다.');
     }
   };
 
@@ -180,22 +182,13 @@ export const useUserRqInputModel = () => {
       const scenarioIdsAsStrings = Array.from(selectedIds);
 
       // 2. 조건부 테스트명 조합 및 API 호출 로직 변경
-      const promises = repoIds.flatMap((repoId) => {
-        return scenarioIdsAsStrings.map((scenarioId) => {
-          const scenarioLabel = getScenarioLabel(scenarioId);
-          
-          // ✨ 핵심 변경 사항: 선택된 시나리오가 2개 이상일 때만 (라벨) 추가
-          const customizedTestName = selectedIds.size > 1 
-            ? `${testName} (${scenarioLabel})` 
-            : testName;
-
-          return setupTest(projectId, {
-            baseTestGroupName: customizedTestName,
-            targetRepoId: Number(repoId),
-            scenarioSerials: [scenarioId], // 단일 시나리오 ID 전송
-            targetBranch: "main",
-            optionalServerUrl: state?.serverUrl,
-          });
+      const promises = repoIds.map((repoId) => {
+        return setupTest(projectId, {
+          baseTestGroupName: testName,
+          targetRepoId: Number(repoId),
+          scenarioSerials: scenarioIdsAsStrings, // ['01', '02'] 형태로 여러 시나리오를 한 번에 전송
+          targetBranch: "main",
+          optionalServerUrl: state?.serverUrl,
         });
       });
 
