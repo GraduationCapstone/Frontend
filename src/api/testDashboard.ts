@@ -31,6 +31,7 @@ export interface TestDashboardBasicListItem {
   duration?: string | null;
   testDuration?: string | null;
   tester?: string | null;
+  testerProfileImage?: string | null;
   testerName?: string | null;
   completedAt?: string | null;
   executedAt?: string | null;
@@ -55,6 +56,7 @@ export interface ProjectTestSummaryListItem {
   duration?: string | null;
   testDuration?: string | null;
   tester?: string | null;
+  testerProfileImage?: string | null;
   testerName?: string | null;
   completedAt?: string | null;
   executedAt?: string | null;

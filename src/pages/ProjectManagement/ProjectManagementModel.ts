@@ -198,6 +198,7 @@ const mapProjectTest = (
     passRatio: toOptionalText(test.passRatio),
     duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
     user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
+    testerProfileImage: toOptionalText(test.testerProfileImage),
     date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
   };
 };
