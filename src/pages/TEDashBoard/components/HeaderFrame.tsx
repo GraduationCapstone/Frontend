@@ -42,7 +42,7 @@ export default function HeaderFrame({
       ) : (
         <div className="max-w-m flex w-full items-center gap-3">
           <div className="min-w-0 flex-1">
-            <InputField value={draftTitle} onChange={(e) => setDraftTitle(e.target.value)} />
+            <InputField value={draftTitle} onChange={(e) => setDraftTitle(e.target.value)} showIcon={false} />
           </div>
 
           <Button
