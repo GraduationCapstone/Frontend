@@ -1,7 +1,7 @@
 import type { useTestFileSelectModel } from './TestFileSelectModel';
 
 // Components
-import { DynamicWhiteMIconTextButton } from '../../components/common/ListButton/ListButton';
+import { DynamicWhiteMSmoothIconTextButton } from '../../components/common/ListButton/ListButton';
 import InputField from '../../components/common/InputField';
 import RepositoryListItem from '../../components/common/ListItem/RepositoryListItem';
 import FloatingBtn from '../../components/common/FloatingBtn';
@@ -165,7 +165,7 @@ export default function TestFileSelectView({
           {CATEGORIES.map((category) => {
             const isSelected = selectedCategory === category.label;
             return (
-              <DynamicWhiteMIconTextButton
+              <DynamicWhiteMSmoothIconTextButton
                 key={category.label}
                 label={category.label}
                 leading={{ type: 'icon', icon: 'plus' }}
