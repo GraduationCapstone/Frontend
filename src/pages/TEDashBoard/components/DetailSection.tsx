@@ -101,13 +101,14 @@ export default function DetailSection({ projectId, item, onClose }: Props) {
     if (isFail) {
       return [
         { value: "result", label: "결과" },
-        { value: "failCode", label: "Fail 테스트 코드" },
+        { value: "failCode", label: "테스트 코드" },
         { value: "scenario", label: "테스트 시나리오" },
         { value: "proof", label: "증명" },
       ];
     }
     return [
       { value: "result", label: "결과" },
+      { value: "failCode", label: "테스트 코드" },
       { value: "scenario", label: "테스트 시나리오" },
       { value: "proof", label: "증명" },
     ];
@@ -207,13 +208,11 @@ export default function DetailSection({ projectId, item, onClose }: Props) {
   }, [visualDetail]);
 
   const resultContentRaw = stripAnsi(basicDetail?.errorLog) ?? basicDetail?.result;
-  const failCodeContentRaw = codeDetail?.testCode ?? codeDetail?.failTestCode;
+  const testCodeContentRaw = codeDetail?.testCode ?? codeDetail?.failTestCode;
   const resultContent = toText(resultContentRaw);
-  const failCodeContent = toText(failCodeContentRaw);
-  const showOutputBox =
-    isFail &&
-    ((tab === "result" && hasText(resultContentRaw)) ||
-      (tab === "failCode" && hasText(failCodeContentRaw)));
+  const testCodeContent = toText(testCodeContentRaw);
+  const showResultBox = tab === "result" && isFail && hasText(resultContentRaw);
+  const showTestCodeBox = tab === "failCode";
 
   return (
     <aside className="w-layout-split self-stretch bg-grayscale-gy50 shadow-[inset_0px_0px_32px_0px_rgba(31,35,40,0.10)] inline-flex flex-col justify-start items-start px-layout-margin py-8 gap-10 ">
@@ -275,12 +274,17 @@ export default function DetailSection({ projectId, item, onClose }: Props) {
             </div>
           </div>
           
-          {showOutputBox && (
+          {showResultBox && (
             <OutputBox
-              title={tab === "result" ? "Error Message" : "Fail Test Code"}
-              content={
-                tab === "result" ? resultContent : failCodeContent
-              }
+              title="Error Message"
+              content={resultContent}
+            />
+          )}
+
+          {showTestCodeBox && (
+            <OutputBox
+              title="Test Code"
+              content={testCodeContent}
             />
           )}
 
