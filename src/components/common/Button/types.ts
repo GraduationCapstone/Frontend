@@ -7,6 +7,7 @@ export type ButtonVariant =
   | "dynamicClearSTextUnderlined";
 
 export type IconButtonVariant =
+  | "staticWhiteMIconText"
   | "dynamicGy900MIconText"
   | "dynamicWhiteMDsIconText"
   | "dynamicClearSIconText";

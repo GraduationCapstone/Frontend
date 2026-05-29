@@ -1,7 +1,6 @@
 // src/pages/Home/TA/UserRqInputView.tsx
 import type { ScenarioCategory } from "./UserRqInputModel";
 import FloatingBtn from "../../components/common/FloatingBtn";
-import SelectTrigger from "../../components/common/TriggerButton/SelectTrigger";
 import TestDownloadModal from "../../components/common/Modal/TestDownloadModal";
 import TestCompleteModal from "../../components/common/Modal/TestCompleteModal";
 import type { TestProcessStage } from "./UserRqInputModel";
@@ -154,16 +153,17 @@ export default function UserRqInputView({
                 {category.items.map((item) => {
                   const isSelected = selectedIds.has(item.id);
                   return (
-                    <SelectTrigger
+                    <Button
                       key={item.id}
-                      label={item.label}
-                      variant="dynamic"
-                      selected={isSelected} // 추가됨
-                      onClick={() => toggleScenario(item.id)}
-                      // 색상 조건문 삭제, 기본 형태만 유지
-                      className="px-5 py-3 rounded-xl" 
+                      variant="staticWhiteMIconText"
+                      iconPosition="left"
                       iconClassName="hidden"
-                    />
+                      aria-pressed={isSelected}
+                      onClick={() => toggleScenario(item.id)}
+                      className="w-full"
+                    >
+                      {item.label}
+                    </Button>
                   );
                 })}
               </div>

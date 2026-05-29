@@ -10,6 +10,7 @@ import {
 } from "./styles";
 
 const ICON_TEXT_VARIANTS: IconButtonVariant[] = [
+  "staticWhiteMIconText",
   "dynamicGy900MIconText",
   "dynamicWhiteMDsIconText",
   "dynamicClearSIconText",
@@ -57,9 +58,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
       return (
         <button ref={ref} type={type} className={rootClassName} {...btnRest}>
-          {iconPosition === "left" ? <Icon className={iconCls} /> : null}
+          {Icon && iconPosition === "left" ? <Icon className={iconCls} /> : null}
           <span className={labelClassName}>{content}</span>
-          {iconPosition === "right" ? <Icon className={iconCls} /> : null}
+          {Icon && iconPosition === "right" ? <Icon className={iconCls} /> : null}
         </button>
       );
     }
