@@ -93,7 +93,7 @@ export default function TestFileSelectView({
         {/* 선택 여부와 상관없이 아이콘 자리를 확보하여 글자 밀림 방지 */}
         <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
           {isSelected && (
-             <CheckIcon className="w-3.75 h-2.5 [[&_*]:fill-current text-grayscale-black" />
+             <CheckIcon className="w-4.5 h-4.5 [[&_*]:fill-current text-grayscale-black" />
           )}
         </div>
 
@@ -180,10 +180,13 @@ export default function TestFileSelectView({
       </div>
 
       {/* 2. Main Content Area */}
-     <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-layout-margin-l pt-25 pb-5 gap-10 relative min-w-0">
+    <div className="flex-1 h-full bg-grayscale-gy50 flex flex-col px-layout-margin-l pt-25 pb-5 gap-10 relative min-w-0">
+
+      {/* ✨ [수정됨] 새롭게 묶은 상단 그룹 (타이틀 + 검색바 + 리스트뷰) -> flex 묶음 및 gap-5 (20px) 적용 */}
+      <div className="w-full flex-1 flex flex-col gap-5 min-h-0">
         
         {/* Title & Search Bar Area */}
-        <div className="w-full flex flex-col gap-10 shrink-0">
+        <div className="w-full flex flex-col gap-5 shrink-0">
             {/* Title */}
             <div className="w-full text-left text-h2-ko text-grayscale-black">
                 {selectedCategory}
@@ -204,7 +207,7 @@ export default function TestFileSelectView({
 
         {/* [List Area Scroll] List Box Container */}
         {/* 높이 45.75rem(732px) 고정, 내부 스크롤 적용 */}
-        <div className="w-full flex-1 min-h-0 flex flex-col rounded-lg border border-grayscale-gy300 bg-grayscale-white shadow-sm overflow-hidden">
+        <div className="w-full flex-1 min-h-0 flex flex-col rounded-lg border border-grayscale-gy300 bg-grayscale-white shadow-sm">
           
           {/* List Header */}
           <div className="w-full px-5 py-1 bg-grayscale-gy200 flex justify-between items-center border-b border-grayscale-gy300 shrink-0">
@@ -304,10 +307,11 @@ export default function TestFileSelectView({
             )}
           </div>
         </div>
+      </div>
 
         {/* ✨ [추가] 서버 URL 입력 영역 (테스트 모드일 때만 표시) */}
         {isTestMode && (
-          <div className="w-full shrink-0 flex flex-col justify-start items-start gap-gap-m mt-[min(3.9vh,2.5rem)] mb-[min(9.9vh,6.25rem)]">
+          <div className="w-full shrink-0 flex flex-col justify-start items-start gap-gap-m">
             <div className="self-stretch text-h2-ko text-grayscale-black">
               서버 URL
             </div>
@@ -324,7 +328,7 @@ export default function TestFileSelectView({
       </div>
 
       {/* 3. Floating Action Button */}
-      <div className="absolute right-10 bottom-5 z-50">
+      <div className="fixed bottom-14 right-14 z-50">
         <FloatingBtn 
             onClick={handleNextClick}
             disabled={!isNextButtonEnabled || isSubmitting}

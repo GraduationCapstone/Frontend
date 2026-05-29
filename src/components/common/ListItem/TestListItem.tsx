@@ -93,7 +93,7 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
           }
         }}
         className={`
-          group relative w-full inline-flex items-center gap-m px-gap-s py-gap-s
+          group relative w-full inline-flex items-center gap-5 pl-4 pr-3 py-4
           border-b border-grayscale-gy300
           transition-colors duration-200
           

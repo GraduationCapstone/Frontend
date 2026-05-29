@@ -31,12 +31,36 @@ export interface Repository {
 const getLanguageColor = (language: string | null) => {
   if (!language) return '#8b949e';
   const colors: Record<string, string> = {
-    Java: '#b07219',
-    TypeScript: '#3178c6',
+    // 웹 프론트엔드 & 백엔드
     JavaScript: '#f1e05a',
-    Python: '#3572A5',
+    TypeScript: '#3178c6',
     HTML: '#e34c26',
     CSS: '#563d7c',
+    Vue: '#41b883',
+    Svelte: '#ff3e00',
+    PHP: '#4F5D95',
+    Ruby: '#701516',
+    
+    // 주요 백엔드 & 시스템 프로그래밍
+    Java: '#b07219',
+    Python: '#3572A5',
+    'C++': '#f34b7d',
+    C: '#555555',
+    'C#': '#178600',
+    Go: '#00ADD8',
+    Rust: '#dea584',
+    
+    // 모바일 & 기타
+    Swift: '#F05138',
+    Kotlin: '#A97BFF',
+    Dart: '#00B4AB',
+    'Objective-C': '#438eff',
+    
+    // 데이터사이언스 & 스크립트
+    R: '#198CE7',
+    'Jupyter Notebook': '#DA5B0B',
+    Shell: '#89e051',
+    Scala: '#c22d40',
   };
   return colors[language] || '#8b949e';
 };
@@ -206,23 +230,28 @@ export const useTestFileSelectModel = () => {
   const handleSaveProjectName = async () => {
     const trimmedName = projectName.trim();
     
-    // 빈 값 체크 (이전 QA 반영)
     if (trimmedName === '') {
       setProjectNameError('프로젝트명을 입력해주세요.');
       return;
     }
 
     try {
-      // API 호출 (true = 중복, false = 사용 가능)
       const isDuplicated = await checkProjectNameDuplicate(trimmedName);
       
       if (isDuplicated) {
-        // 중복 시 에러 메시지 세팅하고 편집 모드 유지
         setProjectNameError('생성하신 프로젝트와 중복된 프로젝트 명은 사용할 수 없습니다.');
       } else {
-        // 성공 시 에러 초기화 및 편집 모드 종료
         setProjectNameError('');
         setIsEditingProjectName(false);
+
+        // ✨ 새로고침 시에도 유지되도록 라우터의 state를 현재 입력한 이름으로 교체
+        navigate(location.pathname, {
+          replace: true,
+          state: {
+            ...state,
+            projectName: trimmedName,
+          },
+        });
       }
     } catch (error) {
       console.error("프로젝트명 중복 체크 실패:", error);
@@ -234,9 +263,8 @@ export const useTestFileSelectModel = () => {
   const handleSaveTestName = async () => {
     const trimmedName = projectName.trim();
     
-    // 빈 값 체크 (테스트명)
     if (trimmedName === '') {
-      setProjectNameError('테스트명을 입력해주세요.'); // ✨ 에러 메시지 분리
+      setProjectNameError('테스트명을 입력해주세요.');
       return;
     }
 
@@ -251,6 +279,15 @@ export const useTestFileSelectModel = () => {
       } else {
         setProjectNameError('');
         setIsEditingProjectName(false);
+
+        // ✨ 새로고침 시에도 유지되도록 라우터의 state를 현재 입력한 이름으로 교체
+        navigate(location.pathname, {
+          replace: true,
+          state: {
+            ...state,
+            testName: trimmedName,
+          },
+        });
       }
     } catch (error) {
       console.error("테스트명 중복 체크 실패:", error);
