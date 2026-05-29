@@ -5,7 +5,9 @@ import {
   deleteTestDashboardCode,
   downloadTestDashboardReport,
   fetchProjectTestSummaryList,
+  fetchTestDashboardBasicList,
   fetchTestDashboardGroup,
+  fetchTestExecutionStats,
   updateTestDashboardCodeName,
   updateTestDashboardGroupName,
 } from '../../api/testDashboard';
@@ -22,6 +24,8 @@ type DashboardRouteState = {
   testGroupId?: string | number;
   groupName?: string;
   testGroupName?: string;
+  testCaseId?: string | number;
+  codeId?: string | number;
   executionId?: string | number;
 };
 
@@ -44,8 +48,53 @@ const filterResultsByGroupName = (
   return results.filter((result) => normalizeGroupName(result.testGroupName) === targetGroupName);
 };
 
+const getTestCasePrefix = (value: string | number | null | undefined): string => {
+  const text = String(value ?? '').trim();
+  return /^T\d{4}/.exec(text)?.[0] ?? text;
+};
+
+const filterResultsByTestCaseId = (
+  results: ProjectTestSummaryListItem[],
+  testCaseId?: string | number
+): ProjectTestSummaryListItem[] => {
+  const targetPrefix = getTestCasePrefix(testCaseId);
+  if (!targetPrefix) return results;
+
+  return results.filter((result) => {
+    const currentTestCaseId = String(result.testCaseId ?? '').trim();
+    return currentTestCaseId === targetPrefix || currentTestCaseId.startsWith(`${targetPrefix}_`);
+  });
+};
+
+const filterDashboardResults = (
+  results: ProjectTestSummaryListItem[],
+  groupName?: string | number,
+  testCaseId?: string | number
+): ProjectTestSummaryListItem[] => {
+  const testCaseFilteredResults = filterResultsByTestCaseId(results, testCaseId);
+  if (testCaseId && testCaseFilteredResults.length > 0) return testCaseFilteredResults;
+
+  return filterResultsByGroupName(results, String(groupName ?? ''));
+};
+
+const resolveTestCaseIdByGroupId = async (
+  projectId: string | number,
+  groupId?: string | number
+): Promise<string | undefined> => {
+  if (!groupId) return undefined;
+
+  const tests = await fetchTestDashboardBasicList(projectId);
+  const target = tests.find((test) => {
+    const testGroupId = test.groupId ?? test.testGroupId;
+    return String(testGroupId ?? '') === String(groupId);
+  });
+
+  return target?.testCaseId ?? undefined;
+};
+
 type TEDashBoardContentProps = {
   data: TEDashBoardData;
+  projectId?: string | number;
   onSaveTitle: (title: string) => Promise<void>;
   onSaveTestCodeTitle: (id: string, title: string) => Promise<void>;
   onDeleteTestCode: (id: string) => Promise<void>;
@@ -55,6 +104,7 @@ type TEDashBoardContentProps = {
 
 function TEDashBoardContent({
   data,
+  projectId,
   onSaveTitle,
   onSaveTestCodeTitle,
   onDeleteTestCode,
@@ -66,6 +116,7 @@ function TEDashBoardContent({
   return (
     <TEDashBoardView
       data={data}
+      projectId={projectId}
       state={state}
       onSaveTestCodeTitle={onSaveTestCodeTitle}
       onDeleteTestCode={onDeleteTestCode}
@@ -109,6 +160,11 @@ export default function TEDashBoardController() {
         toParam(routeState.testGroupName) ??
         toParam(searchParams.get('groupName')) ??
         toParam(searchParams.get('testGroupName')),
+      testCaseId:
+        toParam(routeState.testCaseId) ??
+        toParam(routeState.codeId) ??
+        toParam(searchParams.get('testCaseId')) ??
+        toParam(searchParams.get('codeId')),
       executionId:
         toParam(routeState.executionId) ??
         toParam(searchParams.get('executionId')) ??
@@ -122,7 +178,7 @@ export default function TEDashBoardController() {
   const [data, setData] = useState<TEDashBoardData>(() => getTEDashBoardData());
 
   useEffect(() => {
-    const { projectId, groupId, groupName } = dashboardParams;
+    const { projectId, groupId, groupName, testCaseId, executionId } = dashboardParams;
     if (!projectId || (!groupId && !groupName)) {
       setData(getTEDashBoardData());
       return;
@@ -134,36 +190,59 @@ export default function TEDashBoardController() {
       setData(getTEDashBoardData());
 
       try {
-        const resultsPromise = fetchProjectTestSummaryList(projectId).catch((error) => {
-          console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
-          return [];
-        });
-
         if (!groupId) {
-          const results = await resultsPromise;
+          const [results, stats] = await Promise.all([
+            fetchProjectTestSummaryList(projectId).catch((error) => {
+              console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+              return [];
+            }),
+            executionId
+              ? fetchTestExecutionStats(projectId, executionId).catch((error) => {
+                  console.error('[TEDashBoard] 테스트 통계 조회 실패:', error);
+                  return null;
+                })
+              : Promise.resolve(null),
+          ]);
           if (cancelled) return;
 
           const resolvedGroupName = String(groupName ?? '');
-          const filteredResults = filterResultsByGroupName(results, resolvedGroupName);
+          const filteredResults = filterDashboardResults(results, resolvedGroupName, testCaseId);
 
           setData(
             getTEDashBoardData({
               group: { groupId: '', projectId, groupName: resolvedGroupName },
               results: filteredResults,
+              stats,
             })
           );
           return;
         }
 
-        const [group, results] = await Promise.all([
+        const statsExecutionId = executionId ?? groupId;
+        const [group, results, stats] = await Promise.all([
           fetchTestDashboardGroup(projectId, groupId),
-          resultsPromise,
+          fetchProjectTestSummaryList(projectId, groupId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
+            return [];
+          }),
+          fetchTestExecutionStats(projectId, statsExecutionId).catch((error) => {
+            console.error('[TEDashBoard] 테스트 통계 조회 실패:', error);
+            return null;
+          }),
         ]);
         if (cancelled) return;
 
-        const filteredResults = filterResultsByGroupName(results, group.groupName);
+        const resolvedTestCaseId =
+          testCaseId ?? (await resolveTestCaseIdByGroupId(projectId, groupId));
+        if (cancelled) return;
 
-        setData(getTEDashBoardData({ group, results: filteredResults }));
+        setData(
+          getTEDashBoardData({
+            group,
+            results: filterDashboardResults(results, group.groupName, resolvedTestCaseId),
+            stats,
+          })
+        );
       } catch (error) {
         if (cancelled) return;
 
@@ -250,6 +329,7 @@ export default function TEDashBoardController() {
     <TEDashBoardContent
       key={dashboardKey}
       data={data}
+      projectId={dashboardParams.projectId}
       onSaveTitle={handleSaveTitle}
       onSaveTestCodeTitle={handleSaveTestCodeTitle}
       onDeleteTestCode={handleDeleteTestCode}

@@ -17,13 +17,13 @@ import {
   leaveProjectAsMember,
 } from "../../api/project";
 import type {
-  ProjectTestSummaryListItem,
+  ProjectDailyAvgTestStatsItem,
   TestDashboardBasicListItem,
 } from "../../api/testDashboard";
 import {
   deleteTestDashboardGroup,
+  fetchProjectDailyAvgTestStats,
   fetchProjectGlobalTestStats,
-  fetchProjectTestSummaryList,
   fetchTestDashboardBasicList,
   updateTestDashboardGroupName,
 } from "../../api/testDashboard";
@@ -46,6 +46,7 @@ type ProjectListMetadata = {
   myRole: ProjectRolePreview;
   tests: TestCodeItem[];
   summary: ProjectSummary;
+  avgTestTime: AvgTestTimePoint[];
 };
 
 const formatProjectCode = (projectId: number): string =>
@@ -121,6 +122,27 @@ const formatCompletedAt = (completedAt: string | null | undefined): string | und
   return text?.replace("T", " ").slice(0, 16);
 };
 
+const normalizeStatus = (status: string | null | undefined): TestCodeItem["status"] => {
+  const normalized = status?.replace(/[\s_-]/g, "").toUpperCase() ?? "";
+
+  if (
+    normalized === "PASS" ||
+    normalized === "PASSED" ||
+    normalized === "SUCCESS" ||
+    normalized === "COMPLETED"
+  ) {
+    return "Pass";
+  }
+  if (normalized === "FAIL" || normalized === "FAILED" || normalized === "ERROR") {
+    return "Fail";
+  }
+  if (normalized === "BLOCK" || normalized === "BLOCKED") {
+    return "Block";
+  }
+
+  return "Untest";
+};
+
 const formatCodeId = (id: string): string => {
   const parts = id.split("_");
   if (parts.length !== 3 || parts[0] !== parts[1]) return id;
@@ -128,30 +150,14 @@ const formatCodeId = (id: string): string => {
 };
 
 type ProjectTestNameSource = Pick<
-  TestDashboardBasicListItem | ProjectTestSummaryListItem,
-  "testCodeName" | "testGroupName"
+  TestDashboardBasicListItem,
+  "testCaseName" | "testCodeName" | "testGroupName"
 >;
 
 const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
-  toOptionalText(test.testGroupName) ?? toOptionalText(test.testCodeName);
-
-const getNormalizedProjectTestName = (test: ProjectTestNameSource): string | undefined =>
-  getProjectTestName(test)?.replace(/\s+/g, "").toLowerCase();
-
-const createPassRatioByTestName = (
-  summaries: ProjectTestSummaryListItem[]
-): Map<string, string> => {
-  const passRatioByTestName = new Map<string, string>();
-
-  summaries.forEach((summary) => {
-    const testName = getNormalizedProjectTestName(summary);
-    const passRatio = toOptionalText(summary.passRatio);
-    if (!testName || !passRatio || passRatioByTestName.has(testName)) return;
-    passRatioByTestName.set(testName, passRatio);
-  });
-
-  return passRatioByTestName;
-};
+  toOptionalText(test.testGroupName) ??
+  toOptionalText(test.testCodeName) ??
+  toOptionalText(test.testCaseName);
 
 const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string =>
   getProjectTestName(test) ??
@@ -174,8 +180,7 @@ const getUniqueProjectTestGroups = (
 const mapProjectTest = (
   projectId: number,
   test: TestDashboardBasicListItem,
-  index: number,
-  fallbackPassRatio?: string
+  index: number
 ): TestCodeItem => {
   const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
   const title = getProjectTestName(test) ?? '';
@@ -186,38 +191,88 @@ const mapProjectTest = (
     id: key,
     codeId: id ? formatCodeId(id) : '',
     title,
-    status: "Untest",
+    status: normalizeStatus(test.status),
     projectId: String(projectId),
     groupId,
     executionId: toOptionalIdText(test.executionId),
-    passRatio: toOptionalText(test.passRatio) ?? fallbackPassRatio,
+    passRatio: toOptionalText(test.passRatio),
     duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
     user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
     date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
   };
 };
 
-const formatTestedText = (countString: string | undefined, passCount: number, totalCount: number) => {
+const formatTestedText = (
+  countString: string | undefined,
+  passCount: number,
+  testTotalCount: number
+) => {
   const text = countString?.trim();
-  if (!text) return `${passCount} / ${totalCount} Tested`;
+  if (!text) return `${passCount} / ${testTotalCount} Tested`;
   return text.toLowerCase().includes("tested") ? text : `${text} Tested`;
 };
 
 const createSummary = (
   passCount = 0,
-  totalCount = 0,
+  testTotalCount = 0,
   countString?: string,
   passRatio?: string
 ): ProjectSummary => ({
   passRateText: `${passRatio ?? "0%"} Pass`,
-  testedText: formatTestedText(countString, passCount, totalCount),
+  testedText: formatTestedText(countString, passCount, testTotalCount),
   counts: {
     pass: passCount,
     block: 0,
-    fail: 0,
-    untest: Math.max(totalCount - passCount, 0),
+    fail: Math.max(testTotalCount - passCount, 0),
+    untest: 0,
   },
 });
+
+const parseDurationToSeconds = (duration: string | null | undefined): number | null => {
+  const text = duration?.trim();
+  if (!text) return null;
+
+  const colonParts = text.split(":").map((part) => Number(part));
+  if (colonParts.length === 3 && colonParts.every((value) => Number.isFinite(value))) {
+    const [hours, minutes, seconds] = colonParts;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  if (colonParts.length === 2 && colonParts.every((value) => Number.isFinite(value))) {
+    const [minutes, seconds] = colonParts;
+    return minutes * 60 + seconds;
+  }
+
+  const normalized = text.toLowerCase().replace(/\s+/g, "");
+  const minuteMatch = normalized.match(/(\d+)m/);
+  const secondMatch = normalized.match(/(\d+)s/);
+  if (minuteMatch || secondMatch) {
+    const minutes = minuteMatch ? Number(minuteMatch[1]) : 0;
+    const seconds = secondMatch ? Number(secondMatch[1]) : 0;
+    return minutes * 60 + seconds;
+  }
+
+  const asNumber = Number(normalized);
+  return Number.isFinite(asNumber) ? asNumber : null;
+};
+
+const toDateTime = (date: string): number => {
+  const time = Date.parse(date);
+  return Number.isFinite(time) ? time : 0;
+};
+
+const mapDailyAvgTestTime = (stats: ProjectDailyAvgTestStatsItem[]): AvgTestTimePoint[] =>
+  stats
+    .map((item) => {
+      const seconds = parseDurationToSeconds(item.averageDuration);
+      if (seconds === null) return null;
+      return {
+        date: item.date,
+        seconds,
+      };
+    })
+    .filter((item): item is AvgTestTimePoint => item !== null)
+    .sort((a, b) => toDateTime(a.date) - toDateTime(b.date))
+    .slice(-6);
 
 const resolveCurrentMembership = (
   projectId: number,
@@ -269,12 +324,13 @@ const buildDefaultDetail = (
   myUserId: string,
   myRole: ProjectRolePreview,
   tests: TestCodeItem[],
+  avgTestTime: AvgTestTimePoint[],
   summary: ProjectSummary = createSummary()
 ): ProjectDetail => ({
   id,
   name,
   summary,
-  avgTestTime: [] as AvgTestTimePoint[],
+  avgTestTime,
   tests,
   members,
   myUserId,
@@ -304,23 +360,24 @@ const resolveProjectMetadata = async (
 
   let tests: TestCodeItem[] = [];
   let summary = createSummary();
+  let avgTestTime: AvgTestTimePoint[] = [];
   try {
-    const [testResponses, summaryResponses, stats] = await Promise.all([
+    const [testResponses, stats, dailyAvgStats] = await Promise.all([
       fetchTestDashboardBasicList(project.id),
-      fetchProjectTestSummaryList(project.id),
       fetchProjectGlobalTestStats(project.id),
+      fetchProjectDailyAvgTestStats(project.id),
     ]);
-    const passRatioByTestName = createPassRatioByTestName(summaryResponses);
-    tests = getUniqueProjectTestGroups(testResponses).map((test, index) => {
-      const testName = getNormalizedProjectTestName(test);
-      return mapProjectTest(
-        project.id,
-        test,
-        index,
-        testName ? passRatioByTestName.get(testName) : undefined
-      );
-    });
-    summary = createSummary(stats.passCount, stats.totalCount, stats.countString, stats.passRatio);
+    tests = getUniqueProjectTestGroups(testResponses).map((test, index) =>
+      mapProjectTest(project.id, test, index)
+    );
+    const {
+      passCount,
+      totalCount: testTotalCount,
+      countString,
+      passRatio,
+    } = stats;
+    summary = createSummary(passCount, testTotalCount, countString, passRatio);
+    avgTestTime = mapDailyAvgTestTime(dailyAvgStats);
   } catch (error) {
     console.error(`[ProjectManagement] 프로젝트(${project.id}) 테스트 목록 조회 실패:`, error);
   }
@@ -347,6 +404,7 @@ const resolveProjectMetadata = async (
     myRole: myMembership.myRole,
     tests,
     summary,
+    avgTestTime,
   };
 };
 
@@ -386,6 +444,7 @@ export default function useProjectManagementModel() {
               myRole: "member",
               tests: [],
               summary: createSummary(),
+              avgTestTime: [],
             }
           )
         );
@@ -404,6 +463,7 @@ export default function useProjectManagementModel() {
                   myRole: metadata?.myRole ?? "member",
                   tests: metadata?.tests ?? prev[project.id].tests,
                   summary: metadata?.summary ?? prev[project.id].summary,
+                  avgTestTime: metadata?.avgTestTime ?? prev[project.id].avgTestTime,
                 }
               : buildDefaultDetail(
                   project.id,
@@ -412,6 +472,7 @@ export default function useProjectManagementModel() {
                   metadata?.myUserId ?? "",
                   metadata?.myRole ?? "member",
                   metadata?.tests ?? [],
+                  metadata?.avgTestTime ?? [],
                   metadata?.summary ?? createSummary()
                 );
           });

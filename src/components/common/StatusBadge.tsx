@@ -43,9 +43,9 @@ export default function StatusBadge({ type, className = "" }: StatusBadgeProps) 
     <span
       className={[
         "inline-flex items-center justify-center",
-        "px-[0.75rem] py-[0.25rem] gap-[0.625rem]",
-        "rounded-[1.5rem] whitespace-nowrap",
-        "text-medium-ko",
+        "px-3 py-1 gap-2.5",
+        "rounded-3xl whitespace-nowrap",
+        "text-medium500-ko",
         BADGE_STYLE[type],
         className,
       ]
