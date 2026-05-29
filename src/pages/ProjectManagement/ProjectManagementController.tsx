@@ -76,8 +76,8 @@ export default function ProjectManagementController() {
       return null;
     }
 
-    const handleSave = (nextName: string, nextMembers: Member[]) => {
-      model.saveSettings(id, nextName, nextMembers);
+    const handleSave = async (nextName: string, nextMembers: Member[]) => {
+      await model.saveSettings(id, nextName, nextMembers);
     };
     const handleLeaveProject = async () => {
       await model.leaveOrDeleteProject(id);

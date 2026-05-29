@@ -37,6 +37,20 @@ export const createProject = async (data: CreateProjectRequest): Promise<CreateP
 };
 
 // ==========================================
+// 2-1. 프로젝트 이름 수정 (PATCH)
+// ==========================================
+export interface UpdateProjectNameRequest {
+  projectName: string;
+}
+
+export const updateProjectName = async (
+  projectId: number,
+  data: UpdateProjectNameRequest
+): Promise<void> => {
+  await axiosInstance.patch(`/api/projects/${projectId}/name`, data);
+};
+
+// ==========================================
 // 3. 프로젝트 멤버 초대 (POST)
 // ==========================================
 export interface InviteMembersRequest {

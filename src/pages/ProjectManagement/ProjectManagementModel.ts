@@ -15,6 +15,7 @@ import {
   fetchProjectRepos,
   fetchProjects,
   leaveProjectAsMember,
+  updateProjectName,
 } from "../../api/project";
 import type {
   ProjectDailyAvgTestStatsItem,
@@ -524,7 +525,17 @@ export default function useProjectManagementModel() {
     });
   };
 
-  const saveSettings = (projectId: string, nextName: string, nextMembers: Member[]) => {
+  const saveSettings = async (projectId: string, nextName: string, nextMembers: Member[]) => {
+    const detail = detailsById[projectId];
+    const numericProjectId = Number(projectId);
+    if (!Number.isFinite(numericProjectId)) {
+      throw new Error(`유효하지 않은 프로젝트 ID입니다: ${projectId}`);
+    }
+
+    if (detail && detail.name !== nextName) {
+      await updateProjectName(numericProjectId, { projectName: nextName });
+    }
+
     setProjects((prev) =>
       prev.map((p) => (p.id === projectId ? { ...p, name: nextName } : p))
     );
