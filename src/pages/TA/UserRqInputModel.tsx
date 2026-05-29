@@ -1,7 +1,7 @@
 // src/pages/Home/TA/UserRqInputModel.tsx
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus, checkTestNameDuplicate } from '../../api/test';
+import { setupTest, downloadTestPlan, dispatchTest, fetchExecutionStatus } from '../../api/test';
 
 export interface ScenarioItem {
   id: string;
@@ -119,15 +119,6 @@ export const useUserRqInputModel = () => {
   const [executionIds, setExecutionIds] = useState<number[]>([]);
   const targetProjectId = state?.targetProjectId;
   const dashboardGroupId = executionIds[0];
-
-  // ID를 통해 시나리오 라벨(예: '로그인')을 찾아주는 함수
-  const getScenarioLabel = (id: string) => {
-    for (const category of SCENARIO_DATA) {
-      const item = category.items.find((it) => it.id === id);
-      if (item) return item.label;
-    }
-    return '';
-  };
 
   // [추가] 테스트명 저장 로직 (TFSelect와 동일)
   const handleSaveTestName = async () => {
