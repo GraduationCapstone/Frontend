@@ -85,7 +85,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
             onClick?.(e);
           }
         }}
-        className={`group gap-m px-gap-s py-gap-s border-grayscale-gy300 bg-grayscale-white relative inline-flex w-full items-center border-b transition-colors duration-200 ${!disabled && 'hover:bg-grayscale-gy100 active:bg-grayscale-gy200'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className || ''} `}
+        className={`group gap-5 pl-4 pr-3 py-4 border-grayscale-gy300 bg-grayscale-white relative inline-flex w-full items-center border-b transition-colors duration-200 ${!disabled && 'hover:bg-grayscale-gy100 active:bg-grayscale-gy200'} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className || ''} `}
         {...rest}
       >
         {/* 1. ID */}

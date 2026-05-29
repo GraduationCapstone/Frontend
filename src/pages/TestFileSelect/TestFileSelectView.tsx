@@ -93,7 +93,7 @@ export default function TestFileSelectView({
         {/* 선택 여부와 상관없이 아이콘 자리를 확보하여 글자 밀림 방지 */}
         <div className="w-5 h-5 relative overflow-hidden flex items-center justify-center shrink-0">
           {isSelected && (
-             <CheckIcon className="w-3.75 h-2.5 [[&_*]:fill-current text-grayscale-black" />
+             <CheckIcon className="w-4.5 h-4.5 [[&_*]:fill-current text-grayscale-black" />
           )}
         </div>
 
