@@ -71,6 +71,7 @@ const mapResultToTestCodeItem = (
     passRatio: toOptionalText(result.passRatio),
     duration: toOptionalText(result.duration) ?? toOptionalText(result.testDuration),
     user: toOptionalText(result.tester) ?? toOptionalText(result.testerName),
+    testerProfileImage: toOptionalText(result.testerProfileImage),
     date: formatDate(result.completedAt ?? result.executedAt ?? result.createdAt),
   };
 };

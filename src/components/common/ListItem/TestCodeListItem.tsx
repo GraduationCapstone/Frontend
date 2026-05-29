@@ -8,6 +8,7 @@ export interface TestCodeListItemProps extends React.HTMLAttributes<HTMLDivEleme
   status: StatusBadgeType;
   duration?: string;
   user?: string;
+  testerProfileImage?: string;
   /** 예: "2025-09-09 15:34" (공백으로 날짜/시간 구분) */
   date?: string;
   disabled?: boolean;
@@ -24,6 +25,7 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
       status,
       duration,
       user,
+      testerProfileImage,
       date,
       disabled = false,
       selected,
@@ -112,12 +114,12 @@ const TestCodeListItem = forwardRef<HTMLDivElement, TestCodeListItemProps>(
 
         {/* 5. User */}
         <div className="w-size-min flex items-center justify-start gap-2 overflow-hidden px-2">
-          {!isUntest && (
-            <div className="bg-primary-sg600 relative flex h-6 w-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-full">
-              <span className="text-grayscale-white mt-px text-[10px] leading-none font-bold">
-                U
-              </span>
-            </div>
+          {!isUntest && testerProfileImage && (
+            <img
+              src={testerProfileImage}
+              alt={`${user ?? 'tester'} profile`}
+              className="h-6 w-6 flex-shrink-0 rounded-full object-cover"
+            />
           )}
           <span
             className={`text-medium500-ko line-clamp-1 flex-1 ${subTextColor} ${isUntest ? 'text-center' : 'text-left'}`}

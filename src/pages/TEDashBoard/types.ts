@@ -14,6 +14,7 @@ export type TestCodeItem = {
   passRatio?: string;
   duration?: string;
   user?: string;
+  testerProfileImage?: string;
   date?: string;
 };
 

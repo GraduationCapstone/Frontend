@@ -17,6 +17,7 @@ export default function ProjectTestRow({ item, onOpenDashboard, onOpenRowMenu }:
       coverage={item.passRatio}
       duration={item.duration}
       user={item.user}
+      testerProfileImage={item.testerProfileImage}
       date={item.date}
       status="Default"
       selected={false}

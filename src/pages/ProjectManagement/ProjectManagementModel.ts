@@ -14,7 +14,9 @@ import {
   fetchProjectMembers,
   fetchProjectRepos,
   fetchProjects,
+  inviteMembers,
   leaveProjectAsMember,
+  updateProjectName,
 } from "../../api/project";
 import type {
   ProjectDailyAvgTestStatsItem,
@@ -198,6 +200,7 @@ const mapProjectTest = (
     passRatio: toOptionalText(test.passRatio),
     duration: toOptionalText(test.duration) ?? toOptionalText(test.testDuration),
     user: toOptionalText(test.tester) ?? toOptionalText(test.testerName),
+    testerProfileImage: toOptionalText(test.testerProfileImage),
     date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
   };
 };
@@ -523,7 +526,25 @@ export default function useProjectManagementModel() {
     });
   };
 
-  const saveSettings = (projectId: string, nextName: string, nextMembers: Member[]) => {
+  const saveSettings = async (projectId: string, nextName: string, nextMembers: Member[]) => {
+    const detail = detailsById[projectId];
+    const numericProjectId = Number(projectId);
+    if (!Number.isFinite(numericProjectId)) {
+      throw new Error(`유효하지 않은 프로젝트 ID입니다: ${projectId}`);
+    }
+
+    if (detail && detail.name !== nextName) {
+      await updateProjectName(numericProjectId, { projectName: nextName });
+    }
+
+    const memberEmails = nextMembers
+      .map((member) => member.email)
+      .filter((email): email is string => Boolean(email?.trim()));
+
+    if (memberEmails.length > 0) {
+      await inviteMembers(numericProjectId, { emails: memberEmails });
+    }
+
     setProjects((prev) =>
       prev.map((p) => (p.id === projectId ? { ...p, name: nextName } : p))
     );

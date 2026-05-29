@@ -9,6 +9,7 @@ export interface TestListItemProps extends React.HTMLAttributes<HTMLDivElement> 
   coverage?: string;   
   duration?: string;   
   user?: string;       
+  testerProfileImage?: string;
   date?: string;       
   
   status?: TestItemStatus; 
@@ -26,6 +27,7 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
       coverage,
       duration,
       user,
+      testerProfileImage,
       date,
       status = 'Default',
       disabled = false,
@@ -67,11 +69,6 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
     const subTextColor = disabled || isUntest
       ? "text-system-deactive"
       : "text-grayscale-black";
-
-    // 🎨 User Icon Background
-    const userIconBg = disabled || isUntest
-      ? "bg-system-deactive"
-      : "bg-primary-sg600";
 
     // 메뉴 아이콘 투명도
     const iconOpacity = disabled || isUntest ? "opacity-40" : "opacity-100";
@@ -140,9 +137,13 @@ const TestListItem = forwardRef<HTMLDivElement, TestListItemProps>(
 
         {/* 5. User Column */}
         <div className="w-32 px-gap-xxs flex justify-start items-center gap-2 overflow-hidden">
-            <div className={`w-6 h-6 relative ${userIconBg} rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center`}>
-                <span className="text-[10px] font-bold text-grayscale-white leading-none mt-px">U</span>
-            </div>
+            {!isUntest && testerProfileImage && (
+              <img
+                src={testerProfileImage}
+                alt={`${user ?? "tester"} profile`}
+                className="h-6 w-6 flex-shrink-0 rounded-full object-cover"
+              />
+            )}
             <span className={`flex-1 text-medium-ko line-clamp-1 ${subTextColor}`}>
                 {user || "-"}
             </span>

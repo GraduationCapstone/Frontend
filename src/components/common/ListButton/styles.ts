@@ -74,6 +74,16 @@ const SELECTED_STATE = {
     clicked: "focus:bg-grayscale-white focus:text-primary-sg600 focus:outline-none",
 } as const;
 
+const SELECTED_STATE_SMOOTH_ICON_TEXT = {
+    deactive:
+    "disabled:bg-grayscale-white disabled:text-system-deactive disabled:cursor-not-allowed " +
+    "disabled:active:bg-grayscale-white",
+    default: "bg-secondary-sg100 text-primary-sg600",
+    hover: "hover:bg-secondary-sg100 hover:text-primary-sg600",
+    pressing: "active:bg-secondary-sg100 active:text-primary-sg600",
+    clicked: "focus:outline-none",
+} as const;
+
 // dynamicWhiteSIconsText는 selected 시에도 텍스트가 블랙
 const SELECTED_STATE_BLACK_TEXT = {
     deactive:
@@ -100,6 +110,8 @@ export const getListButtonClassNames = (args: {
   let stateStyle;
   if (selected && variant === "dynamicWhiteSIconsText") {
     stateStyle = SELECTED_STATE_BLACK_TEXT;
+  } else if (selected && variant === "dynamicWhiteMSmoothIconText") {
+    stateStyle = SELECTED_STATE_SMOOTH_ICON_TEXT;
   } else if (selected) {
     stateStyle = SELECTED_STATE;
   } else {
@@ -145,5 +157,3 @@ export const getListButtonClassNames = (args: {
     ),
   } satisfies ClassNames;
 };
-
-

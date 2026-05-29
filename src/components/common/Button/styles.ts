@@ -107,6 +107,16 @@ export const getButtonLabelClassName = (variant: ButtonVariant) => {
 };
 
 // Btn_Dynamic/GY900_M/Icon_Text (반응형)
+const ICONBTN_STATIC_WHITE_M_ICON_TEXT_STATE = {
+  deactive:
+    "disabled:bg-grayscale-white disabled:text-system-deactive disabled:cursor-not-allowed " +
+    "disabled:hover:bg-grayscale-white disabled:active:bg-grayscale-white",
+  default: "bg-grayscale-white text-grayscale-black",
+  hover: "hover:bg-grayscale-gy100 hover:text-grayscale-black",
+  pressing: "active:bg-grayscale-gy200 active:text-grayscale-black",
+  clicked: "focus:outline-none",
+} as const;
+
 const ICONBTN_DYNAMIC_GY900_M_ICON_TEXT_STATE = {
   deactive:
     "disabled:bg-system-deactive disabled:text-grayscale-white disabled:cursor-not-allowed",
@@ -139,6 +149,14 @@ const ICONBTN_DYNAMIC_CLEAR_S_ICON_TEXT_STATE = {
 } as const;
 
 const ICONBUTTON_PRESET: Record<IconButtonVariant, { root: string; label: string }> = {
+  staticWhiteMIconText: {
+    root:
+      "inline-flex items-center justify-start gap-3 rounded-xl px-5 py-3 outline-none " +
+      "aria-[pressed=true]:bg-secondary-sg100 aria-[pressed=true]:text-primary-sg600 " +
+      "aria-[pressed=true]:hover:bg-secondary-sg100 aria-[pressed=true]:hover:text-primary-sg600 " +
+      "aria-[pressed=true]:active:bg-secondary-sg100 aria-[pressed=true]:active:text-primary-sg600",
+    label: "text-h4-ko",
+  },
   dynamicGy900MIconText: {
     root:
       "inline-flex items-center justify-center gap-2 rounded-xl pl-3 pr-4 py-2 outline-none",
@@ -160,6 +178,7 @@ const ICONBUTTON_STATE: Record<
   IconButtonVariant,
   { default: string; hover: string; pressing: string; clicked: string; deactive: string }
 > = {
+  staticWhiteMIconText: ICONBTN_STATIC_WHITE_M_ICON_TEXT_STATE,
   dynamicGy900MIconText: ICONBTN_DYNAMIC_GY900_M_ICON_TEXT_STATE,
   dynamicWhiteMDsIconText: ICONBTN_DYNAMIC_WHITE_M_DS_ICON_TEXT_STATE,
   dynamicClearSIconText: ICONBTN_DYNAMIC_CLEAR_S_ICON_TEXT_STATE,
