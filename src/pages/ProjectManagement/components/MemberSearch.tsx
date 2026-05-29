@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import type { Member } from "../types";
 import MemberChip from "./MemberChip";
 
 import InputField from "../../../components/common/InputField";
 import { ListButton } from "../../../components/common/ListButton";
+import { searchUsers } from "../../../api/project";
 
 type Props = {
   allCandidates: Member[];
@@ -22,18 +23,54 @@ export default function MemberSearch({
   onChangeSelected,
 }: Props) {
   const [q, setQ] = useState("");
+  const [apiResults, setApiResults] = useState<Member[]>([]);
 
   const query = q.trim().toLowerCase();
   const isSearching = query.length > 0;
 
+  useEffect(() => {
+    if (!query) {
+      setApiResults([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const results = await searchUsers(query);
+        if (cancelled) return;
+
+        setApiResults(
+          results.map((user) => ({
+            id: String(user.userId),
+            username: user.username,
+            email: user.email,
+            profileImageUrl: user.profileImageUrl,
+          }))
+        );
+      } catch (error) {
+        console.error("[ProjectManagement] 멤버 검색 실패:", error);
+        if (!cancelled) setApiResults([]);
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [query]);
+
   const searchResults = useMemo(() => {
     if (!query) return [];
 
-    return allCandidates
+    const source = apiResults.length > 0 ? apiResults : allCandidates;
+
+    return source
       .filter((m) => m.username.toLowerCase().includes(query))
       .filter((m) => !selected.some((s) => s.id === m.id))
       .slice(0, 8);
-  }, [query, allCandidates, selected]);
+  }, [query, apiResults, allCandidates, selected]);
 
   const add = (m: Member) => {
     onChangeSelected([...selected, m]);
@@ -66,7 +103,9 @@ export default function MemberSearch({
                 label={m.username}
                 leading={{
                   type: "avatar",
-                  fallbackText: m.username.charAt(0).toUpperCase(),}}
+                  src: m.profileImageUrl,
+                  fallbackText: m.username.charAt(0).toUpperCase(),
+                }}
                 trailing={{ type: "none" }}
                 onClick={() => add(m)}
                 className="self-stretch"

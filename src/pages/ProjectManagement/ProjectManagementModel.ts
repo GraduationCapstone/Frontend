@@ -14,6 +14,7 @@ import {
   fetchProjectMembers,
   fetchProjectRepos,
   fetchProjects,
+  inviteMembers,
   leaveProjectAsMember,
   updateProjectName,
 } from "../../api/project";
@@ -534,6 +535,14 @@ export default function useProjectManagementModel() {
 
     if (detail && detail.name !== nextName) {
       await updateProjectName(numericProjectId, { projectName: nextName });
+    }
+
+    const memberEmails = nextMembers
+      .map((member) => member.email)
+      .filter((email): email is string => Boolean(email?.trim()));
+
+    if (memberEmails.length > 0) {
+      await inviteMembers(numericProjectId, { emails: memberEmails });
     }
 
     setProjects((prev) =>
