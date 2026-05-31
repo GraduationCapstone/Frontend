@@ -31,6 +31,7 @@ export default function UserRqInputController() {
     if (model.targetProjectId && model.dashboardGroupId) {
       const projectId = String(model.targetProjectId);
       const executionId = String(model.dashboardGroupId);
+      const shouldFilterSingleScenario = model.selectedIds.size === 1;
       let groupId = executionId;
       let groupName: string | undefined;
       let testCaseId: string | undefined;
@@ -43,8 +44,8 @@ export default function UserRqInputController() {
         const resolvedGroupId = target?.groupId ?? target?.testGroupId;
 
         if (resolvedGroupId) groupId = String(resolvedGroupId);
-        if (target?.testGroupName) groupName = target.testGroupName;
-        if (target?.testCaseId) testCaseId = target.testCaseId;
+        if (shouldFilterSingleScenario && target?.testGroupName) groupName = target.testGroupName;
+        if (shouldFilterSingleScenario && target?.testCaseId) testCaseId = target.testCaseId;
       } catch (error) {
         console.error('[UserRqInput] 대시보드 식별자 조회 실패:', error);
       }

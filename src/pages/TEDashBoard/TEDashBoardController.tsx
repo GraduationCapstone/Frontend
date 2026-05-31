@@ -78,7 +78,6 @@ const filterDashboardResults = (
 };
 
 type DashboardBasicIds = {
-  testCaseId?: string | number;
   executionId?: string | number;
 };
 
@@ -95,7 +94,6 @@ const resolveDashboardBasicIdsByGroupId = async (
   }) ?? tests[0];
 
   return {
-    testCaseId: toParam(target?.testCaseId),
     executionId: toParam(target?.executionId),
   };
 };
@@ -228,7 +226,7 @@ export default function TEDashBoardController() {
 
         const isSameAsGroupId = String(executionId ?? '') === String(groupId ?? '');
         const resolvedBasicIds: DashboardBasicIds =
-          !executionId || !testCaseId || isSameAsGroupId
+          !executionId || isSameAsGroupId
             ? await resolveDashboardBasicIdsByGroupId(projectId, groupId).catch((error) => {
                 console.error('[TEDashBoard] 테스트 기본 식별자 조회 실패:', error);
                 return {};
@@ -258,13 +256,14 @@ export default function TEDashBoardController() {
         ]);
         if (cancelled) return;
 
-        const resolvedTestCaseId = testCaseId ?? resolvedBasicIds.testCaseId;
+        const resolvedTestCaseId = testCaseId;
         setResolvedExecutionId(statsExecutionId);
+        const displayGroup = groupName ? { ...group, groupName: String(groupName) } : group;
 
         setData(
           getTEDashBoardData({
-            group,
-            results: filterDashboardResults(results, group.groupName, resolvedTestCaseId),
+            group: displayGroup,
+            results: filterDashboardResults(results, displayGroup.groupName, resolvedTestCaseId),
             stats,
           })
         );

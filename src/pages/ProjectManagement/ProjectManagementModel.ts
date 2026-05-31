@@ -151,6 +151,45 @@ const formatCodeId = (id: string): string => {
   return `${parts[0]}_${parts[2]}`;
 };
 
+const SCENARIO_GUIDE_NAMES: Record<string, string> = {
+  "01": "회원가입",
+  "02": "로그인",
+  "03": "비밀번호 찾기/재설정",
+  "04": "로그아웃",
+  "05": "프로필 수정",
+  "06": "비밀번호 변경",
+  "07": "권한 기반 접근 제어",
+  "08": "세션 만료/토큰 만료",
+  "09": "게시글 작성",
+  "10": "게시글 수정/삭제",
+  "11": "댓글 작성/수정/삭제",
+  "12": "좋아요/즐겨찾기",
+  "13": "검색",
+  "14": "필터/정렬",
+  "15": "반응형 레이아웃",
+  "16": "브라우저 호환성",
+  "17": "에러 페이지 동작",
+  "18": "네트워크 끊김 상태",
+  "19": "서버 응답 지연",
+  "20": "API 에러 응답 처리",
+  "21": "A/B 테스트 요소 확인",
+  "22": "입력값 유효성 검사",
+  "23": "다국어 지원 시 언어 변경 테스트",
+  "24": "파일 업로드/다운로드",
+  "25": "푸시 알림",
+  "26": "다중 사용자 동시 접속",
+};
+
+const getScenarioSerial = (testCaseId: string | number | null | undefined): string | undefined => {
+  const text = String(testCaseId ?? "").trim();
+  return /^T(\d{2})/.exec(text)?.[1];
+};
+
+const getScenarioGuideName = (test: TestDashboardBasicListItem): string | undefined => {
+  const serial = getScenarioSerial(test.testCaseId);
+  return serial ? SCENARIO_GUIDE_NAMES[serial] : undefined;
+};
+
 type ProjectTestNameSource = Pick<
   TestDashboardBasicListItem,
   "testCaseName" | "testCodeName" | "testGroupName"
@@ -161,10 +200,19 @@ const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
   toOptionalText(test.testCodeName) ??
   toOptionalText(test.testCaseName);
 
-const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string =>
-  getProjectTestName(test) ??
-  toOptionalText(test.testCaseId) ??
-  `test-${index + 1}`;
+const getProjectTestGroupKey = (test: TestDashboardBasicListItem, index: number): string => {
+  const groupId = toOptionalIdText(test.groupId ?? test.testGroupId);
+  const scenarioSerial = getScenarioSerial(test.testCaseId);
+
+  return (
+    toOptionalIdText(test.executionId) ??
+    (groupId && scenarioSerial ? `${groupId}:${scenarioSerial}` : undefined) ??
+    groupId ??
+    getProjectTestName(test) ??
+    toOptionalText(test.testCaseId) ??
+    `test-${index + 1}`
+  );
+};
 
 const getUniqueProjectTestGroups = (
   tests: TestDashboardBasicListItem[]
@@ -179,13 +227,54 @@ const getUniqueProjectTestGroups = (
   });
 };
 
+const getScenarioSuffixKey = (test: TestDashboardBasicListItem): string | undefined => {
+  const title = getProjectTestName(test);
+  if (!title) return undefined;
+
+  const groupKey = toOptionalIdText(test.groupId ?? test.testGroupId) ?? title;
+  return `${groupKey}:${title}`;
+};
+
+const getScenarioSuffixKeys = (tests: TestDashboardBasicListItem[]): Set<string> => {
+  const scenarioNamesByTitle = new Map<string, Set<string>>();
+
+  tests.forEach((test) => {
+    const key = getScenarioSuffixKey(test);
+    const scenarioGuideName = getScenarioGuideName(test);
+    if (!key || !scenarioGuideName) return;
+
+    const names = scenarioNamesByTitle.get(key) ?? new Set<string>();
+    names.add(scenarioGuideName);
+    scenarioNamesByTitle.set(key, names);
+  });
+
+  return new Set(
+    Array.from(scenarioNamesByTitle.entries())
+      .filter(([, names]) => names.size > 1)
+      .map(([key]) => key)
+  );
+};
+
+const buildProjectTestTitle = (
+  test: TestDashboardBasicListItem,
+  shouldAppendScenarioGuideName: boolean
+): string => {
+  const title = getProjectTestName(test) ?? "";
+  const scenarioGuideName = getScenarioGuideName(test);
+  if (!shouldAppendScenarioGuideName || !title || !scenarioGuideName) return title;
+  if (title.endsWith(`(${scenarioGuideName})`)) return title;
+
+  return `${title} (${scenarioGuideName})`;
+};
+
 const mapProjectTest = (
   projectId: number,
   test: TestDashboardBasicListItem,
-  index: number
+  index: number,
+  titleOverride?: string
 ): TestCodeItem => {
   const id = toOptionalText(test.testCaseId) ?? toOptionalText(test.id);
-  const title = getProjectTestName(test) ?? '';
+  const title = titleOverride ?? getProjectTestName(test) ?? '';
   const key = id ?? `${index}`;
   const groupId = toNumericIdText(test.groupId ?? test.testGroupId);
 
@@ -203,6 +292,23 @@ const mapProjectTest = (
     testerProfileImage: toOptionalText(test.testerProfileImage),
     date: formatCompletedAt(test.completedAt ?? test.executedAt ?? test.createdAt),
   };
+};
+
+const mapProjectTests = (
+  projectId: number,
+  tests: TestDashboardBasicListItem[]
+): TestCodeItem[] => {
+  const uniqueTests = getUniqueProjectTestGroups(tests);
+  const scenarioSuffixKeys = getScenarioSuffixKeys(uniqueTests);
+
+  return uniqueTests.map((test, index) =>
+    mapProjectTest(
+      projectId,
+      test,
+      index,
+      buildProjectTestTitle(test, scenarioSuffixKeys.has(getScenarioSuffixKey(test) ?? ""))
+    )
+  );
 };
 
 const formatTestedText = (
@@ -370,9 +476,7 @@ const resolveProjectMetadata = async (
       fetchProjectGlobalTestStats(project.id),
       fetchProjectDailyAvgTestStats(project.id),
     ]);
-    tests = getUniqueProjectTestGroups(testResponses).map((test, index) =>
-      mapProjectTest(project.id, test, index)
-    );
+    tests = mapProjectTests(project.id, testResponses);
     const {
       passCount,
       totalCount: testTotalCount,
