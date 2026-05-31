@@ -77,19 +77,27 @@ const filterDashboardResults = (
   return filterResultsByGroupName(results, String(groupName ?? ''));
 };
 
-const resolveTestCaseIdByGroupId = async (
+type DashboardBasicIds = {
+  testCaseId?: string | number;
+  executionId?: string | number;
+};
+
+const resolveDashboardBasicIdsByGroupId = async (
   projectId: string | number,
   groupId?: string | number
-): Promise<string | undefined> => {
-  if (!groupId) return undefined;
+): Promise<DashboardBasicIds> => {
+  if (!groupId) return {};
 
-  const tests = await fetchTestDashboardBasicList(projectId);
+  const tests = await fetchTestDashboardBasicList(projectId, groupId);
   const target = tests.find((test) => {
     const testGroupId = test.groupId ?? test.testGroupId;
     return String(testGroupId ?? '') === String(groupId);
-  });
+  }) ?? tests[0];
 
-  return target?.testCaseId ?? undefined;
+  return {
+    testCaseId: toParam(target?.testCaseId),
+    executionId: toParam(target?.executionId),
+  };
 };
 
 type TEDashBoardContentProps = {
@@ -167,20 +175,18 @@ export default function TEDashBoardController() {
         toParam(searchParams.get('codeId')),
       executionId:
         toParam(routeState.executionId) ??
-        toParam(searchParams.get('executionId')) ??
-        toParam(routeState.groupId) ??
-        toParam(routeState.testGroupId) ??
-        toParam(searchParams.get('groupId')) ??
-        toParam(searchParams.get('testGroupId')),
+        toParam(searchParams.get('executionId')),
     };
   }, [location.search, location.state]);
 
   const [data, setData] = useState<TEDashBoardData>(() => getTEDashBoardData());
+  const [resolvedExecutionId, setResolvedExecutionId] = useState<string | number | undefined>();
 
   useEffect(() => {
     const { projectId, groupId, groupName, testCaseId, executionId } = dashboardParams;
     if (!projectId || (!groupId && !groupName)) {
       setData(getTEDashBoardData());
+      setResolvedExecutionId(undefined);
       return;
     }
 
@@ -188,6 +194,7 @@ export default function TEDashBoardController() {
 
     const loadDashboardGroup = async () => {
       setData(getTEDashBoardData());
+      setResolvedExecutionId(executionId);
 
       try {
         if (!groupId) {
@@ -207,6 +214,7 @@ export default function TEDashBoardController() {
 
           const resolvedGroupName = String(groupName ?? '');
           const filteredResults = filterDashboardResults(results, resolvedGroupName, testCaseId);
+          setResolvedExecutionId(executionId);
 
           setData(
             getTEDashBoardData({
@@ -218,23 +226,40 @@ export default function TEDashBoardController() {
           return;
         }
 
-        const statsExecutionId = executionId ?? groupId;
+        const isSameAsGroupId = String(executionId ?? '') === String(groupId ?? '');
+        const resolvedBasicIds: DashboardBasicIds =
+          !executionId || !testCaseId || isSameAsGroupId
+            ? await resolveDashboardBasicIdsByGroupId(projectId, groupId).catch((error) => {
+                console.error('[TEDashBoard] 테스트 기본 식별자 조회 실패:', error);
+                return {};
+              })
+            : {};
+        if (cancelled) return;
+
+        const shouldUseBasicExecutionId =
+          isSameAsGroupId &&
+          resolvedBasicIds.executionId &&
+          String(resolvedBasicIds.executionId) !== String(groupId);
+        const statsExecutionId = shouldUseBasicExecutionId
+          ? resolvedBasicIds.executionId
+          : executionId ?? resolvedBasicIds.executionId;
         const [group, results, stats] = await Promise.all([
           fetchTestDashboardGroup(projectId, groupId),
           fetchProjectTestSummaryList(projectId, groupId).catch((error) => {
             console.error('[TEDashBoard] 테스트 코드 목록 조회 실패:', error);
             return [];
           }),
-          fetchTestExecutionStats(projectId, statsExecutionId).catch((error) => {
-            console.error('[TEDashBoard] 테스트 통계 조회 실패:', error);
-            return null;
-          }),
+          statsExecutionId
+            ? fetchTestExecutionStats(projectId, statsExecutionId).catch((error) => {
+                console.error('[TEDashBoard] 테스트 통계 조회 실패:', error);
+                return null;
+              })
+            : Promise.resolve(null),
         ]);
         if (cancelled) return;
 
-        const resolvedTestCaseId =
-          testCaseId ?? (await resolveTestCaseIdByGroupId(projectId, groupId));
-        if (cancelled) return;
+        const resolvedTestCaseId = testCaseId ?? resolvedBasicIds.testCaseId;
+        setResolvedExecutionId(statsExecutionId);
 
         setData(
           getTEDashBoardData({
@@ -311,14 +336,16 @@ export default function TEDashBoardController() {
   };
 
   const handleDownloadTestPlan = async () => {
-    const { projectId, executionId } = dashboardParams;
+    const { projectId } = dashboardParams;
+    const executionId = resolvedExecutionId ?? dashboardParams.executionId;
     if (!projectId || !executionId) return;
 
     await downloadTestPlan(projectId, executionId);
   };
 
   const handleDownloadTestReport = async () => {
-    const { projectId, executionId } = dashboardParams;
+    const { projectId } = dashboardParams;
+    const executionId = resolvedExecutionId ?? dashboardParams.executionId;
     if (!projectId || !executionId) return;
 
     const downloadData = await downloadTestDashboardReport(projectId, executionId);

@@ -1,6 +1,7 @@
 import { useUserRqInputModel } from './UserRqInputModel';
 import UserRqInputView from './UserRqInputView';
 import { useNavigate } from 'react-router-dom';
+import { fetchTestDashboardBasicList } from '../../api/testDashboard';
 
 export default function UserRqInputController() {
   const model = useUserRqInputModel();
@@ -23,16 +24,38 @@ export default function UserRqInputController() {
 //   };
 
   // '대시보드로 이동' 버튼 클릭 시
-  const handleGoToDashboard = () => {
+  const handleGoToDashboard = async () => {
     console.log('대시보드로 이동');
     model.setIsTestProcessModalOpen(false);
 
     if (model.targetProjectId && model.dashboardGroupId) {
+      const projectId = String(model.targetProjectId);
+      const executionId = String(model.dashboardGroupId);
+      let groupId = executionId;
+      let groupName: string | undefined;
+      let testCaseId: string | undefined;
+
+      try {
+        const tests = await fetchTestDashboardBasicList(projectId);
+        const target =
+          tests.find((test) => String(test.executionId ?? '') === executionId) ??
+          tests.find((test) => String(test.groupId ?? test.testGroupId ?? '') === executionId);
+        const resolvedGroupId = target?.groupId ?? target?.testGroupId;
+
+        if (resolvedGroupId) groupId = String(resolvedGroupId);
+        if (target?.testGroupName) groupName = target.testGroupName;
+        if (target?.testCaseId) testCaseId = target.testCaseId;
+      } catch (error) {
+        console.error('[UserRqInput] 대시보드 식별자 조회 실패:', error);
+      }
+
       const params = new URLSearchParams({
-        projectId: String(model.targetProjectId),
-        groupId: String(model.dashboardGroupId),
-        executionId: String(model.dashboardGroupId),
+        projectId,
+        groupId,
+        executionId,
       });
+      if (groupName) params.set('groupName', groupName);
+      if (testCaseId) params.set('testCaseId', testCaseId);
       navigate(`/test-dashboard?${params.toString()}`);
       return;
     }
