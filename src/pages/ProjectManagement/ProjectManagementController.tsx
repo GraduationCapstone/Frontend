@@ -14,7 +14,7 @@ export default function ProjectManagementController() {
   const goSettings = (projectId: string) => nav(`/project-management/${projectId}/settings`);
   const goTestDashboard = (projectId: string, test: TestCodeItem) => {
     const groupId = test.groupId;
-    const executionId = test.executionId ?? groupId;
+    const executionId = test.executionId;
     const testCaseId = test.id || test.codeId;
     const params = new URLSearchParams({ projectId });
 

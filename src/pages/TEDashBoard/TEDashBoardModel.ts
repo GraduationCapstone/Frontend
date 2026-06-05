@@ -56,6 +56,7 @@ const mapResultToTestCodeItem = (
 ): TestCodeItem => {
   const id = toOptionalText(result.testCaseId) ?? toOptionalText(result.id);
   const title =
+    toOptionalText(result.CaseName) ??
     toOptionalText(result.testCodeName) ??
     toOptionalText(result.testCaseName) ??
     toOptionalText(result.testGroupName) ??
@@ -68,6 +69,8 @@ const mapResultToTestCodeItem = (
     title,
     status: normalizeStatus(result.status),
     resultId: toNumericIdText(result.resultId ?? result.testResultId ?? result.id),
+    groupId: toNumericIdText(result.groupId ?? result.testGroupId),
+    executionId: toNumericIdText(result.executionId),
     passRatio: toOptionalText(result.passRatio),
     duration: toOptionalText(result.duration) ?? toOptionalText(result.testDuration),
     user: toOptionalText(result.tester) ?? toOptionalText(result.testerName),

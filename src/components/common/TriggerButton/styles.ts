@@ -9,7 +9,7 @@ const STATE_ROOT_COMMON = {
   default: "text-grayscale-black",
   hover: "hover:bg-[rgba(31,35,40,0.05)] hover:text-grayscale-black",
   pressing: "active:bg-[rgba(31,35,40,0.10)]",
-  clicked: "focus:bg-grayscale-white focus:text-grayscale-black",
+  clicked: "focus:bg-transparent focus:text-grayscale-black",
 } as const;
 
 const PRESET: Record<SelectTriggerVariant, { root: string; label: string }> = {

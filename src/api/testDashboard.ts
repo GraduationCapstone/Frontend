@@ -25,6 +25,7 @@ export interface TestDashboardBasicListItem {
   executionId?: IdParam | null;
   testCaseName?: string | null;
   testCodeName?: string | null;
+  CaseName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
   passRatio?: string | null;
@@ -50,6 +51,7 @@ export interface ProjectTestSummaryListItem {
   executionId?: IdParam | null;
   testCaseName?: string | null;
   testCodeName?: string | null;
+  CaseName?: string | null;
   testGroupName?: string | null;
   status?: string | null;
   passRatio: string | null;
@@ -91,7 +93,7 @@ export interface UpdateTestDashboardGroupNameRequest {
 }
 
 export interface UpdateTestDashboardCodeNameRequest {
-  newTestCodeName: string;
+  CaseName: string;
 }
 
 export interface TestDashboardResultFullViewResponse {
@@ -218,9 +220,9 @@ export const updateTestDashboardGroupName = async (
 export const updateTestDashboardCodeName = async (
   projectId: IdParam,
   resultId: IdParam,
-  newTestCodeName: string
+  CaseName: string
 ): Promise<void> => {
-  const body: UpdateTestDashboardCodeNameRequest = { newTestCodeName };
+  const body: UpdateTestDashboardCodeNameRequest = { CaseName };
   await axiosInstance.patch(`/api/projects/${projectId}/tests/results/${resultId}/name`, body);
 };
 
