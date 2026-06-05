@@ -27,7 +27,7 @@ import {
   fetchProjectDailyAvgTestStats,
   fetchProjectGlobalTestStats,
   fetchTestDashboardBasicList,
-  updateTestDashboardGroupName,
+  updateTestDashboardCodeName,
 } from "../../api/testDashboard";
 import { fetchUserMe } from "../../api/user";
 
@@ -192,10 +192,11 @@ const getScenarioGuideName = (test: TestDashboardBasicListItem): string | undefi
 
 type ProjectTestNameSource = Pick<
   TestDashboardBasicListItem,
-  "testCaseName" | "testCodeName" | "testGroupName"
+  "CaseName" | "testCaseName" | "testCodeName" | "testGroupName"
 >;
 
 const getProjectTestName = (test: ProjectTestNameSource): string | undefined =>
+  toOptionalText(test.CaseName) ??
   toOptionalText(test.testGroupName) ??
   toOptionalText(test.testCodeName) ??
   toOptionalText(test.testCaseName);
@@ -283,6 +284,7 @@ const mapProjectTest = (
     codeId: id ? formatCodeId(id) : '',
     title,
     status: normalizeStatus(test.status),
+    resultId: toNumericIdText(test.resultId ?? test.testResultId ?? test.id),
     projectId: String(projectId),
     groupId,
     executionId: toOptionalIdText(test.executionId),
@@ -663,16 +665,16 @@ export default function useProjectManagementModel() {
   const renameTestGroup = async (projectId: string, testId: string, nextTitle: string) => {
     const detail = detailsById[projectId];
     const target = detail?.tests.find((test) => test.id === testId);
-    const groupId = target?.groupId;
+    const resultId = target?.resultId;
 
-    if (!detail || !target || !groupId) {
+    if (!detail || !target || !resultId) {
       const message =
-        "[ProjectManagement] 테스트 그룹명 수정에 필요한 숫자 groupId가 없습니다. /tests/list/basic 응답에 groupId를 내려줘야 합니다.";
+        "[ProjectManagement] 테스트명 수정에 필요한 숫자 resultId가 없습니다. /tests/list/basic 응답에 resultId를 내려줘야 합니다.";
       console.error(message, { projectId, testId, target });
       throw new Error(message);
     }
 
-    await updateTestDashboardGroupName(projectId, groupId, nextTitle);
+    await updateTestDashboardCodeName(projectId, resultId, nextTitle);
     setDetailsById((prev) => {
       const cur = prev[projectId];
       if (!cur) return prev;

@@ -56,6 +56,7 @@ const mapResultToTestCodeItem = (
 ): TestCodeItem => {
   const id = toOptionalText(result.testCaseId) ?? toOptionalText(result.id);
   const title =
+    toOptionalText(result.CaseName) ??
     toOptionalText(result.testCodeName) ??
     toOptionalText(result.testCaseName) ??
     toOptionalText(result.testGroupName) ??
