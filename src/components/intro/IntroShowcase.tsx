@@ -66,7 +66,7 @@ export default function IntroShowcase({ showLoginButton = false }: IntroShowcase
 
         if (!image.reveal || shouldReduceMotion) {
           return (
-            <section key={image.src} className="relative w-full">
+            <section key={image.src} className="relative w-full snap-start snap-always">
               {content}
             </section>
           );
@@ -75,14 +75,14 @@ export default function IntroShowcase({ showLoginButton = false }: IntroShowcase
         return (
           <motion.section
             key={image.src}
-            className="relative w-full"
-            initial={{ opacity: 0, y: 180, scale: 0.78 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            className="relative w-full snap-start snap-always"
+            initial={{ opacity: 0, y: 140, scale: 0.82 }}
+            whileInView={{ opacity: 1, y: 0, scale: [0.82, 1.045, 1] }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{
               opacity: { duration: 0.28, ease: "easeOut" },
-              y: { type: "spring", stiffness: 180, damping: 18, mass: 0.9 },
-              scale: { type: "spring", stiffness: 190, damping: 15, mass: 0.9 },
+              y: { duration: 0.78, ease: [0.16, 1, 0.3, 1] },
+              scale: { duration: 0.92, times: [0, 0.72, 1], ease: ["easeOut", "easeInOut"] },
             }}
             style={{ transformOrigin: "center bottom" }}
           >

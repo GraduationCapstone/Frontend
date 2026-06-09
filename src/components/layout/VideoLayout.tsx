@@ -45,7 +45,7 @@ export default function VideoLayout({
       </div>
       <div className={`pointer-events-none fixed left-0 top-0 z-0 h-[1080px] w-screen ${overlay}`} />
       <div
-        className={`relative z-10 flex h-screen w-full flex-col items-center justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain pt-16 ${containerClassName}`}
+        className={`relative z-10 flex h-screen w-full snap-y snap-mandatory flex-col items-center justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain scroll-pt-[160px] pt-16 ${containerClassName}`}
       >
         {children}
       </div>
