@@ -18,13 +18,13 @@ export default function App() {
       {/* 1. Public Routes (레이아웃 미적용: 렌딩, 로그인) */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/intro" element={<Intro />} />
         <Route path="/oauth2/redirect" element={<OAuthRedirect />} />
 
-        {/* 2. Protected Routes (MainLayout 적용: 홈, 인트로, 새 프로젝트) */}
+        {/* 2. Protected Routes (MainLayout 적용: 홈, 새 프로젝트) */}
         <Route element={<MainLayout />}>
           {/* Outlet 자리에 들어갈 자식 페이지들 */}
           <Route path="/home" element={<Home />} />
-          <Route path="/intro" element={<Intro />} />
           <Route path="/new-project" element={<NewProject />} />
           {/* [추가] 테스트 파일 선택 페이지 라우트 */}
           <Route path="/test-file-select" element={<TestFileSelect />} />
