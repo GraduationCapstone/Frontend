@@ -1,7 +1,7 @@
 // src/components/layout/Header.tsx
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import LogoTypo from '../../assets/logo/Logo_Typo.svg';
+import LogoTypo from '../../assets/logo/Logo_Typo.png';
 import ProfileIcon from '../common/ProfileIcon';
 import PersonIcon from '../../assets/icons/person.svg?react';
 import Tab from "../common/Tab";
@@ -70,7 +70,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
 
     const isProjectManagementActive = location.pathname.startsWith("/project-management");
 
-    const isServiceIntroActive = location.pathname.startsWith("/Intro");
+    const isServiceIntroActive = location.pathname.startsWith("/intro");
 
   return (
     <header
@@ -105,7 +105,7 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
             <Tab 
               label="서비스 소개" 
               isSelected={isServiceIntroActive} 
-              onClick={() => navigate('/Intro')} // 서비스 소개 페이지로 이동
+              onClick={() => navigate('/intro')} // 서비스 소개 페이지로 이동
             />
           </nav>
 
@@ -123,14 +123,12 @@ export default function Header({ isLoggedIn = false, variant = 'default', onProf
         ) : (
         <button 
           onClick={() => window.location.href = '/login'}
-          /* hover:bg-white -> hover:bg-grayscale-white (시스템 컬러 사용) */
-          className="pl-3 pr-4 py-2 rounded-lg flex justify-center items-center gap-2 hover:bg-grayscale-white/10 transition-colors"
+          className="pl-3 pr-4 py-2 rounded-lg flex justify-center items-center gap-2 text-grayscale-black hover:bg-grayscale-gy100 active:bg-grayscale-gy200 focus:text-primary-sg600 transition-colors"
         >
           <div className="w-6 h-6 flex items-center justify-center">
-             <PersonIcon className="w-4 h-4 text-grayscale-white fill-current [&_*]:fill-current" />
+             <PersonIcon className="w-4 h-4 fill-current [&_*]:fill-current" />
           </div>
-          {/* text-sm ... -> text-h5-ko (타이포그래피 토큰 적용) */}
-          <span className="text-center text-grayscale-white text-h4-ko">
+          <span className="text-center text-h4-ko">
             로그인
           </span>
         </button>

@@ -12,12 +12,12 @@ interface VideoLayoutProps {
 
 const VARIANT_STYLES: Record<VideoLayoutVariant, { root: string; overlay: string }> = {
   dark: {
-    root: "bg-linear-to-b to-neutral-800/0",
-    overlay: "bg-linear-to-b from-grayscale-black",
+    root: "",
+    overlay: "bg-gradient-to-b from-grayscale-white to-grayscale-white/0",
   },
   light: {
-    root: "bg-linear-to-b to-white/0",
-    overlay: "bg-gradient-to-b from-grayscale-white to-white/0",
+    root: "",
+    overlay: "bg-gradient-to-b from-grayscale-white to-grayscale-white/0",
   },
 };
 
@@ -31,11 +31,11 @@ export default function VideoLayout({
 
   return (
     <div
-      className={`relative w-full min-h-screen overflow-hidden overscroll-none ${root} ${className}`}
+      className={`relative h-screen w-full overflow-hidden overscroll-none ${root} ${className}`}
     >
-      <div className="absolute inset-0 -z-10">
+      <div className="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden">
         <video
-          className="h-full w-full object-cover"
+          className="h-screen w-screen object-cover"
           src={BackgroundImg}
           autoPlay
           loop
@@ -43,9 +43,9 @@ export default function VideoLayout({
           playsInline
         />
       </div>
-      <div className={`pointer-events-none absolute inset-0 -z-10 ${overlay}`} />
+      <div className={`pointer-events-none fixed left-0 top-0 z-0 h-[1080px] w-screen ${overlay}`} />
       <div
-        className={`self-stretch w-full pt-16 relative flex min-h-screen flex-col items-center justify-start overflow-hidden ${containerClassName}`}
+        className={`relative z-10 flex h-screen w-full flex-col items-center justify-start overflow-y-auto overflow-x-hidden overscroll-y-contain pt-16 ${containerClassName}`}
       >
         {children}
       </div>
