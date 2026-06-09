@@ -1,7 +1,7 @@
 // src/components/layout/Header.tsx
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import LogoTypo from '../../assets/logo/Logo_Typo.svg';
+import LogoTypo from '../../assets/logo/Logo_Typo.png';
 import ProfileIcon from '../common/ProfileIcon';
 import PersonIcon from '../../assets/icons/person.svg?react';
 import Tab from "../common/Tab";
